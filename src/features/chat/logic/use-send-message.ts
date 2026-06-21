@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 import { uuid } from '@/lib/uuid';
-import { useChatStore } from '@/pages/chat/logic/chat-store';
-import { useChatStream } from '@/pages/chat/logic/use-chat-stream';
-import { generateChatTitle } from '@/pages/chat/logic/generate-chat-title';
-import { chatRepository } from '@/pages/chat/logic/chat-repository-instance';
+import { useChatStore } from '@/features/chat/logic/chat-store';
+import { useChatStream } from '@/features/chat/logic/use-chat-stream';
+import { generateChatTitle } from '@/features/chat/logic/generate-chat-title';
+import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
 import type { OutgoingMessage } from '@/types/chat';
 
 export function useSendMessage() {

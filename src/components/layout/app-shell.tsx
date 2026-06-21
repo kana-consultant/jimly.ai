@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sidebar } from '@/pages/chat/components/sidebar';
-import { ChatThread } from '@/pages/chat/components/chat-thread';
-import { ChatInput } from '@/pages/chat/components/chat-input';
+import { Sidebar } from '@/features/chat/components/sidebar';
+import { ChatThread } from '@/features/chat/components/chat-thread';
+import { ChatInput } from '@/features/chat/components/chat-input';
 
 export function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

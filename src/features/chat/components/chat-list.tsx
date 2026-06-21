@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { useChatSessions } from '@/pages/chat/logic/use-chat-sessions';
-import { filterChats } from '@/pages/chat/logic/use-filtered-chats';
-import { SearchBar } from '@/pages/chat/components/search-bar';
-import { PinnedSection } from '@/pages/chat/components/pinned-section';
-import { HistorySection } from '@/pages/chat/components/history-section';
-import { DeleteChatDialog } from '@/pages/chat/components/delete-chat-dialog';
+import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
+import { filterChats } from '@/features/chat/logic/use-filtered-chats';
+import { SearchBar } from '@/features/chat/components/search-bar';
+import { PinnedSection } from '@/features/chat/components/pinned-section';
+import { HistorySection } from '@/features/chat/components/history-section';
+import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog';
 import { Button } from '@/components/ui/button';
 
 export function ChatList() {

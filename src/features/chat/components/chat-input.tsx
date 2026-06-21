@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useSendMessage } from '@/pages/chat/logic/use-send-message';
+import { useSendMessage } from '@/features/chat/logic/use-send-message';
 
 export function ChatInput() {
   const [value, setValue] = useState('');
