@@ -1,6 +1,6 @@
 ---
 import '@/styles/global.css';
-import { ChatSidebar } from '@/pages/chat/components/chat-sidebar';
+import { Sidebar } from '@/pages/chat/components/sidebar';
 import { ChatThread } from '@/pages/chat/components/chat-thread';
 import { ChatInput } from '@/pages/chat/components/chat-input';
 ---
@@ -13,7 +13,7 @@ import { ChatInput } from '@/pages/chat/components/chat-input';
   </head>
   <body>
     <main class="flex h-screen">
-      <ChatSidebar client:load />
+      <Sidebar client:load />
       <div class="flex flex-1 flex-col">
         <div class="flex-1 overflow-y-auto">
           <ChatThread client:load />

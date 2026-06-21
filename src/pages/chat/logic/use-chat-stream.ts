@@ -30,7 +30,14 @@ export function useChatStream() {
       setStreaming(true);
       try {
         if (isNewChat) {
-          const session = { id: chatId, userId: '', title: generateChatTitle(content), createdAt: now, updatedAt: now };
+          const session = {
+            id: chatId,
+            userId: '',
+            title: generateChatTitle(content),
+            pinned: false,
+            createdAt: now,
+            updatedAt: now,
+          };
           addSession(session);
           await chatRepository.createSession(session);
         } else {

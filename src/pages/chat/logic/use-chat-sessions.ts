@@ -9,6 +9,7 @@ export function useChatSessions() {
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const setMessages = useChatStore((state) => state.setMessages);
   const removeSession = useChatStore((state) => state.removeSession);
+  const togglePinSession = useChatStore((state) => state.togglePinSession);
 
   const selectChat = useCallback(
     async (chatId: string) => {
@@ -37,5 +38,15 @@ export function useChatSessions() {
     [activeChatId, removeSession, setActiveChat],
   );
 
-  return { sessions, activeChatId, selectChat, newChat, deleteChat };
+  const togglePin = useCallback(
+    async (chatId: string) => {
+      const session = sessions.find((s) => s.id === chatId);
+      if (!session) return;
+      togglePinSession(chatId);
+      await chatRepository.updateSession(chatId, { pinned: !session.pinned });
+    },
+    [sessions, togglePinSession],
+  );
+
+  return { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin };
 }

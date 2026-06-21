@@ -10,6 +10,7 @@ interface ChatState {
   setSessions: (sessions: ChatSession[]) => void;
   addSession: (session: ChatSession) => void;
   removeSession: (chatId: string) => void;
+  togglePinSession: (chatId: string) => void;
   setMessages: (chatId: string, messages: ChatMessage[]) => void;
   addMessage: (chatId: string, message: ChatMessage) => void;
   appendToLastMessage: (chatId: string, chunk: string) => void;
@@ -37,6 +38,11 @@ export const useChatStore = create<ChatState>((set) => ({
         messagesByChatId,
       };
     }),
+
+  togglePinSession: (chatId) =>
+    set((state) => ({
+      sessions: state.sessions.map((s) => (s.id === chatId ? { ...s, pinned: !s.pinned } : s)),
+    })),
 
   setMessages: (chatId, messages) =>
     set((state) => ({
