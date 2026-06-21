@@ -3,9 +3,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useChatStream } from '@/pages/chat/logic/use-chat-stream';
 
-export function ChatInput({ chatId }: { chatId: string }) {
+export function ChatInput() {
   const [value, setValue] = useState('');
-  const { isStreaming, sendMessage } = useChatStream(chatId);
+  const { isStreaming, sendMessage } = useChatStream();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
