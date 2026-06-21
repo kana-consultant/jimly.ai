@@ -7,6 +7,7 @@ interface SessionRow {
   id: string;
   user_id: string;
   title: string;
+  pinned: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -20,7 +21,14 @@ interface MessageRow {
 }
 
 function toSession(row: SessionRow): ChatSession {
-  return { id: row.id, userId: row.user_id, title: row.title, createdAt: row.created_at, updatedAt: row.updated_at };
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    pinned: row.pinned,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 function toMessage(row: MessageRow): ChatMessage {
@@ -45,13 +53,17 @@ export function createSupabaseChatRepository(supabase: SupabaseClient): ChatRepo
         id: session.id,
         user_id: userId,
         title: session.title,
+        pinned: session.pinned,
         created_at: session.createdAt,
         updated_at: session.updatedAt,
       });
     },
 
     async updateSession(id, patch) {
-      await supabase.from('chat_sessions').update({ updated_at: patch.updatedAt }).eq('id', id);
+      const update: { updated_at?: string; pinned?: boolean } = {};
+      if (patch.updatedAt !== undefined) update.updated_at = patch.updatedAt;
+      if (patch.pinned !== undefined) update.pinned = patch.pinned;
+      await supabase.from('chat_sessions').update(update).eq('id', id);
     },
 
     async deleteSession(id) {

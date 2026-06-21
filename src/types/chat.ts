@@ -12,6 +12,7 @@ export interface ChatSession {
   id: string;
   userId: string;
   title: string;
+  pinned: boolean;
   createdAt: string;
   updatedAt: string;
 }
