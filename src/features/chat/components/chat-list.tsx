@@ -6,12 +6,16 @@ import { SearchBar } from '@/features/chat/components/search-bar';
 import { PinnedSection } from '@/features/chat/components/pinned-section';
 import { HistorySection } from '@/features/chat/components/history-section';
 import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog';
+import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog';
 import { cn } from '@/lib/utils';
 
 export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
-  const { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin } = useChatSessions();
+  const { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat } = useChatSessions();
   const [query, setQuery] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+
+  const renamingSession = sessions.find((s) => s.id === renamingId) ?? null;
 
   const { pinned, history } = useMemo(() => filterChats(sessions, query), [sessions, query]);
 
@@ -51,6 +55,7 @@ export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
           onSelect={selectChat}
           onTogglePin={togglePin}
           onDelete={setPendingDeleteId}
+          onRename={setRenamingId}
         />
         <HistorySection
           sessions={history}
@@ -58,6 +63,7 @@ export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
           onSelect={selectChat}
           onTogglePin={togglePin}
           onDelete={setPendingDeleteId}
+          onRename={setRenamingId}
         />
       </div>
       <DeleteChatDialog
@@ -68,6 +74,17 @@ export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
           setPendingDeleteId(null);
         }}
       />
+      {renamingSession && (
+        <RenameChatDialog
+          open={renamingId !== null}
+          initialTitle={renamingSession.title}
+          onOpenChange={(open) => !open && setRenamingId(null)}
+          onConfirm={(title) => {
+            renameChat(renamingSession.id, title);
+            setRenamingId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

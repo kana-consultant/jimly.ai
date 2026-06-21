@@ -18,7 +18,7 @@ export function ChatThread() {
 
   if (!activeChatId) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-sm text-muted-foreground">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-3 py-4 text-center text-sm text-muted-foreground sm:px-4">
         <p>Start a new chat</p>
         <div className="w-full max-w-sm">
           <SuggestedTopics onSelect={sendMessage} />
@@ -28,7 +28,7 @@ export function ChatThread() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3 px-3 py-4 sm:px-4">
       {messages.map((message) => (
         <ChatBubble key={message.id} message={message} />
       ))}

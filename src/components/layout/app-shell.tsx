@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { ChatSidebar } from '@/features/chat/components/sidebar';
+import { ChatHeader } from '@/features/chat/components/chat-header';
 import { ChatThread } from '@/features/chat/components/chat-thread';
 import { ChatInput } from '@/features/chat/components/chat-input';
 
 export function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   return (
     <div className="flex h-screen flex-col">
@@ -38,10 +41,30 @@ export function AppShell() {
               <Menu />
             </Button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <ChatThread />
+
+          <div className="relative flex flex-1 flex-col overflow-hidden">
+            <ChatHeader />
+
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-x-0 top-12 z-10 h-6 bg-gradient-to-b from-background to-transparent transition-opacity duration-200',
+                scrolled ? 'opacity-100' : 'opacity-0',
+              )}
+            />
+
+            <div
+              className="flex-1 overflow-y-auto"
+              onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 4)}
+            >
+              <div className="mx-auto w-full max-w-2xl">
+                <ChatThread />
+              </div>
+            </div>
           </div>
-          <ChatInput />
+
+          <div className="mx-auto w-full max-w-2xl">
+            <ChatInput />
+          </div>
         </div>
       </div>
 

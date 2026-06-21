@@ -60,9 +60,10 @@ export function createSupabaseChatRepository(supabase: SupabaseClient): ChatRepo
     },
 
     async updateSession(id, patch) {
-      const update: { updated_at?: string; pinned?: boolean } = {};
+      const update: { updated_at?: string; pinned?: boolean; title?: string } = {};
       if (patch.updatedAt !== undefined) update.updated_at = patch.updatedAt;
       if (patch.pinned !== undefined) update.pinned = patch.pinned;
+      if (patch.title !== undefined) update.title = patch.title;
       await supabase.from('chat_sessions').update(update).eq('id', id);
     },
 
