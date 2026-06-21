@@ -16,3 +16,11 @@ export interface ChatSession {
   createdAt: string;
   updatedAt: string;
 }
+
+/** userId set server-side via RLS; clients never know the real value. */
+export type NewChatSession = Omit<ChatSession, 'userId'>;
+
+export interface OutgoingMessage {
+  role: ChatRole;
+  content: string;
+}
