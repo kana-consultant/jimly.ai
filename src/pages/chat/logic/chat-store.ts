@@ -14,6 +14,7 @@ interface ChatState {
   setMessages: (chatId: string, messages: ChatMessage[]) => void;
   addMessage: (chatId: string, message: ChatMessage) => void;
   appendToLastMessage: (chatId: string, chunk: string) => void;
+  removeLastMessage: (chatId: string) => void;
   setStreaming: (isStreaming: boolean) => void;
 }
 
@@ -67,6 +68,18 @@ export const useChatStore = create<ChatState>((set) => ({
         messagesByChatId: {
           ...state.messagesByChatId,
           [chatId]: [...messages.slice(0, -1), updated],
+        },
+      };
+    }),
+
+  removeLastMessage: (chatId) =>
+    set((state) => {
+      const messages = state.messagesByChatId[chatId] ?? [];
+      if (messages.length === 0) return state;
+      return {
+        messagesByChatId: {
+          ...state.messagesByChatId,
+          [chatId]: messages.slice(0, -1),
         },
       };
     }),
