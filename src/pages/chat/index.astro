@@ -1,0 +1,24 @@
+---
+import '@/styles/global.css';
+import { uuid } from '@/lib/uuid';
+import { ChatThread } from '@/pages/chat/components/chat-thread';
+import { ChatInput } from '@/pages/chat/components/chat-input';
+
+const chatId = uuid();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Chat — jimly.ai</title>
+  </head>
+  <body>
+    <main class="flex h-screen flex-col">
+      <div class="flex-1 overflow-y-auto">
+        <ChatThread chatId={chatId} client:load />
+      </div>
+      <ChatInput chatId={chatId} client:load />
+    </main>
+  </body>
+</html>
