@@ -16,7 +16,7 @@ export function ChatInput() {
   }
 
   return (
-    <div className="border-t p-4">
+    <div className="border-t px-3 py-3 sm:px-4 sm:py-4">
       {error && (
         <div className="mb-2 flex items-center justify-between gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
           <span>{error}</span>

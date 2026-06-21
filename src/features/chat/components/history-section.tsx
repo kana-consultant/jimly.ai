@@ -8,12 +8,14 @@ export function HistorySection({
   onSelect,
   onTogglePin,
   onDelete,
+  onRename,
 }: {
   sessions: ChatSession[];
   activeChatId: string | null;
   onSelect: (chatId: string) => void;
   onTogglePin: (chatId: string) => void;
   onDelete: (chatId: string) => void;
+  onRename: (chatId: string) => void;
 }) {
   if (sessions.length === 0) return null;
 
@@ -31,6 +33,7 @@ export function HistorySection({
           onSelect={() => onSelect(session.id)}
           onTogglePin={() => onTogglePin(session.id)}
           onDelete={() => onDelete(session.id)}
+          onRename={() => onRename(session.id)}
         />
       ))}
     </div>

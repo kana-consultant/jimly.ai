@@ -10,6 +10,7 @@ export function useChatSessions() {
   const setMessages = useChatStore((state) => state.setMessages);
   const removeSession = useChatStore((state) => state.removeSession);
   const togglePinSession = useChatStore((state) => state.togglePinSession);
+  const renameSession = useChatStore((state) => state.renameSession);
 
   const selectChat = useCallback(
     async (chatId: string) => {
@@ -48,5 +49,13 @@ export function useChatSessions() {
     [sessions, togglePinSession],
   );
 
-  return { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin };
+  const renameChat = useCallback(
+    async (chatId: string, title: string) => {
+      renameSession(chatId, title);
+      await chatRepository.updateSession(chatId, { title });
+    },
+    [renameSession],
+  );
+
+  return { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat };
 }
