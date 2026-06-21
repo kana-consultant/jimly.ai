@@ -6,8 +6,11 @@ interface ChatState {
   activeChatId: string | null;
   messagesByChatId: Record<string, ChatMessage[]>;
   isStreaming: boolean;
-  setActiveChat: (chatId: string) => void;
+  setActiveChat: (chatId: string | null) => void;
+  setSessions: (sessions: ChatSession[]) => void;
   addSession: (session: ChatSession) => void;
+  removeSession: (chatId: string) => void;
+  setMessages: (chatId: string, messages: ChatMessage[]) => void;
   addMessage: (chatId: string, message: ChatMessage) => void;
   appendToLastMessage: (chatId: string, chunk: string) => void;
   setStreaming: (isStreaming: boolean) => void;
@@ -21,8 +24,24 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setActiveChat: (chatId) => set({ activeChatId: chatId }),
 
+  setSessions: (sessions) => set({ sessions }),
+
   addSession: (session) =>
-    set((state) => ({ sessions: [...state.sessions, session] })),
+    set((state) => ({ sessions: [session, ...state.sessions] })),
+
+  removeSession: (chatId) =>
+    set((state) => {
+      const { [chatId]: _removed, ...messagesByChatId } = state.messagesByChatId;
+      return {
+        sessions: state.sessions.filter((s) => s.id !== chatId),
+        messagesByChatId,
+      };
+    }),
+
+  setMessages: (chatId, messages) =>
+    set((state) => ({
+      messagesByChatId: { ...state.messagesByChatId, [chatId]: messages },
+    })),
 
   addMessage: (chatId, message) =>
     set((state) => ({

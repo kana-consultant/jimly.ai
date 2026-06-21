@@ -1,10 +1,8 @@
 ---
 import '@/styles/global.css';
-import { uuid } from '@/lib/uuid';
+import { ChatSidebar } from '@/pages/chat/components/chat-sidebar';
 import { ChatThread } from '@/pages/chat/components/chat-thread';
 import { ChatInput } from '@/pages/chat/components/chat-input';
-
-const chatId = uuid();
 ---
 
 <html lang="en">
@@ -14,11 +12,14 @@ const chatId = uuid();
     <title>Chat — jimly.ai</title>
   </head>
   <body>
-    <main class="flex h-screen flex-col">
-      <div class="flex-1 overflow-y-auto">
-        <ChatThread chatId={chatId} client:load />
+    <main class="flex h-screen">
+      <ChatSidebar client:load />
+      <div class="flex flex-1 flex-col">
+        <div class="flex-1 overflow-y-auto">
+          <ChatThread client:load />
+        </div>
+        <ChatInput client:load />
       </div>
-      <ChatInput chatId={chatId} client:load />
     </main>
   </body>
 </html>
