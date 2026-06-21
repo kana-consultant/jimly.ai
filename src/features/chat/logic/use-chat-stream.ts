@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { uuid } from '@/lib/uuid';
-import { streamChatCompletion } from '@/pages/chat/logic/chat-api-client';
-import { useChatStore } from '@/pages/chat/logic/chat-store';
+import { streamChatCompletion } from '@/features/chat/logic/chat-api-client';
+import { useChatStore } from '@/features/chat/logic/chat-store';
 import type { ChatMessage, OutgoingMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];

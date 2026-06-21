@@ -1,7 +1,7 @@
-import { ChatListItem } from '@/pages/chat/components/chat-list-item';
+import { ChatListItem } from '@/features/chat/components/chat-list-item';
 import type { ChatSession } from '@/types/chat';
 
-export function HistorySection({
+export function PinnedSection({
   sessions,
   activeChatId,
   onSelect,
@@ -18,7 +18,7 @@ export function HistorySection({
 
   return (
     <div className="flex flex-col gap-1">
-      <p className="px-2 text-xs font-medium text-muted-foreground">History</p>
+      <p className="px-2 text-xs font-medium text-muted-foreground">Pinned</p>
       {sessions.map((session) => (
         <ChatListItem
           key={session.id}

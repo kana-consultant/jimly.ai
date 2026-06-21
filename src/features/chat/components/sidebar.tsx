@@ -1,4 +1,4 @@
-import { ChatList } from '@/pages/chat/components/chat-list';
+import { ChatList } from '@/features/chat/components/chat-list';
 import { LogoutButton } from '@/components/layout/logout-button';
 
 export function Sidebar() {

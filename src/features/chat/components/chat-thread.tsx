@@ -1,8 +1,8 @@
-import { useChatStore } from '@/pages/chat/logic/chat-store';
-import { useChatStream } from '@/pages/chat/logic/use-chat-stream';
-import { ChatBubble } from '@/pages/chat/components/chat-bubble';
-import { StreamingIndicator } from '@/pages/chat/components/streaming-indicator';
-import { SuggestedTopics } from '@/pages/chat/components/suggested-topics';
+import { useChatStore } from '@/features/chat/logic/chat-store';
+import { useChatStream } from '@/features/chat/logic/use-chat-stream';
+import { ChatBubble } from '@/features/chat/components/chat-bubble';
+import { StreamingIndicator } from '@/features/chat/components/streaming-indicator';
+import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
 import type { ChatMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];

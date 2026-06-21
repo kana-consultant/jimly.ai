@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import { useChatStore } from '@/pages/chat/logic/chat-store';
-import { chatRepository } from '@/pages/chat/logic/chat-repository-instance';
+import { useChatStore } from '@/features/chat/logic/chat-store';
+import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
 
 export function useChatSessions() {
   const sessions = useChatStore((state) => state.sessions);
