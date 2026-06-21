@@ -7,7 +7,7 @@ interface ChatRequestBody {
 }
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const userId = await getSessionUserId(supabase);
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 

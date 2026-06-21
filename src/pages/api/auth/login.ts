@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const passwordCheck = validatePassword(password);
   if (!passwordCheck.ok) return Response.json({ error: passwordCheck.error }, { status: 400 });
 
-  const supabase = createSupabaseServerClient(cookies);
+  const supabase = createSupabaseServerClient(cookies, request);
   const result = await createSupabaseAuthRepository(supabase).login({ email, password });
 
   if ('error' in result) return Response.json({ error: result.error }, { status: 401 });

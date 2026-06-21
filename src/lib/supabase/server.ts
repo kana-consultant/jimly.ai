@@ -1,14 +1,14 @@
-import { createServerClient, type CookieOptionsWithName } from '@supabase/ssr';
+import { createServerClient, parseCookieHeader, type CookieOptionsWithName } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
-export function createSupabaseServerClient(cookies: AstroCookies) {
+export function createSupabaseServerClient(cookies: AstroCookies, request: Request) {
   return createServerClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
-          return Array.from(cookies).map(([name, cookie]) => ({ name, value: cookie.value }));
+          return parseCookieHeader(request.headers.get('cookie') ?? '');
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
