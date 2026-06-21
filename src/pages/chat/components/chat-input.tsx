@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useChatStream } from '@/pages/chat/logic/use-chat-stream';
+import { useSendMessage } from '@/pages/chat/logic/use-send-message';
 
 export function ChatInput() {
   const [value, setValue] = useState('');
-  const { isStreaming, error, sendMessage, retry } = useChatStream();
+  const { isStreaming, error, sendMessage, retry } = useSendMessage();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

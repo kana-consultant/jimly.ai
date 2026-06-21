@@ -1,7 +1,4 @@
-interface OutgoingMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
+import type { OutgoingMessage } from '@/types/chat';
 
 export async function* streamChatCompletion(messages: OutgoingMessage[]): AsyncGenerator<string> {
   const res = await fetch('/api/chat', {
