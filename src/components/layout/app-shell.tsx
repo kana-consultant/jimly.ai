@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sidebar } from '@/features/chat/components/sidebar';
+import { ChatSidebar } from '@/features/chat/components/sidebar';
 import { ChatThread } from '@/features/chat/components/chat-thread';
 import { ChatInput } from '@/features/chat/components/chat-input';
 
@@ -12,14 +12,14 @@ export function AppShell() {
     <div className="flex h-screen flex-col">
       <div className="flex flex-1 overflow-hidden">
         <div className="hidden md:flex">
-          <Sidebar />
+          <ChatSidebar />
         </div>
 
         {sidebarOpen && (
           <div className="fixed inset-0 z-40 flex md:hidden">
             <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
             <div className="relative z-50 flex bg-background">
-              <Sidebar />
+              <ChatSidebar />
               <Button
                 variant="ghost"
                 size="icon"
