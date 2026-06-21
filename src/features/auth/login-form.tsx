@@ -3,6 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { loginUser } from '@/lib/auth-api-client';
 import { useAuthStore } from '@/stores/auth-store';
+import { GoogleButton } from '@/features/auth/google-button';
+import { PasswordInput } from '@/features/auth/password-input';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -44,9 +46,8 @@ export function LoginForm() {
         <label htmlFor="password" className="text-sm font-medium text-foreground">
           Password
         </label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -57,6 +58,12 @@ export function LoginForm() {
       <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Logging in...' : 'Log in'}
       </Button>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        or
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <GoogleButton />
     </form>
   );
 }
