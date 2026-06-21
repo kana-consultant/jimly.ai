@@ -3,10 +3,13 @@ import { useChatStream } from '@/pages/chat/logic/use-chat-stream';
 import { ChatBubble } from '@/pages/chat/components/chat-bubble';
 import { StreamingIndicator } from '@/pages/chat/components/streaming-indicator';
 import { SuggestedTopics } from '@/pages/chat/components/suggested-topics';
+import type { ChatMessage } from '@/types/chat';
+
+const EMPTY_MESSAGES: ChatMessage[] = [];
 
 export function ChatThread() {
   const activeChatId = useChatStore((state) => state.activeChatId);
-  const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? []);
+  const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? EMPTY_MESSAGES);
   const isStreaming = useChatStore((state) => state.isStreaming);
   const { sendMessage } = useChatStream();
 

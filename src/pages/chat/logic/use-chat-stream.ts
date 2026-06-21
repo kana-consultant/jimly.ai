@@ -2,7 +2,9 @@ import { useCallback, useState } from 'react';
 import { uuid } from '@/lib/uuid';
 import { streamChatCompletion } from '@/pages/chat/logic/chat-api-client';
 import { useChatStore } from '@/pages/chat/logic/chat-store';
-import type { OutgoingMessage } from '@/types/chat';
+import type { ChatMessage, OutgoingMessage } from '@/types/chat';
+
+const EMPTY_MESSAGES: ChatMessage[] = [];
 
 export function useChatStream() {
   const activeChatId = useChatStore((state) => state.activeChatId);
@@ -10,7 +12,7 @@ export function useChatStream() {
   const appendToLastMessage = useChatStore((state) => state.appendToLastMessage);
   const removeLastMessage = useChatStore((state) => state.removeLastMessage);
   const setStreaming = useChatStore((state) => state.setStreaming);
-  const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? []);
+  const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? EMPTY_MESSAGES);
   const isStreaming = useChatStore((state) => state.isStreaming);
   const [error, setError] = useState<string | null>(null);
 
