@@ -1,8 +1,6 @@
 ---
 import '@/styles/global.css';
-import { Sidebar } from '@/pages/chat/components/sidebar';
-import { ChatThread } from '@/pages/chat/components/chat-thread';
-import { ChatInput } from '@/pages/chat/components/chat-input';
+import { AppShell } from '@/components/layout/app-shell';
 ---
 
 <html lang="en">
@@ -12,14 +10,6 @@ import { ChatInput } from '@/pages/chat/components/chat-input';
     <title>Chat — jimly.ai</title>
   </head>
   <body>
-    <main class="flex h-screen">
-      <Sidebar client:load />
-      <div class="flex flex-1 flex-col">
-        <div class="flex-1 overflow-y-auto">
-          <ChatThread client:load />
-        </div>
-        <ChatInput client:load />
-      </div>
-    </main>
+    <AppShell client:load />
   </body>
 </html>
