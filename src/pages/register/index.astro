@@ -1,6 +1,6 @@
 ---
 import '../../styles/global.css';
-import { RegisterForm } from './components/register-form';
+import { Component as AuthSwitch } from '@/components/ui/auth-switch';
 ---
 
 <html lang="en">
@@ -11,8 +11,7 @@ import { RegisterForm } from './components/register-form';
 	</head>
 	<body>
 		<main class="mx-auto max-w-sm py-16">
-			<h1 class="mb-6 text-2xl font-bold">Sign up</h1>
-			<RegisterForm client:load />
+			<AuthSwitch initialMode="register" client:load />
 		</main>
 	</body>
 </html>

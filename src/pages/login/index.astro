@@ -1,6 +1,6 @@
 ---
 import '../../styles/global.css';
-import { LoginForm } from './components/login-form';
+import { Component as AuthSwitch } from '@/components/ui/auth-switch';
 ---
 
 <html lang="en">
@@ -11,8 +11,7 @@ import { LoginForm } from './components/login-form';
 	</head>
 	<body>
 		<main class="mx-auto max-w-sm py-16">
-			<h1 class="mb-6 text-2xl font-bold">Log in</h1>
-			<LoginForm client:load />
+			<AuthSwitch initialMode="login" client:load />
 		</main>
 	</body>
 </html>
