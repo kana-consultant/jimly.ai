@@ -23,7 +23,7 @@ export function useChatStream() {
       setError(null);
       try {
         let fullContent = '';
-        for await (const chunk of streamChatCompletion(history)) {
+        for await (const chunk of streamChatCompletion(chatId, history)) {
           fullContent += chunk;
           appendToLastMessage(chatId, chunk);
         }

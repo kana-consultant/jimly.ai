@@ -92,5 +92,18 @@ export function createSupabaseChatRepository(supabase: SupabaseClient): ChatRepo
         created_at: message.createdAt,
       });
     },
+
+    async getPerfect10SessionId(sessionId) {
+      const { data } = await supabase
+        .from('chat_sessions')
+        .select('perfect10_session_id')
+        .eq('id', sessionId)
+        .single();
+      return data?.perfect10_session_id ?? null;
+    },
+
+    async setPerfect10SessionId(sessionId, perfect10SessionId) {
+      await supabase.from('chat_sessions').update({ perfect10_session_id: perfect10SessionId }).eq('id', sessionId);
+    },
   };
 }

@@ -1,10 +1,10 @@
 import type { OutgoingMessage } from '@/types/chat';
 
-export async function* streamChatCompletion(messages: OutgoingMessage[]): AsyncGenerator<string> {
+export async function* streamChatCompletion(chatId: string, messages: OutgoingMessage[]): AsyncGenerator<string> {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ chatId, messages }),
   });
 
   if (!res.ok || !res.body) throw new Error('Chat stream request failed');
