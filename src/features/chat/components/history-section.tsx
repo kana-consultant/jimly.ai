@@ -1,3 +1,4 @@
+import { History } from 'lucide-react';
 import { ChatListItem } from '@/features/chat/components/chat-list-item';
 import type { ChatSession } from '@/types/chat';
 
@@ -18,7 +19,10 @@ export function HistorySection({
 
   return (
     <div className="flex flex-col gap-1">
-      <p className="px-2 text-xs font-medium text-muted-foreground">History</p>
+      <p className="flex items-center gap-1.5 px-2 text-xs font-medium text-sidebar-foreground/60">
+        <History className="size-3.5" />
+        History
+      </p>
       {sessions.map((session) => (
         <ChatListItem
           key={session.id}
