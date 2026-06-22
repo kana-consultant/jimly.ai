@@ -12,10 +12,15 @@ const API_URL = import.meta.env.PERFECT10_API_URL;
 const API_KEY = import.meta.env.PERFECT10_API_KEY;
 const AGENT_ID = Number(import.meta.env.PERFECT10_AGENT_ID);
 
-async function perfect10Fetch(path: string, init?: RequestInit) {
+function perfect10Fetch(path: string, origin: string, init?: RequestInit) {
   return fetch(`${API_URL}${path}`, {
     ...init,
-    headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY, ...init?.headers },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY,
+      'X-Actual-Origin': origin,
+      ...init?.headers,
+    },
   });
 }
 
@@ -24,6 +29,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const userId = await getSessionUserId(supabase);
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const origin = new URL(request.url).origin;
   const { chatId, messages } = (await request.json()) as ChatRequestBody;
   const lastMessage = messages[messages.length - 1];
   if (!lastMessage) return Response.json({ error: 'No message to send' }, { status: 400 });
@@ -32,7 +38,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   let perfect10SessionId = await chatRepository.getPerfect10SessionId(chatId);
 
   if (!perfect10SessionId) {
-    const sessionRes = await perfect10Fetch('/integrate/v1/chat/sessions', {
+    const sessionRes = await perfect10Fetch('/integrate/v1/chat/sessions', origin, {
       method: 'POST',
       body: JSON.stringify({ agent_id: AGENT_ID }),
     });
@@ -42,19 +48,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     await chatRepository.setPerfect10SessionId(chatId, perfect10SessionId);
   }
 
-  const messageRes = await perfect10Fetch(`/integrate/v1/chat/sessions/${perfect10SessionId}/messages`, {
-    method: 'POST',
-    body: JSON.stringify({ content: lastMessage.content }),
-  });
+  const messageRes = await perfect10Fetch(
+    `/integrate/v1/chat/sessions/${perfect10SessionId}/messages`,
+    origin,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content: lastMessage.content }),
+    }
+  );
   if (!messageRes.ok) return Response.json({ error: 'Failed to send message' }, { status: 502 });
   const messageData = (await messageRes.json()) as { assistant_message_id: number };
 
   const streamRes = await fetch(`${API_URL}/integrate/v1/chat/stream/${messageData.assistant_message_id}`, {
-    headers: { Accept: 'text/event-stream', 'X-API-Key': API_KEY },
+    headers: { Accept: 'text/event-stream', 'X-API-Key': API_KEY, 'X-Actual-Origin': origin },
   });
   if (!streamRes.ok || !streamRes.body) return Response.json({ error: 'Failed to stream reply' }, { status: 502 });
 
-  const translated = translateStream(streamRes.body);
+  const translated = streamRes.body.pipeThrough(translateStream());
 
   return new Response(translated, {
     headers: {
@@ -65,22 +75,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   });
 };
 
-function translateStream(upstream: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
-  const reader = upstream.getReader();
+function translateStream(): TransformStream<Uint8Array, Uint8Array> {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
   let buffer = '';
 
-  return new ReadableStream({
-    async pull(controller) {
-      const { done, value } = await reader.read();
-      if (done) {
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
-        return;
-      }
-
-      buffer += decoder.decode(value, { stream: true });
+  return new TransformStream({
+    transform(chunk, controller) {
+      buffer += decoder.decode(chunk, { stream: true });
       const lines = buffer.split('\n');
       buffer = lines.pop() ?? '';
 
@@ -99,6 +101,9 @@ function translateStream(upstream: ReadableStream<Uint8Array>): ReadableStream<U
           // ignore malformed upstream lines
         }
       }
+    },
+    flush(controller) {
+      controller.enqueue(encoder.encode('data: [DONE]\n\n'));
     },
   });
 }
