@@ -1,8 +1,8 @@
 ---
 import { getImage } from 'astro:assets';
 import '@/styles/global.css';
-import { AboutSection } from '@/components/landing/about-section';
 import { BooksSection } from '@/components/landing/books-section';
+import { ChatDemo } from '@/components/landing/chat-demo';
 import { FeaturesSection } from '@/components/landing/features-section';
 import { HeroSection } from '@/components/landing/hero-section';
 import { HowItWorksSection } from '@/components/landing/how-it-works-section';
@@ -11,7 +11,7 @@ import { SiteNav } from '@/components/landing/site-nav';
 import { TrustStrip } from '@/components/landing/trust-strip';
 
 const logo = await getImage({ src: '/jimly.ai-logo.png', width: 1024, height: 1024 });
-const profile = await getImage({ src: '/profile.png', width: 1188, height: 1324 });
+const profile = await getImage({ src: '/jimly-profile.png', width: 1188, height: 1324 });
 ---
 
 <html lang="en">
@@ -33,12 +33,12 @@ const profile = await getImage({ src: '/profile.png', width: 1188, height: 1324 
     <SiteNav logoSrc={logo.src} />
     <div class="pointer-events-none fixed inset-x-0 top-0 z-40 h-28 bg-linear-to-b from-background via-background/70 to-transparent" aria-hidden="true"></div>
   <main>
-    <HeroSection client:load />
+    <HeroSection client:load photoSrc={profile.src} />
     <TrustStrip client:visible />
+    <BooksSection client:visible />
+    <ChatDemo client:visible />
     <FeaturesSection client:visible />
     <HowItWorksSection client:visible />
-    <BooksSection client:visible />
-    <AboutSection client:visible photoSrc={profile.src} />
   </main>
   <SiteFooter />
 </body>
