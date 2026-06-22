@@ -82,13 +82,13 @@
     --chart-4: #1F4D36;
     --chart-5: #B7791F;
     --radius: 0.625rem;
-    --sidebar: #102A43;
-    --sidebar-foreground: #F7F5F0;
+    --sidebar: #EDEAE1;
+    --sidebar-foreground: #243B53;
     --sidebar-primary: #C49A45;
     --sidebar-primary-foreground: #102A43;
-    --sidebar-accent: #1B3A5C;
-    --sidebar-accent-foreground: #F7F5F0;
-    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-accent: #E3DECF;
+    --sidebar-accent-foreground: #102A43;
+    --sidebar-border: oklch(0 0 0 / 8%);
     --sidebar-ring: #C49A45;
     --primary-hover: #1A3A57;
     --border-strong: #CAC4BB;
