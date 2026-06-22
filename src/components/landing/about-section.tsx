@@ -1,5 +1,6 @@
 import { Gavel, GraduationCap, Users } from "lucide-react"
 
+import { CountUp } from "./count-up"
 import { Reveal } from "./reveal"
 
 const AFFILIATIONS = [
@@ -32,29 +33,33 @@ export function AboutSection({ photoSrc }: { photoSrc: string }) {
   return (
     <div className="border-y border-border bg-card" id="about">
       <Reveal className="mx-auto grid max-w-275 grid-cols-1 items-center gap-10 px-10 py-22 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
-        <div className="rounded-xl border border-border bg-background p-8">
-          <div className="mb-4.5 size-18 overflow-hidden rounded-full border-2 border-border">
+        <div className="rounded-3xl bg-primary p-8">
+          <div className="mb-4.5 size-18 overflow-hidden rounded-full border-2 border-primary-foreground/20">
             <img src={photoSrc} alt="Prof. Dr. H. Jimly Asshiddiqie" className="size-full object-cover" />
           </div>
-          <div className="mb-1 font-display text-[22px] font-semibold text-primary">
+          <div className="mb-1 font-display text-[22px] font-semibold text-primary-foreground">
             Prof. Dr. H. Jimly Asshiddiqie, S.H.
           </div>
           <div className="mb-5 text-xs font-medium tracking-wide text-secondary uppercase">
             Constitutional Scholar · Chief Justice · Professor
           </div>
           <div className="mb-5 grid grid-cols-2 gap-2.5">
-            <div className="rounded-md border border-border bg-card p-3.5">
-              <div className="mb-0.5 font-display text-[26px] font-semibold leading-none text-primary">60+</div>
-              <div className="text-[11px] text-muted-foreground">Books published</div>
+            <div className="rounded-2xl bg-primary-foreground/8 p-3.5">
+              <div className="mb-0.5 font-display text-[26px] font-semibold leading-none text-secondary">
+                <CountUp value="60+" />
+              </div>
+              <div className="text-[11px] text-primary-foreground/80">Books published</div>
             </div>
-            <div className="rounded-md border border-border bg-card p-3.5">
-              <div className="mb-0.5 font-display text-[26px] font-semibold leading-none text-primary">40+</div>
-              <div className="text-[11px] text-muted-foreground">Years of scholarship</div>
+            <div className="rounded-2xl bg-primary-foreground/8 p-3.5">
+              <div className="mb-0.5 font-display text-[26px] font-semibold leading-none text-secondary">
+                <CountUp value="40+" />
+              </div>
+              <div className="text-[11px] text-primary-foreground/80">Years of scholarship</div>
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             {AFFILIATIONS.map((affil) => (
-              <div key={affil} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div key={affil} className="flex items-center gap-2 text-xs text-primary-foreground/80">
                 <span className="size-1.25 shrink-0 rounded-full bg-secondary" />
                 {affil}
               </div>
@@ -84,8 +89,8 @@ export function AboutSection({ photoSrc }: { photoSrc: string }) {
                 key={cred.title}
                 className={`flex gap-3.5 border-b border-border py-4 ${i === 0 ? "border-t" : ""}`}
               >
-                <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/7">
-                  <cred.icon className="size-3.75 text-primary" strokeWidth={1.75} />
+                <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary">
+                  <cred.icon className="size-3.75 text-primary-foreground" strokeWidth={1.75} />
                 </div>
                 <div>
                   <div className="mb-0.5 text-[13.5px] font-semibold text-primary">{cred.title}</div>

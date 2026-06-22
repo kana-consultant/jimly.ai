@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils"
+
 import { Reveal } from "./reveal"
 
 const BOOKS = [
@@ -52,15 +54,20 @@ export function BooksSection() {
         </p>
       </Reveal>
       <Reveal className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
-        {BOOKS.map((book) => (
+        {(visible) =>
+          BOOKS.map((book, i) => (
           <div
             key={book.title}
-            className="overflow-hidden rounded-lg border border-border bg-card transition-[box-shadow,transform] hover:-translate-y-1 hover:shadow-md"
+            style={{ transitionDelay: `${i * 60}ms` }}
+            className={cn(
+              "group overflow-hidden rounded-2xl bg-card shadow-sm transition-[opacity,transform,box-shadow] duration-500 hover:-translate-y-1.5 hover:shadow-lg",
+              visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            )}
           >
             <div className={`h-1.5 ${book.spine}`} />
             <div className="p-4 pb-3.5">
               <div
-                className={`relative mb-3 flex aspect-3/4 w-full items-end overflow-hidden rounded-md bg-linear-to-br p-3 ${book.gradient} after:absolute after:inset-0 after:bg-linear-to-t after:from-black/55 after:to-transparent`}
+                className={`relative mb-3 flex aspect-3/4 w-full items-end overflow-hidden rounded-md bg-linear-to-br p-3 transition-transform duration-300 group-hover:scale-105 ${book.gradient} after:absolute after:inset-0 after:bg-linear-to-t after:from-black/55 after:to-transparent`}
               >
                 <div className="relative z-10 font-display text-xs font-semibold leading-snug text-white">
                   {book.title}
@@ -70,7 +77,8 @@ export function BooksSection() {
               <div className="text-[11px] text-muted-foreground-faint">{book.meta}</div>
             </div>
           </div>
-        ))}
+          ))
+        }
       </Reveal>
     </section>
   )

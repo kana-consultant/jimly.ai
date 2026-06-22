@@ -2,7 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
-export function Reveal({ children, className }: { children: ReactNode; className?: string }) {
+export function Reveal({
+  children,
+  className,
+}: {
+  children: ReactNode | ((visible: boolean) => ReactNode)
+  className?: string
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -28,16 +34,18 @@ export function Reveal({ children, className }: { children: ReactNode; className
     return () => observer.disconnect()
   }, [])
 
+  const isRenderProp = typeof children === "function"
+
   return (
     <div
       ref={ref}
       className={cn(
-        "opacity-0 translate-y-5 transition-[opacity,transform] duration-600 ease-out",
-        visible && "opacity-100 translate-y-0",
+        !isRenderProp && "opacity-0 translate-y-5 transition-[opacity,transform] duration-600 ease-out",
+        !isRenderProp && visible && "opacity-100 translate-y-0",
         className
       )}
     >
-      {children}
+      {isRenderProp ? children(visible) : children}
     </div>
   )
 }
