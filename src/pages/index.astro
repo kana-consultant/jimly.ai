@@ -1,17 +1,45 @@
 ---
-import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import '@/styles/global.css';
+import { AboutSection } from '@/components/landing/about-section';
+import { BooksSection } from '@/components/landing/books-section';
+import { FeaturesSection } from '@/components/landing/features-section';
+import { HeroSection } from '@/components/landing/hero-section';
+import { HowItWorksSection } from '@/components/landing/how-it-works-section';
+import { SiteFooter } from '@/components/landing/site-footer';
+import { SiteNav } from '@/components/landing/site-nav';
+import { TrustStrip } from '@/components/landing/trust-strip';
+
+const logo = await getImage({ src: '/jimly.ai-logo.png', width: 1024, height: 1024 });
+const profile = await getImage({ src: '/profile.png', width: 1188, height: 1324 });
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>jimly.ai</title>
-	</head>
-	<body>
-		<h1 class="text-2xl font-bold">Jimly.ai</h1>
-	</body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <title>jimly.ai  AI Legal Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="font-jakarta bg-background text-foreground antialiased">
+    <SiteNav logoSrc={logo.src} />
+    <div class="pointer-events-none fixed inset-x-0 top-0 z-40 h-28 bg-linear-to-b from-background via-background/70 to-transparent" aria-hidden="true"></div>
+  <main>
+    <HeroSection client:load />
+    <TrustStrip client:visible />
+    <FeaturesSection client:visible />
+    <HowItWorksSection client:visible />
+    <BooksSection client:visible />
+    <AboutSection client:visible photoSrc={profile.src} />
+  </main>
+  <SiteFooter />
+</body>
 </html>

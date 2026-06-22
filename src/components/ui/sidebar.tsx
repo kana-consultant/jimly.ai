@@ -37,7 +37,7 @@ export function Sidebar({
           <div
             className={cn(
               "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
-              isCollapsed ? "max-w-0 opacity-0" : "max-w-[10rem] opacity-100 pl-2"
+              isCollapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100 pl-2"
             )}
           >
             {header(isCollapsed)}

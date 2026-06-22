@@ -5,6 +5,9 @@ import { useChatStore } from '@/features/chat/logic/chat-store';
 import type { ChatMessage, OutgoingMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
+const WORD_DELAY_MS = 35;
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export function useChatStream() {
   const activeChatId = useChatStore((state) => state.activeChatId);
@@ -23,10 +26,35 @@ export function useChatStream() {
       setError(null);
       try {
         let fullContent = '';
+        let buffer = '';
+        let streamDone = false;
+        let wakeDrain: (() => void) | null = null;
+
+        const drain = async () => {
+          while (true) {
+            if (buffer.length > 0) {
+              const piece = /^\s*\S*\s*/.exec(buffer)![0] || buffer;
+              buffer = buffer.slice(piece.length);
+              appendToLastMessage(chatId, piece);
+              await sleep(WORD_DELAY_MS);
+              continue;
+            }
+            if (streamDone) return;
+            await new Promise<void>((resolve) => { wakeDrain = resolve; });
+          }
+        };
+        const drainPromise = drain();
+
         for await (const chunk of streamChatCompletion(chatId, history)) {
           fullContent += chunk;
-          appendToLastMessage(chatId, chunk);
+          buffer += chunk;
+          wakeDrain?.();
+          wakeDrain = null;
         }
+        streamDone = true;
+        wakeDrain?.();
+        await drainPromise;
+
         return fullContent;
       } catch {
         removeLastMessage(chatId);

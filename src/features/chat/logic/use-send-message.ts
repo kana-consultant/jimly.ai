@@ -3,10 +3,27 @@ import { uuid } from '@/lib/uuid';
 import { useChatStore } from '@/features/chat/logic/chat-store';
 import { useChatStream } from '@/features/chat/logic/use-chat-stream';
 import { generateChatTitle } from '@/features/chat/logic/generate-chat-title';
-import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
-import type { OutgoingMessage } from '@/types/chat';
+import { useChatRepository } from '@/features/chat/logic/chat-repository-context';
+import type { ChatRepository } from '@/services/chat-repository';
+import type { ChatMessage, NewChatSession, OutgoingMessage } from '@/types/chat';
+
+async function persistTurn(
+  repo: ChatRepository,
+  chatId: string,
+  userMessage: ChatMessage,
+  now: string,
+  newSession?: NewChatSession,
+) {
+  if (newSession) {
+    await repo.createSession(newSession);
+  } else {
+    await repo.updateSession(chatId, { updatedAt: now });
+  }
+  await repo.addMessage(userMessage);
+}
 
 export function useSendMessage() {
+  const repo = useChatRepository();
   const { activeChatId, messages, isStreaming, error, streamAssistantReply } = useChatStream();
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const addSession = useChatStore((state) => state.addSession);
@@ -18,7 +35,7 @@ export function useSendMessage() {
       lastAttemptRef.current = { chatId, history };
       const fullContent = await streamAssistantReply(chatId, history);
       if (fullContent === null) return;
-      await chatRepository.addMessage({
+      await repo.addMessage({
         id: uuid(),
         sessionId: chatId,
         role: 'assistant',
@@ -26,7 +43,7 @@ export function useSendMessage() {
         createdAt: new Date().toISOString(),
       });
     },
-    [streamAssistantReply],
+    [streamAssistantReply, repo],
   );
 
   const sendMessage = useCallback(
@@ -40,14 +57,12 @@ export function useSendMessage() {
       const userMessage = { id: uuid(), sessionId: chatId, role: 'user' as const, content, createdAt: now };
       addMessage(chatId, userMessage);
 
+      let newSession: NewChatSession | undefined;
       if (isNewChat) {
-        const session = { id: chatId, title: generateChatTitle(content), pinned: false, createdAt: now, updatedAt: now };
-        addSession({ ...session, userId: '' });
-        await chatRepository.createSession(session);
-      } else {
-        await chatRepository.updateSession(chatId, { updatedAt: now });
+        newSession = { id: chatId, title: generateChatTitle(content), pinned: false, createdAt: now, updatedAt: now };
+        addSession({ ...newSession, userId: '' });
       }
-      await chatRepository.addMessage(userMessage);
+      await persistTurn(repo, chatId, userMessage, now, newSession);
 
       const history = [...messages, { role: 'user' as const, content }].map((m) => ({
         role: m.role,
@@ -56,7 +71,7 @@ export function useSendMessage() {
 
       await replyAndPersist(chatId, history);
     },
-    [activeChatId, messages, addMessage, addSession, setActiveChat, replyAndPersist],
+    [activeChatId, messages, addMessage, addSession, setActiveChat, replyAndPersist, repo],
   );
 
   const retry = useCallback(() => {
