@@ -9,19 +9,21 @@ const STATS = [
 ]
 
 export function TrustStrip() {
+  const items = [...STATS, ...STATS]
+
   return (
     <div className="mx-auto max-w-275 px-10 py-10">
-      <div className="rounded-3xl bg-primary px-8 py-10 sm:px-12">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {STATS.map((stat) => (
+      <div className="overflow-hidden rounded-3xl py-10 group">
+        <div className="flex w-max shrink-0 animate-marquee gap-3 px-3 group-hover:[animation-play-state:paused]">
+          {items.map((stat, i) => (
             <div
-              key={stat.label}
-              className="flex min-w-32 flex-1 flex-col items-center gap-1 rounded-2xl bg-primary-foreground/8 px-6 py-5"
+              key={`${stat.label}-${i}`}
+              className="flex w-48 shrink-0 flex-col items-center gap-1 rounded-2xl bg-primary-foreground/8 px-6 py-5"
             >
               <span className="font-display text-[28px] font-semibold leading-none text-secondary">
                 <CountUp value={stat.num} />
               </span>
-              <span className="text-center text-xs whitespace-nowrap text-primary-foreground/80">{stat.label}</span>
+              <span className="text-center text-xs whitespace-nowrap text-primary">{stat.label}</span>
             </div>
           ))}
         </div>

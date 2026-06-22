@@ -35,7 +35,7 @@ export function FeaturesSection() {
   return (
     <section className="mx-auto max-w-275 px-10 py-22" id="features">
       <Reveal className="mb-12">
-        <h2 className="font-display text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
+        <h2 className="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
           Every question answered
           <br />
           from <em className="font-normal text-secondary italic">the source</em>
@@ -51,7 +51,7 @@ export function FeaturesSection() {
             key={feature.name}
             style={{ transitionDelay: `${i * 80}ms` }}
             className={cn(
-              "group rounded-2xl bg-card p-7 shadow-sm transition-[opacity,transform,box-shadow] duration-500 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/10",
+              "group rounded-2xl bg-card p-7 shadow-sm transition-[opacity,transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10",
               visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             )}
           >

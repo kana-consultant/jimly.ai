@@ -27,10 +27,10 @@ const STEPS = [
 
 export function HowItWorksSection() {
   return (
-    <div className="border-y border-border bg-card" id="how">
+    <div className="bg-card shadow-sm" id="how">
       <div className="mx-auto max-w-275 px-10 py-22">
         <Reveal className="mb-14">
-          <h2 className="font-display text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
+          <h2 className="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
             From question to <em className="font-normal text-secondary italic">cited answer</em>
           </h2>
           <p className="mt-3 max-w-125 text-[15px] leading-relaxed text-muted-foreground">

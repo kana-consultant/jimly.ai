@@ -31,7 +31,7 @@ const CREDENTIALS = [
 
 export function AboutSection({ photoSrc }: { photoSrc: string }) {
   return (
-    <div className="border-y border-border bg-card" id="about">
+    <div className="bg-card shadow-sm" id="about">
       <Reveal className="mx-auto grid max-w-275 grid-cols-1 items-center gap-10 px-10 py-22 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
         <div className="rounded-3xl bg-primary p-8">
           <div className="mb-4.5 size-18 overflow-hidden rounded-full border-2 border-primary-foreground/20">
@@ -67,7 +67,7 @@ export function AboutSection({ photoSrc }: { photoSrc: string }) {
           </div>
         </div>
         <div>
-          <h2 className="mb-5 font-display text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
+          <h2 className="mb-5 font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
             Indonesia&apos;s foremost
             <br />
             <em className="font-normal text-secondary italic">constitutional mind</em>

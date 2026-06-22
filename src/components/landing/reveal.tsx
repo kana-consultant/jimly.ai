@@ -40,7 +40,7 @@ export function Reveal({
     <div
       ref={ref}
       className={cn(
-        !isRenderProp && "opacity-0 translate-y-5 transition-[opacity,transform] duration-600 ease-out",
+        !isRenderProp && "opacity-0 translate-y-5 transition-[opacity,transform] duration-500 ease-out",
         !isRenderProp && visible && "opacity-100 translate-y-0",
         className
       )}
