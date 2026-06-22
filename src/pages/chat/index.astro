@@ -1,6 +1,11 @@
 ---
 import '@/styles/global.css';
-import { AppShell } from '@/components/layout/app-shell';
+import { ChatSidebar } from '@/features/chat/components/sidebar';
+import { MobileMenuButton } from '@/features/chat/components/mobile-menu-button';
+import { MobileSidebarOverlay } from '@/features/chat/components/mobile-sidebar-overlay';
+import { ChatHeader } from '@/features/chat/components/chat-header';
+import { ChatThread } from '@/features/chat/components/chat-thread';
+import { ChatInput } from '@/features/chat/components/chat-input';
 ---
 
 <html lang="en">
@@ -10,6 +15,23 @@ import { AppShell } from '@/components/layout/app-shell';
     <title>Chat — jimly.ai</title>
   </head>
   <body>
-    <AppShell client:load />
+    <div class="flex h-screen flex-col">
+      <div class="flex flex-1 overflow-hidden">
+        <div class="hidden md:flex">
+          <ChatSidebar client:load />
+        </div>
+
+        <MobileSidebarOverlay client:load />
+
+        <div class="flex flex-1 flex-col">
+          <MobileMenuButton client:load />
+          <ChatHeader client:load />
+          <ChatThread client:load />
+          <div class="mx-auto w-full max-w-2xl">
+            <ChatInput client:load />
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
