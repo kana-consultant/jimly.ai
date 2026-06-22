@@ -67,10 +67,6 @@ export function AppShell() {
           </div>
         </div>
       </div>
-
-      <footer className="border-t p-2 text-center text-xs text-muted-foreground">
-        jimly.ai can make mistakes. Please verify important information.
-      </footer>
     </div>
   );
 }
