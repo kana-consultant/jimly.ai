@@ -1,5 +1,7 @@
 import { CheckCircle2, MessageSquare, Library } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+
 import { Reveal } from "./reveal"
 
 const STEPS = [
@@ -35,19 +37,28 @@ export function HowItWorksSection() {
             Every response is grounded in Prof. Jimly&apos;s published works  not generic AI training data.
           </p>
         </Reveal>
-        <Reveal className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
-          {STEPS.map((step) => (
-            <div key={step.num} className="bg-card p-9 px-8">
+        <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {(visible) =>
+            STEPS.map((step, i) => (
+            <div
+              key={step.num}
+              style={{ transitionDelay: `${i * 100}ms` }}
+              className={cn(
+                "group rounded-2xl bg-background p-9 px-8 shadow-sm transition-[opacity,transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10",
+                visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+              )}
+            >
               <div className="mb-4 font-display text-[13px] font-semibold tracking-widest text-secondary">
                 {step.num}
               </div>
-              <div className="mb-5 flex size-11 items-center justify-center rounded-md bg-primary/7">
-                <step.icon className="size-5 text-primary" strokeWidth={1.75} />
+              <div className="mb-5 flex size-11 items-center justify-center rounded-xl bg-primary transition-transform duration-300 group-hover:scale-110">
+                <step.icon className="size-5 text-primary-foreground" strokeWidth={1.75} />
               </div>
               <div className="mb-2 text-base font-semibold text-primary">{step.title}</div>
               <p className="text-[13.5px] leading-relaxed text-muted-foreground">{step.desc}</p>
             </div>
-          ))}
+            ))
+          }
         </Reveal>
       </div>
     </div>

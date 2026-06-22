@@ -34,7 +34,7 @@ const profile = await getImage({ src: '/profile.png', width: 1188, height: 1324 
     <div class="pointer-events-none fixed inset-x-0 top-0 z-40 h-28 bg-linear-to-b from-background via-background/70 to-transparent" aria-hidden="true"></div>
   <main>
     <HeroSection client:load />
-    <TrustStrip />
+    <TrustStrip client:visible />
     <FeaturesSection client:visible />
     <HowItWorksSection client:visible />
     <BooksSection client:visible />

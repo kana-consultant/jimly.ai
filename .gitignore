@@ -5,6 +5,7 @@ dist/
 .claude/
 .omc/
 .vscode/
+.playwright-mcp/
 md/
 
 # dependencies

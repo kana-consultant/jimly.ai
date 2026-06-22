@@ -1,5 +1,7 @@
 import { Landmark, Network, ShieldCheck, Users } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+
 import { Reveal } from "./reveal"
 
 const FEATURES = [
@@ -43,28 +45,24 @@ export function FeaturesSection() {
         </p>
       </Reveal>
       <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((feature) => (
+        {(visible) =>
+          FEATURES.map((feature, i) => (
           <div
             key={feature.name}
-            className="rounded-lg border border-border bg-card p-7 transition-[box-shadow,border-color,transform] hover:-translate-y-0.5 hover:border-primary/18 hover:shadow-md"
+            style={{ transitionDelay: `${i * 80}ms` }}
+            className={cn(
+              "group rounded-2xl bg-card p-7 shadow-sm transition-[opacity,transform,box-shadow] duration-500 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/10",
+              visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            )}
           >
-            <div className="mb-5 flex size-10 items-center justify-center rounded-md border border-secondary/20 bg-secondary/14">
-              <feature.icon className="size-4.5 text-secondary" strokeWidth={1.75} />
+            <div className="mb-5 flex size-10 items-center justify-center rounded-xl bg-primary transition-transform duration-300 group-hover:scale-110">
+              <feature.icon className="size-4.5 text-primary-foreground" strokeWidth={1.75} />
             </div>
             <div className="mb-2 text-[15px] font-semibold text-primary">{feature.name}</div>
             <p className="text-[13px] leading-relaxed text-muted-foreground">{feature.desc}</p>
-            <div className="mt-4.5 flex flex-wrap gap-1.5">
-              {feature.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-primary/7 px-2.5 py-0.5 text-[11px] font-medium text-primary"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
           </div>
-        ))}
+          ))
+        }
       </Reveal>
     </section>
   )
