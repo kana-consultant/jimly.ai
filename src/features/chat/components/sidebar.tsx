@@ -1,6 +1,5 @@
 import { MessagesSquare } from 'lucide-react';
 import { Sidebar } from '@/components/ui/sidebar';
-import { Badge } from '@/components/ui/badge';
 import { ChatList } from '@/features/chat/components/chat-list';
 import { LogoutButton } from '@/components/layout/logout-button';
 
