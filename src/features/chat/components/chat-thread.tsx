@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useChatStore } from '@/features/chat/logic/chat-store';
 import { useSendMessage } from '@/features/chat/logic/use-send-message';
 import { ChatBubble } from '@/features/chat/components/chat-bubble';
 import { StreamingIndicator } from '@/features/chat/components/streaming-indicator';
 import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
-import type { ChatMessage } from '@/types/chat';
-
-const EMPTY_MESSAGES: ChatMessage[] = [];
 
 export function ChatThread() {
-  const activeChatId = useChatStore((state) => state.activeChatId);
-  const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? EMPTY_MESSAGES);
-  const isStreaming = useChatStore((state) => state.isStreaming);
-  const { sendMessage } = useSendMessage();
+  const { activeChatId, messages, isStreaming, sendMessage } = useSendMessage();
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
