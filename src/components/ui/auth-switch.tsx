@@ -33,7 +33,7 @@ function Ticker() {
         {items.map((word, i) => (
           <span key={i} className="flex items-center gap-6 text-xs font-medium tracking-[0.3em] text-white/40">
             {word}
-            <Sparkles className="size-3 text-[var(--auth-accent)]" />
+            <Sparkles className="size-3 text-(--auth-accent)" />
           </span>
         ))}
       </div>
@@ -44,7 +44,7 @@ function Ticker() {
 function StoryPanel({ mode, onSwitch }: { mode: AuthMode; onSwitch: (mode: AuthMode) => void }) {
   const story = STORY[mode];
   return (
-    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-[var(--auth-ink)] px-8 py-10 text-white sm:px-12 sm:py-14">
+    <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-(--auth-ink) px-8 py-10 text-white sm:px-12 sm:py-14">
       {/* grain + glow */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
@@ -54,8 +54,8 @@ function StoryPanel({ mode, onSwitch }: { mode: AuthMode; onSwitch: (mode: AuthM
           backgroundSize: "14px 14px",
         }}
       />
-      <div className="pointer-events-none absolute -top-32 -right-20 size-80 rounded-full bg-[var(--auth-accent)] opacity-20 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-24 -left-16 size-72 rounded-full bg-[var(--auth-accent)] opacity-10 blur-[100px]" />
+      <div className="pointer-events-none absolute -top-32 -right-20 size-80 rounded-full bg-(--auth-accent) opacity-20 blur-[100px]" />
+      <div className="pointer-events-none absolute -bottom-24 -left-16 size-72 rounded-full bg-(--auth-accent) opacity-10 blur-[100px]" />
 
       <div className="relative z-10 flex items-center justify-between">
         <span className="font-sans text-sm font-semibold tracking-tight">jimly.ai</span>
@@ -75,7 +75,7 @@ function StoryPanel({ mode, onSwitch }: { mode: AuthMode; onSwitch: (mode: AuthM
         <button
           type="button"
           onClick={() => onSwitch(story.ctaMode)}
-          className="group mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-[var(--auth-accent)] hover:bg-[var(--auth-accent)] hover:text-[var(--auth-ink)]"
+          className="group mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-(--auth-accent) hover:bg-(--auth-accent) hover:text-(--auth-ink)"
         >
           {story.ctaLabel}
           <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
