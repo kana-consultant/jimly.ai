@@ -88,7 +88,7 @@ export function ChatThread() {
       const isNewMessage = messages.length > prevLenRef.current;
       prevLenRef.current = messages.length;
       if (isNewMessage) {
-        scrollToBottom('smooth');
+        scrollToBottom('auto');
       }
     } else {
       prevLenRef.current = messages.length;
