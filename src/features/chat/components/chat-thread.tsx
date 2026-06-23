@@ -68,7 +68,6 @@ export function ChatThread() {
   const { sessions } = useChatSessions();
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
   const prevLenRef = useRef(messages.length);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -79,16 +78,26 @@ export function ChatThread() {
 
   const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    bottomRef.current?.scrollIntoView({ behavior, block: 'end' });
+  // Mengubah mekanisme scroll menggunakan koordinat element container secara presisi
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
+    const container = scrollRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior,
+      });
+    }
   }, []);
 
-  // New message appended (user message, or assistant placeholder) -> follow to bottom
+  // 1. Trigger saat ada baris pesan baru masuk
   useEffect(() => {
     if (hasMessages) {
       const isNewMessage = messages.length > prevLenRef.current;
       prevLenRef.current = messages.length;
+
       if (isNewMessage) {
+        // Gunakan 'auto' agar posisi scroll instan berpindah ke dasar container.
+        // Ini menghilangkan glitch "turun dulu baru naik" saat Framer Motion bekerja.
         scrollToBottom('auto');
       }
     } else {
@@ -96,12 +105,22 @@ export function ChatThread() {
     }
   }, [messages.length, hasMessages, scrollToBottom]);
 
-  // Keep following the bottom as streamed content grows, no re-jump/re-center
+  // 2. Mengikuti aliran text-streaming (Smart Sticky Scroll)
   useEffect(() => {
     if (isStreaming && hasMessages && lastMessage?.content) {
-      scrollToBottom('smooth');
+      const container = scrollRef.current;
+      if (container) {
+        const threshold = 150;
+        const isUserNearBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight <= threshold;
+
+        if (isUserNearBottom) {
+          // Menggunakan 'auto' saat streaming membuat pergerakan kata per kata menjadi sangat halus tanpa delay transisi
+          container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
+        }
+      }
     }
-  }, [lastMessage?.content, isStreaming, hasMessages, scrollToBottom]);
+  }, [lastMessage?.content, isStreaming, hasMessages]);
 
   useEffect(() => {
     if (!hasMessages) {
@@ -121,15 +140,14 @@ export function ChatThread() {
   }, []);
 
   const suggestionsVisible = !hasMessages || showSuggestions;
-  const displayName = user?.email ? formatDisplayName(user.email) : '';
+  const displayName = user?.name || (user?.email ? formatDisplayName(user.email) : '');
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
-      {/* Messages area */}
       <div
         ref={scrollRef}
         className={cn(
-          'flex-1 overflow-y-auto scroll-smooth relative',
+          'flex-1 overflow-y-auto relative',
           hasMessages ? 'pb-52' : '',
         )}
       >
@@ -168,9 +186,9 @@ export function ChatThread() {
                   <motion.div
                     key={message.id}
                     id={`msg-${message.id}`}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 4 }} // Dikurangi rentang jarak y agar slide-up transisi lebih subtle dan rapi
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <ChatBubble message={message} />
                   </motion.div>
@@ -179,15 +197,13 @@ export function ChatThread() {
 
               {showThinking && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                 >
                   <StreamingIndicator />
                 </motion.div>
               )}
-
-              <div ref={bottomRef} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -195,12 +211,10 @@ export function ChatThread() {
 
       {hasMessages && <ChatTopicNav messages={messages} />}
 
-      {/* Bottom fade - messages fade out as they pass under the input, gradient spans down to the bottom edge */}
       {hasMessages && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-background via-background to-transparent z-[5]" />
       )}
 
-      {/* Input - absolutely positioned, animates between center and bottom */}
       <div
         className="absolute inset-x-0 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center"
         style={{

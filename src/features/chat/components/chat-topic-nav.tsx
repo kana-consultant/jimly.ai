@@ -18,7 +18,7 @@ export function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
   }
 
   return (
-    <div className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-2 md:flex">
+    <div className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-2 mr-3 md:flex">
       {userMessages.map((message) => (
         <div key={message.id} className="relative flex items-center">
           {hoveredId === message.id && (
