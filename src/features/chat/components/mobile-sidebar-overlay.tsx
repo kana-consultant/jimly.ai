@@ -1,5 +1,3 @@
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ChatSidebar } from '@/features/chat/components/sidebar';
 import { useMobileNavStore } from '@/features/chat/logic/mobile-nav-store';
 
@@ -14,9 +12,6 @@ export function MobileSidebarOverlay() {
       <div className="absolute inset-0 bg-black/50" onClick={close} />
       <div className="relative z-50 flex bg-background">
         <ChatSidebar />
-        <Button variant="ghost" size="icon" className="absolute top-2 right-[-2.5rem]" onClick={close}>
-          <X />
-        </Button>
       </div>
     </div>
   );

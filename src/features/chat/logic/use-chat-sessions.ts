@@ -24,7 +24,6 @@ export function useChatSessions() {
   useEffect(() => {
     chatRepository.listSessions().then((list) => {
       setSessions(list);
-      if (list.length > 0) selectChat(list[0].id);
     });
   }, []);
 
