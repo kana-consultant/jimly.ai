@@ -212,7 +212,7 @@ export function ChatThread() {
       {hasMessages && <ChatTopicNav messages={messages} />}
 
       {hasMessages && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-background via-background to-transparent z-[5]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-linear-to-t from-background via-background to-transparent z-5" />
       )}
 
       <div
