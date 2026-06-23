@@ -35,7 +35,7 @@ export function HeroSection({ photoSrc }: { photoSrc: string }) {
               nativeButton={false}
               render={<a href="/register" />}
             >
-              Get Started →
+              Get Started
             </Button>
             <Button
               variant="outline"
