@@ -155,7 +155,7 @@ export function ChatDemo() {
           See <em className="font-normal text-secondary italic">jimly.ai</em> in action
         </h2>
         <p className="mx-auto mb-9 max-w-135 text-base leading-relaxed text-muted-foreground">
-          Ask anything about Indonesian Law. Get sourced answers drawn directly from Prof. Jimly&apos;s 60+ books.
+          Ask anything about Indonesian Law. Get sourced answers drawn directly from Prof. Jimly&apos;s 70+ books.
         </p>
         <div className="mx-auto max-w-190 overflow-hidden rounded-xl border border-border bg-card shadow-[0_8px_32px_rgba(16,42,67,0.12),0_4px_12px_rgba(16,42,67,0.06)]">
           <div className="flex items-center gap-2.5 border-b border-border px-5 py-3.5">
@@ -165,7 +165,7 @@ export function ChatDemo() {
             <div className="rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-success">
               ● Online
             </div>
-            <div className="ml-auto text-xs text-muted-foreground-faint">Referencing 60+ books</div>
+            <div className="ml-auto text-xs text-muted-foreground-faint">Referencing 70+ books</div>
           </div>
           <div ref={bodyRef} className="flex min-h-65 flex-col gap-5 bg-background p-6 text-left">
             {shown.map((message, i) => (

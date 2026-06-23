@@ -25,7 +25,7 @@ export function HeroSection({ photoSrc }: { photoSrc: string }) {
           <p className="mb-8 max-w-140 text-[15px] leading-loose text-muted-foreground">
             jimly.ai is an AI legal assistant trained exclusively on the work of Prof. Dr. H. Jimly
             Asshiddiqie &nbsp;founding Chief Justice of Indonesia&apos;s Constitutional Court and the nation&apos;s
-            foremost constitutional scholar. Every answer traces back to his 60+ books, so you get guidance as
+            foremost constitutional scholar. Every answer traces back to his 70+ books, so you get guidance as
             authoritative as the source it&apos;s built on.
           </p>
           <div className="flex items-center gap-2.5">

@@ -1,7 +1,7 @@
 import { CountUp } from "./count-up"
 
 const STATS = [
-  { num: "60+", label: "Books authored" },
+  { num: "70+", label: "Books authored" },
   { num: "40+", label: "Years of scholarship" },
   { num: "500+", label: "Academic papers" },
   { num: "#1", label: "Chief Justice, MK RI 2003–08" },
