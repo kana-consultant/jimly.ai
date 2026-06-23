@@ -38,7 +38,7 @@ export function FeaturesSection() {
         <h2 className="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
           Every question answered
           <br />
-          from <em className="font-normal text-secondary italic">the source</em>
+          from <em className="font-normal text-chart-5 italic">the source</em>
         </h2>
         <p className="mt-3 max-w-125 text-[15px] leading-relaxed text-muted-foreground">
           jimly.ai cites exact books and chapters with every answer  not generic AI outputs.

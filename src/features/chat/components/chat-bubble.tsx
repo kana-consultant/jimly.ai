@@ -13,7 +13,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
     <div className={cn('flex w-full gap-3', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
         <img
-          src="/jimly.ai-logo.png"
+          src="/logo.png"
           alt="AI"
           className="w-7 h-7 rounded-full mt-1 shrink-0"
         />
@@ -26,7 +26,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
             : 'bg-transparent text-foreground py-1 max-w-[90%]',
 
           '[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
-          '[&_a]:underline [&_a]:text-secondary [&_a]:font-medium hover:[&_a]:opacity-80',
+          '[&_a]:underline [&_a]:text-chart-5 [&_a]:font-medium hover:[&_a]:opacity-80',
           '[&_code]:rounded [&_code]:bg-muted [&_code]:text-foreground [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm',
         )}
       >

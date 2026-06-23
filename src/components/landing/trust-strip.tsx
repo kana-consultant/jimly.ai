@@ -20,7 +20,7 @@ export function TrustStrip() {
               key={`${stat.label}-${i}`}
               className="flex w-48 shrink-0 flex-col items-center gap-1 rounded-2xl bg-primary-foreground/8 px-6 py-5"
             >
-              <span className="font-display text-[28px] font-semibold leading-none text-secondary">
+              <span className="font-display text-[28px] font-semibold leading-none text-chart-5">
                 <CountUp value={stat.num} />
               </span>
               <span className="text-center text-xs whitespace-nowrap text-primary">{stat.label}</span>
