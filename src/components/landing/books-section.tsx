@@ -41,7 +41,7 @@ const BOOKS = [
   },
 ]
 
-export function BooksSection() {
+export function BooksSection({ covers }: { covers: string[] }) {
   return (
     <section className="mx-auto max-w-275 px-10 py-22" id="books">
       <Reveal className="mb-12">
@@ -67,11 +67,14 @@ export function BooksSection() {
             <div className={`h-1.5 ${book.spine}`} />
             <div className="p-4 pb-3.5">
               <div
-                className={`relative mb-3 flex aspect-3/4 w-full items-end overflow-hidden rounded-md bg-linear-to-br p-3 transition-transform duration-300 group-hover:scale-105 ${book.gradient} after:absolute after:inset-0 after:bg-linear-to-t after:from-black/55 after:to-transparent`}
+                className={`relative mb-3 aspect-3/4 w-full overflow-hidden rounded-md bg-linear-to-br transition-transform duration-300 group-hover:scale-105 ${book.gradient}`}
               >
-                <div className="relative z-10 font-display text-xs font-semibold leading-snug text-white">
-                  {book.title}
-                </div>
+                <img
+                  src={covers[i]}
+                  alt={book.title}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div className="mb-1 text-[12.5px] leading-snug font-semibold text-primary">{book.title}</div>
               <div className="text-[11px] text-muted-foreground-faint">{book.meta}</div>

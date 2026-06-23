@@ -1,0 +1,36 @@
+---
+import { RegisterForm } from '@/features/auth/register-form';
+---
+
+<div class="flex-1 md:w-1/2">
+  <div class="flex h-full w-full flex-col justify-center bg-background px-8 py-14 sm:px-14" transition:name="auth-right-panel">
+    <div class="mx-auto w-full max-w-sm">
+
+      <div class="mb-8 flex gap-1 rounded-full bg-muted p-1" transition:name="auth-tabs">
+        <a
+          href="/login"
+          class="flex-1 rounded-full py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Log in
+        </a>
+        <span class="flex-1 rounded-full bg-background py-2 text-center text-sm font-medium text-foreground shadow-sm">
+          Sign up
+        </span>
+      </div>
+
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground">Create your account</h1>
+        <p class="mt-1.5 text-sm text-muted-foreground">Takes less than a minute, no card required.</p>
+
+        <div class="mt-7">
+          <RegisterForm client:load />
+        </div>
+      </div>
+      
+      <p class="mt-12 text-center text-[11px] text-muted-foreground/60">
+        &copy; {new Date().getFullYear()} jimly.ai. All rights reserved.
+      </p>
+
+    </div>
+  </div>
+</div>

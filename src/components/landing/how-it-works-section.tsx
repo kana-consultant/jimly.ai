@@ -15,7 +15,7 @@ const STEPS = [
     icon: Library,
     num: "STEP 02",
     title: "AI searches the library",
-    desc: "jimly.ai scans 60+ books and hundreds of academic papers to find the most relevant passages from Prof. Jimly's body of work.",
+    desc: "jimly.ai scans 70+ books and hundreds of academic papers to find the most relevant passages from Prof. Jimly's body of work.",
   },
   {
     icon: CheckCircle2,

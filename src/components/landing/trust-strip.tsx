@@ -1,7 +1,7 @@
 import { CountUp } from "./count-up"
 
 const STATS = [
-  { num: "60+", label: "Books authored" },
+  { num: "70+", label: "Books authored" },
   { num: "40+", label: "Years of scholarship" },
   { num: "500+", label: "Academic papers" },
   { num: "#1", label: "Chief Justice, MK RI 2003–08" },
@@ -14,7 +14,7 @@ export function TrustStrip() {
   return (
     <div className="mx-auto max-w-275 px-10 py-10">
       <div className="overflow-hidden rounded-3xl py-10 group">
-        <div className="flex w-max shrink-0 animate-marquee gap-3 px-3 group-hover:[animation-play-state:paused]">
+        <div className="flex w-max shrink-0 animate-marquee gap-3 px-3 group-hover:paused">
           {items.map((stat, i) => (
             <div
               key={`${stat.label}-${i}`}
