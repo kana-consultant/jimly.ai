@@ -16,7 +16,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-5xl flex-col gap-10 sm:flex-row sm:justify-between">
         <div className="max-w-xs">
           <div className="font-display text-xl font-semibold">
-            jimly<span className="text-secondary">.ai</span>
+            jimly<span className="text-chart-5">.ai</span>
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-primary-foreground/70">
             AI legal assistant built on the scholarship of Prof. Dr. H. Jimly Asshiddiqie.
@@ -24,7 +24,7 @@ export function SiteFooter() {
         </div>
         <div className="flex gap-12">
           <div>
-            <div className="text-[12px] font-medium uppercase tracking-wide text-secondary">Explore</div>
+            <div className="text-[12px] font-medium uppercase tracking-wide text-chart-5">Explore</div>
             <ul className="mt-3 flex flex-col gap-2.5">
               {EXPLORE_LINKS.map((link) => (
                 <li key={link.href}>
@@ -36,7 +36,7 @@ export function SiteFooter() {
             </ul>
           </div>
           <div>
-            <div className="text-[12px] font-medium uppercase tracking-wide text-secondary">Legal</div>
+            <div className="text-[12px] font-medium uppercase tracking-wide text-chart-5">Legal</div>
             <ul className="mt-3 flex flex-col gap-2.5">
               {LEGAL_LINKS.map((link) => (
                 <li key={link.label}>

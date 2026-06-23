@@ -10,7 +10,7 @@ export function Sidebar({
 }: {
   header?: (collapsed: boolean) => ReactNode
   footer?: (collapsed: boolean) => ReactNode
-  children: (collapsed: boolean) => ReactNode
+  children: (collapsed: boolean, expand: () => void) => ReactNode
   className?: string
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -18,17 +18,17 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "relative flex h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-300 ease-in-out",
+        "relative flex h-full shrink-0 flex-col bg-surface shadow-sm text-foreground transition-[width] duration-300 ease-in-out",
         isCollapsed ? "w-16" : "w-64",
         className
       )}
     >
-      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border p-2">
+      <div className="flex h-16 shrink-0 items-center px-3 gap-2">
         <button
           type="button"
           onClick={() => setIsCollapsed((v) => !v)}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {isCollapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
         </button>
@@ -37,7 +37,7 @@ export function Sidebar({
           <div
             className={cn(
               "overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out",
-              isCollapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100 pl-2"
+              isCollapsed ? "max-w-0 opacity-0" : "max-w-40 opacity-100"
             )}
           >
             {header(isCollapsed)}
@@ -45,9 +45,15 @@ export function Sidebar({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">{children(isCollapsed)}</div>
+      <div className="flex flex-1 flex-col overflow-y-auto px-3">
+        {children(isCollapsed, () => setIsCollapsed(false))}
+      </div>
 
-      {footer && <div className="flex shrink-0 flex-col border-t border-sidebar-border p-2">{footer(isCollapsed)}</div>}
+      {footer && (
+        <div className="flex shrink-0 flex-col px-3 pb-3 pt-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+          {footer(isCollapsed)}
+        </div>
+      )}
     </div>
   )
 }

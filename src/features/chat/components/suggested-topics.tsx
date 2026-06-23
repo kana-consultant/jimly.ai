@@ -1,19 +1,28 @@
-import { Button } from '@/components/ui/button';
-
-const TOPICS = [
-  'Explain a concept simply',
-  'Help me write some code',
-  'Brainstorm ideas',
-  'Summarize a long text',
+const DEFAULT_TOPICS = [
+  'Research',
+  'Brainstorm',
+  'Summarize',
+  'Check Facts',
 ];
 
-export function SuggestedTopics({ onSelect }: { onSelect: (topic: string) => void }) {
+export function SuggestedTopics({
+  topics = DEFAULT_TOPICS,
+  onSelect,
+}: {
+  topics?: string[];
+  onSelect: (topic: string) => void;
+}) {
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-      {TOPICS.map((topic) => (
-        <Button key={topic} variant="outline" onClick={() => onSelect(topic)}>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      {topics.map((topic) => (
+        <button
+          key={topic}
+          type="button"
+          onClick={() => onSelect(topic)}
+          className="rounded-full px-4 py-1.5 text-sm font-medium bg-surface text-foreground shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+        >
           {topic}
-        </Button>
+        </button>
       ))}
     </div>
   );

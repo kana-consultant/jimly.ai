@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, History } from 'lucide-react';
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
 import { filterChats } from '@/features/chat/logic/use-filtered-chats';
 import { SearchBar } from '@/features/chat/components/search-bar';
@@ -9,7 +9,13 @@ import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog'
 import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog';
 import { cn } from '@/lib/utils';
 
-export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
+export function ChatList({
+  collapsed = false,
+  onExpand,
+}: {
+  collapsed?: boolean;
+  onExpand?: () => void;
+}) {
   const { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat } = useChatSessions();
   const [query, setQuery] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -24,14 +30,14 @@ export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
       type="button"
       onClick={newChat}
       aria-label="New chat"
-      className="mb-2 flex w-full items-center rounded-lg border border-sidebar-border text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      className="mb-3 flex w-full items-center rounded-xl bg-primary text-primary-foreground transition-all hover:bg-primary-hover active:scale-[0.98] shadow-sm"
     >
       <span className="flex size-10 shrink-0 items-center justify-center">
         <Plus className="size-4" />
       </span>
       <span
         className={cn(
-          'overflow-hidden whitespace-nowrap text-left text-sm transition-all duration-300 ease-in-out',
+          'overflow-hidden whitespace-nowrap text-left text-sm font-medium transition-all duration-300 ease-in-out',
           collapsed ? 'max-w-0 opacity-0' : 'max-w-40 opacity-100 pr-2',
         )}
       >
@@ -41,7 +47,27 @@ export function ChatList({ collapsed = false }: { collapsed?: boolean }) {
   );
 
   if (collapsed) {
-    return newChatButton;
+    return (
+      <div className="flex flex-col items-center gap-2">
+        {newChatButton}
+        <button
+          type="button"
+          onClick={onExpand}
+          aria-label="Search chats"
+          className="flex size-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+        >
+          <Search className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={onExpand}
+          aria-label="Chat history"
+          className="flex size-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+        >
+          <History className="size-4" />
+        </button>
+      </div>
+    );
   }
 
   return (

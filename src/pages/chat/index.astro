@@ -1,11 +1,12 @@
 ---
 import '@/styles/global.css';
 import { ChatSidebar } from '@/features/chat/components/sidebar';
-import { MobileMenuButton } from '@/features/chat/components/mobile-menu-button';
 import { MobileSidebarOverlay } from '@/features/chat/components/mobile-sidebar-overlay';
 import { ChatHeader } from '@/features/chat/components/chat-header';
 import { ChatThread } from '@/features/chat/components/chat-thread';
-import { ChatInput } from '@/features/chat/components/chat-input';
+import { AuthHydrator } from '@/features/chat/components/auth-hydrator';
+
+const { userId, email, name } = Astro.locals;
 ---
 
 <html lang="en">
@@ -15,6 +16,7 @@ import { ChatInput } from '@/features/chat/components/chat-input';
     <title>Chat — jimly.ai</title>
   </head>
   <body>
+    <AuthHydrator id={userId} email={email} name={name} client:load />
     <div class="flex h-screen flex-col">
       <div class="flex flex-1 overflow-hidden">
         <div class="hidden md:flex">
@@ -23,13 +25,9 @@ import { ChatInput } from '@/features/chat/components/chat-input';
 
         <MobileSidebarOverlay client:load />
 
-        <div class="flex flex-1 flex-col">
-          <MobileMenuButton client:load />
+        <div class="flex flex-1 flex-col relative">
           <ChatHeader client:load />
           <ChatThread client:load />
-          <div class="mx-auto w-full max-w-2xl">
-            <ChatInput client:load />
-          </div>
         </div>
       </div>
     </div>
