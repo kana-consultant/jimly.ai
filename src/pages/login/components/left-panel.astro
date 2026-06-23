@@ -5,8 +5,8 @@ import QuoteBlock from './quote-block.astro';
 ---
 
 <div class="h-auto w-full shrink-0 py-12 md:h-full md:w-1/2 md:py-0">
-  <div class="relative flex h-full w-full flex-col justify-between overflow-hidden bg-(--auth-ink) px-8 py-10 text-white sm:px-12 sm:py-14">
-    
+  <div class="relative flex h-full w-full flex-col justify-between overflow-hidden bg-(--auth-ink) px-8 py-10 text-white sm:px-12 sm:py-14" transition:name="auth-left-panel">
+
     <div
       class="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
       style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 14px 14px;"
@@ -29,10 +29,11 @@ import QuoteBlock from './quote-block.astro';
     </div>
 
     <div class="relative z-10 flex items-center justify-between">
-      <span class="font-sans text-sm font-semibold tracking-tight text-(--auth-accent)">jimly.ai</span>
-      <a 
-        href="/" 
+      <span class="font-sans text-sm font-semibold tracking-tight text-(--auth-accent)" transition:name="auth-logo">jimly.ai</span>
+      <a
+        href="/"
         class="flex items-center gap-1.5 text-xs font-medium text-white/60 transition-colors hover:text-white"
+        transition:name="auth-back-link"
       >
         <ArrowLeft className="size-3.5" />
         Back to home

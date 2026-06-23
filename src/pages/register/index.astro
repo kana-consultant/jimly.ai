@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import LeftPanel from './components/left-panel.astro';
 import RightPanel from './components/right-panel.astro';
 ---
@@ -9,6 +10,7 @@ import RightPanel from './components/right-panel.astro';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Sign up — jimly.ai</title>
+    <ClientRouter />
   </head>
   <body>
     <main
