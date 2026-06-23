@@ -13,14 +13,14 @@ export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
       type="button"
       onClick={handleLogout}
       aria-label="Log out"
-      className="flex w-full items-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      className="flex w-full items-center rounded-xl bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20 active:scale-[0.98]"
     >
       <span className="flex size-10 shrink-0 items-center justify-center">
         <LogOut className="size-4" />
       </span>
       <span
         className={cn(
-          'overflow-hidden whitespace-nowrap text-left text-sm transition-all duration-300 ease-in-out',
+          'overflow-hidden whitespace-nowrap text-left text-sm font-medium transition-all duration-300 ease-in-out',
           iconOnly ? 'max-w-0 opacity-0' : 'max-w-40 opacity-100 pr-2',
         )}
       >
