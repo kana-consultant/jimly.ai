@@ -162,7 +162,7 @@ export function ChatThread() {
             >
               <div className="flex flex-col items-center gap-3">
                 <img
-                  src="/jimly.ai-logo.png"
+                  src="/logo.png"
                   alt="jimly.ai"
                   className="w-20 h-20 rounded-full shadow-md"
                 />

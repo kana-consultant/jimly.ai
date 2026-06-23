@@ -11,7 +11,7 @@ export function SiteNav({ logoSrc }: { logoSrc: string }) {
     <nav className="fixed top-4 inset-x-0 z-50 mx-auto flex h-15 max-w-5xl items-center justify-between rounded-full border border-white/10 bg-background/40 px-8 shadow-md backdrop-blur-xl backdrop-saturate-150">
       <a href="/" className="flex items-center gap-2 font-display text-[22px] font-semibold tracking-tight text-primary">
         <img src={logoSrc} alt="jimly.ai" className="size-7 rounded-md object-cover" />
-        jimly<span className="font-medium text-secondary">.ai</span>
+        jimly<span className="font-medium text-chart-5">.ai</span>
       </a>
       
       <div className="hidden items-center gap-1 md:flex">

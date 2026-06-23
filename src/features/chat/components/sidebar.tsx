@@ -24,10 +24,10 @@ export function ChatSidebar() {
     <Sidebar
       header={(collapsed) =>
         collapsed ? (
-          <img src="/jimly.ai-logo.png" alt="jimly.ai" className="size-7 rounded-lg shrink-0" />
+          <img src="/logo.png" alt="jimly.ai" className="size-7 rounded-lg shrink-0" />
         ) : (
           <div className="flex w-full items-center gap-2.5">
-            <img src="/jimly.ai-logo.png" alt="jimly.ai" className="size-7 rounded-lg shrink-0" />
+            <img src="/logo.png" alt="jimly.ai" className="size-7 rounded-lg shrink-0" />
             <span className="truncate text-sm font-bold">jimly.ai</span>
           </div>
         )

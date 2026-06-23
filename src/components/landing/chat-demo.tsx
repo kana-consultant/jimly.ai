@@ -44,7 +44,7 @@ function ChatBubble({ message, visible }: { message: DemoMessage; visible: boole
           'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'border border-border bg-card font-display text-[15px] font-bold text-secondary'
+            : 'border border-border bg-card font-display text-[15px] font-bold text-chart-5'
         )}
       >
         {isUser ? 'U' : 'J'}
@@ -59,7 +59,7 @@ function ChatBubble({ message, visible }: { message: DemoMessage; visible: boole
       >
         {message.text}
         {message.source && (
-          <div className="mt-2.5 flex items-center gap-1.5 border-t border-border pt-2 text-[11.5px] font-medium text-secondary">
+          <div className="mt-2.5 flex items-center gap-1.5 border-t border-border pt-2 text-[11.5px] font-medium text-chart-5">
             <FileText className="size-3 shrink-0" />
             {message.source}
           </div>
@@ -72,7 +72,7 @@ function ChatBubble({ message, visible }: { message: DemoMessage; visible: boole
 function TypingBubble() {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card font-display text-[15px] font-bold text-secondary">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card font-display text-[15px] font-bold text-chart-5">
         J
       </div>
       <div className="rounded-lg rounded-tl-md border border-border bg-card px-4 py-3">
@@ -152,7 +152,7 @@ export function ChatDemo() {
     <div className="bg-card shadow-sm" id="demo">
       <section className="mx-auto max-w-275 px-10 pt-20 pb-16 text-center">
         <h2 className="mb-3 font-sans text-3xl sm:text-4xl font-semibold tracking-tight text-primary">
-          See <em className="font-normal text-secondary italic">jimly.ai</em> in action
+          See <em className="font-normal text-chart-5 italic">jimly.ai</em> in action
         </h2>
         <p className="mx-auto mb-9 max-w-135 text-base leading-relaxed text-muted-foreground">
           Ask anything about Indonesian Law. Get sourced answers drawn directly from Prof. Jimly&apos;s 70+ books.
@@ -160,7 +160,7 @@ export function ChatDemo() {
         <div className="mx-auto max-w-190 overflow-hidden rounded-xl border border-border bg-card shadow-[0_8px_32px_rgba(16,42,67,0.12),0_4px_12px_rgba(16,42,67,0.06)]">
           <div className="flex items-center gap-2.5 border-b border-border px-5 py-3.5">
             <div className="font-display text-[17px] font-semibold text-primary">
-              jimly<span className="text-secondary">.ai</span>
+              jimly<span className="text-chart-5">.ai</span>
             </div>
             <div className="rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-success">
               ● Online
