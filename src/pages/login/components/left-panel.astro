@@ -1,0 +1,62 @@
+---
+import { ArrowUpRight, ArrowLeft } from 'lucide-react';
+import { Image } from 'astro:assets';
+import QuoteBlock from './quote-block.astro';
+---
+
+<div class="h-auto w-full shrink-0 py-12 md:h-full md:w-1/2 md:py-0">
+  <div class="relative flex h-full w-full flex-col justify-between overflow-hidden bg-(--auth-ink) px-8 py-10 text-white sm:px-12 sm:py-14">
+    
+    <div
+      class="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
+      style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 14px 14px;"
+    >
+    </div>
+    <div class="pointer-events-none absolute -top-32 -right-20 size-80 rounded-full bg-(--auth-accent) opacity-20 blur-[100px]"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-16 size-72 rounded-full bg-(--auth-accent) opacity-10 blur-[100px]"></div>
+
+    <div 
+      class="pointer-events-none absolute bottom-0 right-0 z-0 h-[70%] max-w-[85%] select-none opacity-25 md:opacity-40"
+      style="mask-image: linear-gradient(to top, transparent 0%, black 20%, black 100%); -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20%, black 100%);"
+    >
+      <Image 
+        src="/jimly-profile.png" 
+        alt="Prof. Jimly Asshiddiqie" 
+        width={450} 
+        height={600} 
+        class="h-full w-auto object-contain object-bottom"
+      />
+    </div>
+
+    <div class="relative z-10 flex items-center justify-between">
+      <span class="font-sans text-sm font-semibold tracking-tight text-(--auth-accent)">jimly.ai</span>
+      <a 
+        href="/" 
+        class="flex items-center gap-1.5 text-xs font-medium text-white/60 transition-colors hover:text-white"
+      >
+        <ArrowLeft className="size-3.5" />
+        Back to home
+      </a>
+    </div>
+
+    <!-- Hero Text Content -->
+    <div class="relative z-10 max-w-md my-auto md:my-0 md:mt-20">
+      <h2 class="text-[2.75rem] leading-[1.05] font-semibold tracking-tight sm:text-5xl">
+        Good to see you again.
+      </h2>
+      <p class="mt-5 text-sm leading-relaxed text-white/55 sm:text-base">
+        Sign in and pick the thread back up — your workspace is exactly how you left it.
+      </p>
+      <a
+        href="/register"
+        class="group mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-(--auth-accent) hover:bg-(--auth-accent) hover:text-(--auth-ink)"
+      >
+        Create account instead
+        <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      </a>
+    </div>
+
+    <QuoteBlock />
+
+  </div>
+</div>
