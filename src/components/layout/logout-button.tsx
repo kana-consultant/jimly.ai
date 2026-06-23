@@ -21,7 +21,7 @@ export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
       <span
         className={cn(
           'overflow-hidden whitespace-nowrap text-left text-sm transition-all duration-300 ease-in-out',
-          iconOnly ? 'max-w-0 opacity-0' : 'max-w-[10rem] opacity-100 pr-2',
+          iconOnly ? 'max-w-0 opacity-0' : 'max-w-40 opacity-100 pr-2',
         )}
       >
         Log out

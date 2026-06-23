@@ -2,7 +2,6 @@ const EXPLORE_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#how", label: "How it works" },
   { href: "#books", label: "Books" },
-  { href: "#about", label: "About Prof. Jimly" },
 ]
 
 const LEGAL_LINKS = [
