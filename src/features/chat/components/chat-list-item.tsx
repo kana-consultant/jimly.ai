@@ -27,16 +27,16 @@ export function ChatListItem({
   return (
     <div
       className={cn(
-        'group flex items-center gap-1 rounded-md px-2 py-1.5 text-sm transition-colors',
-        isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/60',
+        'group flex items-center gap-1 rounded-xl px-2.5 py-2 text-sm transition-colors cursor-pointer',
+        isActive ? 'bg-hover text-foreground' : 'hover:bg-hover text-muted-foreground hover:text-foreground',
       )}
     >
       <button className="flex flex-1 items-center gap-2 truncate text-left" onClick={onSelect}>
-        <span className="truncate font-medium">{session.title}</span>
+        <span className="truncate">{session.title}</span>
       </button>
 
       {session.pinned && (
-        <Pin className="size-3.5 text-secondary fill-secondary shrink-0 opacity-80" />
+        <Pin className="size-3.5 text-primary fill-primary/20 shrink-0" />
       )}
 
       <DropdownMenu>

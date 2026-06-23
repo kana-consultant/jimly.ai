@@ -46,7 +46,7 @@ export function BooksSection({ covers }: { covers: string[] }) {
     <section className="mx-auto max-w-275 px-10 py-22" id="books">
       <Reveal className="mb-12">
         <h2 className="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
-          Built on <em className="font-normal text-secondary italic">decades of scholarship</em>
+          Built on <em className="font-normal text-chart-5 italic">decades of scholarship</em>
         </h2>
         <p className="mt-3 max-w-125 text-[15px] leading-relaxed text-muted-foreground">
           jimly.ai is trained on Prof. Jimly&apos;s major published works  a library of Indonesian constitutional

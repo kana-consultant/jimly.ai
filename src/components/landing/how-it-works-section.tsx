@@ -31,7 +31,7 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-275 px-10 py-22">
         <Reveal className="mb-14">
           <h2 className="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
-            From question to <em className="font-normal text-secondary italic">cited answer</em>
+            From question to <em className="font-normal text-chart-5 italic">cited answer</em>
           </h2>
           <p className="mt-3 max-w-125 text-[15px] leading-relaxed text-muted-foreground">
             Every response is grounded in Prof. Jimly&apos;s published works  not generic AI training data.
@@ -48,7 +48,7 @@ export function HowItWorksSection() {
                 visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
               )}
             >
-              <div className="mb-4 font-display text-[13px] font-semibold tracking-widest text-secondary">
+              <div className="mb-4 font-display text-[13px] font-semibold tracking-widest text-chart-5">
                 {step.num}
               </div>
               <div className="mb-5 flex size-11 items-center justify-center rounded-xl bg-primary transition-transform duration-300 group-hover:scale-110">

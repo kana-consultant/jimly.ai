@@ -1,4 +1,4 @@
-import { MoreVertical, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
+import { Menu, MoreVertical, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,17 +10,22 @@ import {
 import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog';
 import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog';
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
+import { useMobileNavStore } from '@/features/chat/logic/mobile-nav-store';
 
 export function ChatHeader() {
   const { sessions, activeChatId, deleteChat, togglePin, renameChat } = useChatSessions();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [renaming, setRenaming] = useState(false);
+  const toggleMobileNav = useMobileNavStore((state) => state.toggle);
 
   const activeSession = sessions.find((s) => s.id === activeChatId) ?? null;
 
   return (
     <>
-      <div className="flex h-12 shrink-0 items-center justify-end border-b px-3 sm:px-4">
+      <div className="flex h-12 shrink-0 items-center justify-between shadow-sm px-3 sm:px-4">
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
+          <Menu className="size-4" />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={

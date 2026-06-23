@@ -19,7 +19,7 @@ export function HeroSection({ photoSrc }: { photoSrc: string }) {
           <h1 className="mb-5 font-sans text-[clamp(34px,4vw,56px)] leading-[1.1] font-semibold tracking-tight text-primary">
             Ask Indonesian law.
             <br />
-            Answered by <em className="font-normal text-secondary italic">Prof. Jimly</em>&apos;s lifetime of
+            Answered by <em className="font-normal text-chart-5 italic">Prof. Jimly</em>&apos;s lifetime of
             scholarship.
           </h1>
           <p className="mb-8 max-w-140 text-[15px] leading-loose text-muted-foreground">
