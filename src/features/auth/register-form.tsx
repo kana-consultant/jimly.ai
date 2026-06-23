@@ -7,6 +7,7 @@ import { GoogleButton } from '@/features/auth/google-button';
 import { PasswordInput } from '@/features/auth/password-input';
 
 export function RegisterForm() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +18,7 @@ export function RegisterForm() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const result = await registerUser({ email, password });
+    const result = await registerUser({ email, password, name });
     if ('error' in result) {
       setError(result.error);
       setIsSubmitting(false);
@@ -29,6 +30,19 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="name" className="text-sm font-medium text-foreground">
+          Name
+        </label>
+        <Input
+          id="name"
+          type="text"
+          placeholder="Jane Doe"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-foreground">
           Email
