@@ -9,6 +9,7 @@ import { ChatBubble } from '@/features/chat/components/chat-bubble';
 import { StreamingIndicator } from '@/features/chat/components/streaming-indicator';
 import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
 import { ChatInput } from '@/features/chat/components/chat-input';
+import { ChatTopicNav } from '@/features/chat/components/chat-topic-nav';
 
 function formatDisplayName(email: string): string {
   const name = email.slice(0, email.indexOf('@'));
@@ -166,6 +167,7 @@ export function ChatThread() {
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
+                    id={`msg-${message.id}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
@@ -190,6 +192,8 @@ export function ChatThread() {
           )}
         </AnimatePresence>
       </div>
+
+      {hasMessages && <ChatTopicNav messages={messages} />}
 
       {/* Bottom fade - messages fade out as they pass under the input, gradient spans down to the bottom edge */}
       {hasMessages && (
