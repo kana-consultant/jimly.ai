@@ -1,4 +1,3 @@
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { createSupabaseChatRepository } from '@/services/supabase-chat-repository';
+import { createHttpChatRepository } from '@/features/chat/logic/http-chat-repository';
 
-export const chatRepository = createSupabaseChatRepository(createSupabaseBrowserClient());
+export const chatRepository = createHttpChatRepository();

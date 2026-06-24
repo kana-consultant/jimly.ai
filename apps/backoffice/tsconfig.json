@@ -3,7 +3,7 @@
   "include": ["src", "api"],
   "exclude": ["src/lib/supabase/server.ts"],
   "compilerOptions": {
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] },
     "noEmit": true
