@@ -50,7 +50,7 @@ function deriveTopics(messages: { role: string; content: string }[], sessions: C
   const userMessages = messages.filter((m) => m.role === 'user');
   if (!userMessages.length) return DEFAULT_TOPICS;
 
-  const lastUser = userMessages[userMessages.length - 1].content.toLowerCase();
+  const lastUser = userMessages[userMessages.length - 1]!.content.toLowerCase();
   for (const [intent, topics] of Object.entries(INTENT_TOPICS)) {
     if (lastUser.includes(intent)) return topics;
   }

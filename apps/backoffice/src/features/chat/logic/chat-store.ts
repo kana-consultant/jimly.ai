@@ -68,7 +68,7 @@ export const useChatStore = create<ChatState>((set) => ({
     set((state) => {
       const messages = state.messagesByChatId[chatId] ?? [];
       if (messages.length === 0) return state;
-      const last = messages[messages.length - 1];
+      const last = messages[messages.length - 1]!;
       const updated = { ...last, content: last.content + chunk };
       return {
         messagesByChatId: {

@@ -31,6 +31,12 @@ function __main__() {
   console.log('validate-auth-input: all checks passed');
 }
 
-if (import.meta.url.endsWith('validate-auth-input.ts') && process.argv[1]?.endsWith('validate-auth-input.ts')) {
+declare const process: { argv: string[] } | undefined;
+
+if (
+  import.meta.url.endsWith('validate-auth-input.ts') &&
+  typeof process !== 'undefined' &&
+  process.argv[1]?.endsWith('validate-auth-input.ts')
+) {
   __main__();
 }

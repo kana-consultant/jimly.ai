@@ -28,7 +28,7 @@ export function useChatStream() {
         let fullContent = '';
         let buffer = '';
         let streamDone = false;
-        let wakeDrain: (() => void) | null = null;
+        const waker: { wake: (() => void) | null } = { wake: null };
 
         const drain = async () => {
           while (true) {
@@ -40,7 +40,9 @@ export function useChatStream() {
               continue;
             }
             if (streamDone) return;
-            await new Promise<void>((resolve) => { wakeDrain = resolve; });
+            await new Promise<void>((resolve) => {
+              waker.wake = resolve;
+            });
           }
         };
         const drainPromise = drain();
@@ -48,11 +50,11 @@ export function useChatStream() {
         for await (const chunk of streamChatCompletion(chatId, history)) {
           fullContent += chunk;
           buffer += chunk;
-          wakeDrain?.();
-          wakeDrain = null;
+          waker.wake?.();
+          waker.wake = null;
         }
         streamDone = true;
-        wakeDrain?.();
+        waker.wake?.();
         await drainPromise;
 
         return fullContent;
