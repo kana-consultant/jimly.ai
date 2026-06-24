@@ -1,6 +1,6 @@
-const API_URL = import.meta.env.PERFECT10_API_URL;
-const API_KEY = import.meta.env.PERFECT10_API_KEY;
-const AGENT_ID = Number(import.meta.env.PERFECT10_AGENT_ID);
+const API_URL = process.env.PERFECT10_API_URL!;
+const API_KEY = process.env.PERFECT10_API_KEY!;
+const AGENT_ID = Number(process.env.PERFECT10_AGENT_ID);
 
 function perfect10Fetch(path: string, origin: string, init?: RequestInit) {
   return fetch(`${API_URL}${path}`, {
