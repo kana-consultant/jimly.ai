@@ -11,6 +11,9 @@ md/
 # dependencies
 node_modules/
 
+# moon build cache
+.moon/cache/
+
 # logs
 npm-debug.log*
 yarn-debug.log*
