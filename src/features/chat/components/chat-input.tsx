@@ -121,7 +121,6 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
         </div>
       </form>
 
-      {/* Suggestions between input and footer */}
       {suggestions}
 
       <p className="text-[11px] text-center text-muted-foreground/60 mt-2">

@@ -78,7 +78,6 @@ export function ChatThread() {
 
   const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
 
-  // Mengubah mekanisme scroll menggunakan koordinat element container secara presisi
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
     const container = scrollRef.current;
     if (container) {
@@ -89,15 +88,12 @@ export function ChatThread() {
     }
   }, []);
 
-  // 1. Trigger saat ada baris pesan baru masuk
   useEffect(() => {
     if (hasMessages) {
       const isNewMessage = messages.length > prevLenRef.current;
       prevLenRef.current = messages.length;
 
       if (isNewMessage) {
-        // Gunakan 'auto' agar posisi scroll instan berpindah ke dasar container.
-        // Ini menghilangkan glitch "turun dulu baru naik" saat Framer Motion bekerja.
         scrollToBottom('auto');
       }
     } else {
@@ -105,7 +101,6 @@ export function ChatThread() {
     }
   }, [messages.length, hasMessages, scrollToBottom]);
 
-  // 2. Mengikuti aliran text-streaming (Smart Sticky Scroll)
   useEffect(() => {
     if (isStreaming && hasMessages && lastMessage?.content) {
       const container = scrollRef.current;
@@ -115,7 +110,6 @@ export function ChatThread() {
           container.scrollHeight - container.scrollTop - container.clientHeight <= threshold;
 
         if (isUserNearBottom) {
-          // Menggunakan 'auto' saat streaming membuat pergerakan kata per kata menjadi sangat halus tanpa delay transisi
           container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
         }
       }
@@ -186,7 +180,7 @@ export function ChatThread() {
                   <motion.div
                     key={message.id}
                     id={`msg-${message.id}`}
-                    initial={{ opacity: 0, y: 4 }} // Dikurangi rentang jarak y agar slide-up transisi lebih subtle dan rapi
+                    initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
                   >
