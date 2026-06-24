@@ -7,13 +7,15 @@ const NAV_LINKS = [
 ]
 
 export function SiteNav({ logoSrc }: { logoSrc: string }) {
+  const backofficeUrl = import.meta.env.PUBLIC_BACKOFFICE_URL
+
   return (
     <nav className="fixed top-4 inset-x-0 z-50 mx-auto flex h-15 max-w-5xl items-center justify-between rounded-full border border-white/10 bg-background/40 px-8 shadow-md backdrop-blur-xl backdrop-saturate-150">
       <a href="/" className="flex items-center gap-2 font-display text-[22px] font-semibold tracking-tight text-primary">
         <img src={logoSrc} alt="jimly.ai" className="size-7 rounded-md object-cover" />
         jimly<span className="font-medium text-chart-5">.ai</span>
       </a>
-      
+
       <div className="hidden items-center gap-1 md:flex">
         {NAV_LINKS.map((link) => (
           <a
@@ -25,12 +27,12 @@ export function SiteNav({ logoSrc }: { logoSrc: string }) {
           </a>
         ))}
       </div>
-      
+
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" nativeButton={false} render={<a href="/login" />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<a href={`${backofficeUrl}/login`} />}>
           Sign in
         </Button>
-        <Button size="sm" nativeButton={false} render={<a href="/register" />}>
+        <Button size="sm" nativeButton={false} render={<a href={`${backofficeUrl}/register`} />}>
           Get Started
         </Button>
       </div>
