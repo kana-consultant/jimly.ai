@@ -26,29 +26,34 @@ export function ChatHeader() {
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
           <Menu className="size-4" />
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" size="icon" aria-label="Chat options" disabled={!activeSession}>
-                <MoreVertical className="size-4" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setRenaming(true)}>
-              <Pencil className="size-4" />
-              Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => activeSession && togglePin(activeSession.id)}>
-              {activeSession?.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
-              {activeSession?.pinned ? 'Unpin' : 'Pin'}
-            </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
-              <Trash2 className="size-4" />
-              Delete chat
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        
+        <div className="hidden md:block" />
+
+        <div className="ml-auto md:ml-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon" aria-label="Chat options" disabled={!activeSession}>
+                  <MoreVertical className="size-4" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setRenaming(true)}>
+                <Pencil className="size-4" />
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => activeSession && togglePin(activeSession.id)}>
+                {activeSession?.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+                {activeSession?.pinned ? 'Unpin' : 'Pin'}
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+                <Trash2 className="size-4" />
+                Delete chat
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {activeSession && (
