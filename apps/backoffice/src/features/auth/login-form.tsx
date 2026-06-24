@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { loginUser } from '@/lib/auth-api-client';
-import { useAuthStore } from '@/stores/auth-store';
 import { GoogleButton } from '@/features/auth/google-button';
 import { PasswordInput } from '@/features/auth/password-input';
 
@@ -11,7 +10,6 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const setUser = useAuthStore((state) => state.setUser);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +21,6 @@ export function LoginForm() {
       setIsSubmitting(false);
       return;
     }
-    setUser(result.user);
     window.location.href = '/chat';
   }
 

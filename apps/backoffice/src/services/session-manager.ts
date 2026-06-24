@@ -1,14 +1,6 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { auth } from '@/auth/server';
 
-export async function getSessionUserId(supabase: SupabaseClient): Promise<string | null> {
-  const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
-}
-
-export async function getSessionUser(
-  supabase: SupabaseClient,
-): Promise<{ id: string; email: string; name?: string } | null> {
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) return null;
-  return { id: data.user.id, email: data.user.email ?? '', name: data.user.user_metadata?.name };
+export async function getSessionUserId(headers: Headers): Promise<string | null> {
+  const session = await auth.api.getSession({ headers });
+  return session?.user?.id ?? null;
 }

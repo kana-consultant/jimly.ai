@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
+import { Navigate } from 'react-router';
+import { useSession } from '@/auth/client';
 
-// Phase 4 replaces this stub with a real Better Auth session check.
 export function RequireAuth({ children }: { children: ReactNode }) {
-  return <>{children}</>; // ponytail: stub until Phase 4
+  const { data, isPending } = useSession();
+  if (isPending) return null;
+  if (!data) return <Navigate to="/login" replace />;
+  return <>{children}</>;
 }

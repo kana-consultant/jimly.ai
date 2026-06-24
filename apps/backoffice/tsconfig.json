@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["src", "api"],
-  "exclude": ["src/lib/supabase/server.ts"],
   "compilerOptions": {
     "types": ["vite/client", "node"],
     "baseUrl": ".",

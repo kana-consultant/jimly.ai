@@ -1,5 +1,6 @@
-import { useAuthStore } from '@/stores/auth-store';
+import { useSession } from '@/auth/client';
 
 export function useCurrentUser() {
-  return useAuthStore((state) => state.user);
+  const { data } = useSession();
+  return data?.user ?? null;
 }
