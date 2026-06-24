@@ -25,7 +25,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   if (!perfect10SessionId) {
     try {
       perfect10SessionId = await createPerfect10Session(origin);
-    } catch {
+    } catch (err) {
+      console.error(err);
       return Response.json({ error: 'Failed to create chat session' }, { status: 502 });
     }
     await chatRepository.setPerfect10SessionId(chatId, perfect10SessionId);
@@ -34,14 +35,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   let assistantMessageId: number;
   try {
     assistantMessageId = await sendPerfect10Message(perfect10SessionId, lastMessage.content, origin);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return Response.json({ error: 'Failed to send message' }, { status: 502 });
   }
 
   let translated: ReadableStream<Uint8Array>;
   try {
     translated = await streamPerfect10Reply(assistantMessageId, origin);
-  } catch {
+  } catch (err) {
+    console.error(err);
     return Response.json({ error: 'Failed to stream reply' }, { status: 502 });
   }
 

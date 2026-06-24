@@ -19,7 +19,7 @@ export async function createPerfect10Session(origin: string): Promise<string> {
     method: 'POST',
     body: JSON.stringify({ agent_id: AGENT_ID }),
   });
-  if (!res.ok) throw new Error('Failed to create chat session');
+  if (!res.ok) throw new Error(`Failed to create chat session: ${res.status} ${await res.text()}`);
   const data = (await res.json()) as { session_id: string };
   return data.session_id;
 }
@@ -33,7 +33,7 @@ export async function sendPerfect10Message(
     method: 'POST',
     body: JSON.stringify({ content }),
   });
-  if (!res.ok) throw new Error('Failed to send message');
+  if (!res.ok) throw new Error(`Failed to send message: ${res.status} ${await res.text()}`);
   const data = (await res.json()) as { assistant_message_id: number };
   return data.assistant_message_id;
 }
@@ -45,7 +45,7 @@ export async function streamPerfect10Reply(
   const res = await fetch(`${API_URL}/integrate/v1/chat/stream/${assistantMessageId}`, {
     headers: { Accept: 'text/event-stream', 'X-API-Key': API_KEY, 'X-Actual-Origin': origin },
   });
-  if (!res.ok || !res.body) throw new Error('Failed to stream reply');
+  if (!res.ok || !res.body) throw new Error(`Failed to stream reply: ${res.status} ${await res.text()}`);
   return res.body.pipeThrough(translateStream());
 }
 
