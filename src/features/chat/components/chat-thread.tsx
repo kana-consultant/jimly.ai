@@ -149,7 +149,7 @@ export function ChatThread() {
           {!hasMessages ? (
             <motion.div
               key="empty"
-              className="flex flex-col items-center min-h-full pt-[16vh] px-4"
+              className="flex flex-col items-center min-h-full pt-[10vh] sm:pt-[16vh] px-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
@@ -210,12 +210,12 @@ export function ChatThread() {
       )}
 
       <div
-        className="absolute inset-x-0 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center"
-        style={{
-          bottom: hasMessages ? '1.5rem' : '50%',
-          transform: hasMessages ? 'translateY(0)' : 'translateY(50%)',
-          transition: 'bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
+        className={cn(
+          'absolute inset-x-0 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center transition-[bottom,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          hasMessages
+            ? 'bottom-6 translate-y-0'
+            : 'bottom-[38%] translate-y-1/2 sm:bottom-1/2',
+        )}
       >
         <ChatInput
           showSuggestions={hasMessages ? showSuggestions : false}
