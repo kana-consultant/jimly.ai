@@ -118,7 +118,7 @@ function RightPanel() {
 export function RegisterRoute() {
   return (
     <main
-      className="relative flex h-screen w-screen flex-col overflow-y-auto md:flex-row md:overflow-y-hidden"
+      className="relative flex h-dvh w-full flex-col overflow-y-auto md:flex-row md:overflow-y-hidden"
       style={{ '--auth-ink': '#102A43', '--auth-accent': '#C49A45' } as React.CSSProperties}
     >
       <LeftPanel />

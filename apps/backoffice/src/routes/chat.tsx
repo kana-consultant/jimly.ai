@@ -7,7 +7,7 @@ import { ChatThread } from '@/features/chat/components/chat-thread';
 // server-rendered `Astro.locals` hydration this page used before the SPA move).
 export function ChatRoute() {
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-dvh flex-col">
       <div className="flex flex-1 overflow-hidden">
         <div className="hidden md:flex">
           <ChatSidebar />
