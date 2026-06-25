@@ -17,7 +17,7 @@ const { userId, email, name } = Astro.locals;
   </head>
   <body>
     <AuthHydrator id={userId} email={email} name={name} client:load />
-    <div class="flex h-screen flex-col">
+    <div class="flex h-dvh flex-col">
       <div class="flex flex-1 overflow-hidden">
         <div class="hidden md:flex">
           <ChatSidebar client:load />
