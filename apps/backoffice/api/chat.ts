@@ -1,8 +1,6 @@
-import { createPerfect10Session, sendPerfect10Message, streamPerfect10Reply } from '@/services/perfect10-client';
+import { createPerfect10Session, sendPerfect10Message, streamPerfect10Reply } from '../src/services/perfect10-client';
 import { withUser } from './_lib/with-user';
 import { checkRateLimit } from './_lib/rate-limit';
-
-export const config = { runtime: 'edge' };
 
 interface Body {
   chatId: string;

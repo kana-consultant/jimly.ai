@@ -1,6 +1,4 @@
-import { auth } from '@/auth/server';
-
-export const config = { runtime: 'edge' };
+import { auth } from '../../src/auth/server';
 
 export default function handler(req: Request) {
   return auth.handler(req);

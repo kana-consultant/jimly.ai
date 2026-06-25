@@ -1,8 +1,6 @@
 import { withUser } from '../../_lib/with-user';
 import { validateMessage } from '../../_lib/validate';
 
-export const config = { runtime: 'edge' };
-
 export default withUser(async ({ req, repo }) => {
   const parts = new URL(req.url).pathname.split('/');
   const sessionId = parts[parts.indexOf('sessions') + 1]!;

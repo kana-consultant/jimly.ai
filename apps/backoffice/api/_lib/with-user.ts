@@ -1,7 +1,7 @@
-import { db } from '@/db/client';
-import { auth } from '@/auth/server';
-import { createNeonChatRepository } from '@/services/neon-chat-repository';
-import type { ChatRepository } from '@/services/chat-repository';
+import { db } from '../../src/db/client';
+import { auth } from '../../src/auth/server';
+import { createNeonChatRepository } from '../../src/services/neon-chat-repository';
+import type { ChatRepository } from '../../src/services/chat-repository';
 
 type Handler = (ctx: { req: Request; userId: string; repo: ChatRepository }) => Promise<Response>;
 
