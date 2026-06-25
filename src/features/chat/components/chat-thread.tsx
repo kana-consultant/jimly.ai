@@ -133,7 +133,6 @@ export function ChatThread() {
     setShowSuggestions((prev) => !prev);
   }, []);
 
-  const suggestionsVisible = !hasMessages || showSuggestions;
   const displayName = user?.name || (user?.email ? formatDisplayName(user.email) : '');
 
   return (
@@ -149,7 +148,7 @@ export function ChatThread() {
           {!hasMessages ? (
             <motion.div
               key="empty"
-              className="flex flex-col items-center min-h-full pt-[10vh] sm:pt-[16vh] px-4"
+              className="flex min-h-full w-full flex-col items-center justify-center gap-6 px-4 py-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
@@ -166,6 +165,16 @@ export function ChatThread() {
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground text-center">
                   How can I assist you today?
                 </h1>
+              </div>
+
+              <div className="w-full max-w-2xl flex flex-col items-center">
+                <ChatInput
+                  suggestions={
+                    <div className="flex justify-center mt-3">
+                      <SuggestedTopics topics={topics} onSelect={handleTopicSelect} />
+                    </div>
+                  }
+                />
               </div>
             </motion.div>
           ) : (
@@ -209,26 +218,21 @@ export function ChatThread() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-linear-to-t from-background via-background to-transparent z-5" />
       )}
 
-      <div
-        className={cn(
-          'absolute inset-x-0 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center transition-[bottom,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]',
-          hasMessages
-            ? 'bottom-6 translate-y-0'
-            : 'bottom-[38%] translate-y-1/2 sm:bottom-1/2',
-        )}
-      >
-        <ChatInput
-          showSuggestions={hasMessages ? showSuggestions : false}
-          onToggleSuggestions={hasMessages ? handleToggleSuggestions : undefined}
-          suggestions={
-            suggestionsVisible ? (
-              <div className="flex justify-center mt-3">
-                <SuggestedTopics topics={topics} onSelect={handleTopicSelect} />
-              </div>
-            ) : null
-          }
-        />
-      </div>
+      {hasMessages && (
+        <div className="absolute inset-x-0 bottom-6 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
+          <ChatInput
+            showSuggestions={showSuggestions}
+            onToggleSuggestions={handleToggleSuggestions}
+            suggestions={
+              showSuggestions ? (
+                <div className="flex justify-center mt-3">
+                  <SuggestedTopics topics={topics} onSelect={handleTopicSelect} />
+                </div>
+              ) : null
+            }
+          />
+        </div>
+      )}
     </div>
   );
 }

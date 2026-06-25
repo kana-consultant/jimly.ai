@@ -32,8 +32,9 @@ export function ChatHeader() {
         <div className="ml-auto md:ml-0">
           <DropdownMenu>
             <DropdownMenuTrigger
+              disabled={!activeSession}
               render={
-                <Button variant="ghost" size="icon" aria-label="Chat options" disabled={!activeSession}>
+                <Button variant="ghost" size="icon" aria-label="Chat options">
                   <MoreVertical className="size-4" />
                 </Button>
               }
