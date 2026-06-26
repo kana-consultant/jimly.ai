@@ -8,12 +8,10 @@ dist/
 .vscode/
 .playwright-mcp/
 .claude/
-.moon/
 md/
 
 # dependencies
 node_modules/
-
 # moon build cache
 .moon/cache/
 
@@ -34,7 +32,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# local-only Claude Code settings (skills/commands under .claude/ are tracked)
+# local-only Claude Code settings (redundant with .claude/ above, kept explicit)
 .claude/launch.json
 .claude/settings.local.json
 .vercel
