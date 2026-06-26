@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useChatStore } from '@/features/chat/logic/chat-store';
 import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
 
@@ -31,9 +32,14 @@ export function useChatSessions() {
 
   const deleteChat = useCallback(
     async (chatId: string) => {
-      await chatRepository.deleteSession(chatId);
-      removeSession(chatId);
-      if (activeChatId === chatId) setActiveChat(null);
+      try {
+        await chatRepository.deleteSession(chatId);
+        removeSession(chatId);
+        if (activeChatId === chatId) setActiveChat(null);
+        toast.success('Chat deleted');
+      } catch {
+        toast.error('Failed to delete chat');
+      }
     },
     [activeChatId, removeSession, setActiveChat],
   );
@@ -50,8 +56,13 @@ export function useChatSessions() {
 
   const renameChat = useCallback(
     async (chatId: string, title: string) => {
-      renameSession(chatId, title);
-      await chatRepository.updateSession(chatId, { title });
+      try {
+        renameSession(chatId, title);
+        await chatRepository.updateSession(chatId, { title });
+        toast.success('Chat renamed');
+      } catch {
+        toast.error('Failed to rename chat');
+      }
     },
     [renameSession],
   );

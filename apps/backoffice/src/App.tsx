@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router';
+import { Toaster } from 'sonner';
 import { LoginRoute } from './routes/login';
 import { RegisterRoute } from './routes/register';
 import { ChatRoute } from './routes/chat';
@@ -19,5 +20,10 @@ const router = createBrowserRouter([
 ]);
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster richColors position="top-right" />
+    </>
+  );
 }
