@@ -33,7 +33,7 @@ Landing's "Login" link points at the backoffice's deployed URL (`PUBLIC_BACKOFFI
 
 ## ✨ Features
 
-- Email + Google sign-in (Better Auth, Drizzle adapter on Neon)
+- Email/password sign-in (Better Auth, Drizzle adapter on Neon)
 - Streaming chat with markdown rendering (`react-markdown` + `remark-gfm`)
 - Collapsible sidebar — rename / pin chats
 - Per-user rate limiting on the chat endpoint (Upstash)
@@ -53,50 +53,44 @@ Landing's "Login" link points at the backoffice's deployed URL (`PUBLIC_BACKOFFI
 | **Auth** | Better Auth (email/password + Google) |
 | **Hosting** | Vercel (static + serverless functions) |
 
-## 🚀 Quick Start
-
-```bash
-pnpm install
-```
-
-Each app needs its own `.env` (copy from `.env.example` in that app dir):
-
-```bash
-cp apps/landing/.env.example apps/landing/.env
-cp apps/backoffice/.env.example apps/backoffice/.env
-```
+## 🚀 Run locally
 
 Requires Node >= 22.12.0, pnpm.
 
+```bash
+pnpm install
+cp .env.example .env   # repo root — shared by both apps
+```
+
+Fill in `.env` 
+
+- Landing → http://localhost:4321
+```bash
+cd apps/landing
+pnpm dev 
+```
+
+- Backoffice → http://localhost:3000
+```bash
+cd apps/backoffice
+pnpm dev 
+```
+
+cd apps/backoffice:
+
 | Command | Description |
 | --- | --- |
-| `moon run :dev` / `pnpm dev` | Run every app's dev task |
-| `moon run :build` / `pnpm build` | Build every app |
-| `pnpm --filter landing dev` | Landing dev server (Astro) |
+| `pnpm dev` / `moon run :dev` | Run every app's dev task |
+| `pnpm build` / `moon run :build` | Build every app |
+| `pnpm --filter landing dev` | Landing dev server (Astro) only |
 | `pnpm --filter backoffice dev` | Backoffice SPA only (Vite, no API) |
-| `cd apps/backoffice && npx vercel dev` | Backoffice SPA + `api/*` functions together |
+| `cd apps/backoffice && npx vercel dev` | Backoffice SPA + `api/*` functions together (auth/chat need this) |
 | `pnpm --filter backoffice db:push` | Push Drizzle schema to Neon |
 | `pnpm --filter backoffice test` | Run repository tests (vitest) |
 
 ## Environment variables
 
-```bash
-# apps/backoffice
-VITE_LANDING_URL=https://<landing-domain>
-DATABASE_URL=postgres://...neon...
-BETTER_AUTH_SECRET=<openssl rand -base64 32>
-BETTER_AUTH_URL=https://<backoffice-domain>
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-PERFECT10_API_KEY=
-PERFECT10_API_URL=
-PERFECT10_AGENT_ID=
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-
-# apps/landing
-PUBLIC_BACKOFFICE_URL=https://<backoffice-domain>
-```
+One `.env` at the repo root, shared by both apps (see `.env.example`):
 
 ## Deploy
 
