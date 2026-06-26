@@ -62,11 +62,14 @@ function devApiPlugin(): Plugin {
 export default defineConfig(({ mode }) => {
   // api/*.ts handlers read process.env directly (DATABASE_URL, BETTER_AUTH_*, ...);
   // Vite only exposes VITE_-prefixed vars by default, so load the rest ourselves.
-  Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
+  // .env lives at repo root, shared with the landing app.
+  const envDir = path.resolve(__dirname, '../..');
+  Object.assign(process.env, loadEnv(mode, envDir, ''));
 
   return {
     plugins: [react(), tailwindcss(), devApiPlugin()],
     resolve: { alias: { '@': path.resolve(__dirname, './src') } },
+    envDir,
     server: { port: Number(process.env.PORT) || 5173 },
   };
 });

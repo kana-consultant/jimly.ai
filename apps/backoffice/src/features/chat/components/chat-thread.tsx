@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { getDisplayName } from '@/lib/display-name';
 import { useSendMessage } from '@/features/chat/logic/use-send-message';
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
 import type { ChatSession } from '@/types/chat';
@@ -10,14 +11,6 @@ import { StreamingIndicator } from '@/features/chat/components/streaming-indicat
 import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
 import { ChatInput } from '@/features/chat/components/chat-input';
 import { ChatTopicNav } from '@/features/chat/components/chat-topic-nav';
-
-function formatDisplayName(email: string): string {
-  const name = email.slice(0, email.indexOf('@'));
-  return name
-    .split(/[._-]/)
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(' ');
-}
 
 const INTENT_TOPICS: Record<string, string[]> = {
   research: ['Competitors', 'Market trends', 'Industry reports'],
@@ -134,7 +127,7 @@ export function ChatThread() {
   }, []);
 
   const suggestionsVisible = !hasMessages || showSuggestions;
-  const displayName = user?.name || (user?.email ? formatDisplayName(user.email) : '');
+  const displayName = getDisplayName(user);
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">

@@ -23,7 +23,7 @@ export function LogoutConfirmDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Log out?</DialogTitle>
-          <DialogDescription>You'll need to sign in again to access your chats.</DialogDescription>
+          <DialogDescription>You'll need to login again to access your chats.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>

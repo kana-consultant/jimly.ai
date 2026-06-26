@@ -6,5 +6,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   output: 'static',
   integrations: [react()],
-  vite: { plugins: [tailwindcss()] },
+  // .env lives at repo root, shared with the backoffice app.
+  vite: { plugins: [tailwindcss()], envDir: '../../' },
 });

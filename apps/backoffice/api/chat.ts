@@ -2,6 +2,8 @@ import { createPerfect10Session, sendPerfect10Message, streamPerfect10Reply } fr
 import { withUser } from './_lib/with-user';
 import { checkRateLimit } from './_lib/rate-limit';
 
+export const config = { runtime: 'edge' };
+
 interface Body {
   chatId: string;
   messages: { role: string; content: string }[];

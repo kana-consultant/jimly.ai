@@ -1,6 +1,8 @@
 import { withUser } from '../_lib/with-user';
 import { validateSessionPatch } from '../_lib/validate';
 
+export const config = { runtime: 'edge' };
+
 export default withUser(async ({ req, repo }) => {
   const id = new URL(req.url).pathname.split('/').pop()!;
   if (req.method === 'PATCH') {

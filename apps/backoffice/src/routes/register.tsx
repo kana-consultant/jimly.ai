@@ -49,7 +49,7 @@ function LeftPanel() {
         <div className="relative z-10 flex items-center justify-between">
           <span className="font-sans text-sm font-semibold tracking-tight text-(--auth-accent)">jimly.ai</span>
           <a
-            href="/"
+            href={import.meta.env.VITE_LANDING_URL || '/'}
             className="flex items-center gap-1.5 text-xs font-medium text-white/60 transition-colors hover:text-white"
           >
             <ArrowLeft className="size-3.5" />

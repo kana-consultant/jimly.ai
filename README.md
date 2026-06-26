@@ -82,6 +82,7 @@ Requires Node >= 22.12.0, pnpm.
 
 ```bash
 # apps/backoffice
+VITE_LANDING_URL=https://<landing-domain>
 DATABASE_URL=postgres://...neon...
 BETTER_AUTH_SECRET=<openssl rand -base64 32>
 BETTER_AUTH_URL=https://<backoffice-domain>

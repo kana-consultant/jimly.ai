@@ -1,8 +1,9 @@
 {
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "cd ../.. && pnpm --filter backoffice build",
+  "devCommand": "vite",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/((?!api/)(?!@)(?!.*\\.).*)", "destination": "/index.html" }
   ]
 }

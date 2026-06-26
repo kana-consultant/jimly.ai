@@ -7,6 +7,8 @@ dist/
 .omc/
 .vscode/
 .playwright-mcp/
+.claude/
+.moon/
 md/
 
 # dependencies

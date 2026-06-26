@@ -19,8 +19,3 @@ export async function logoutUser() {
   await signOut();
   return { ok: true };
 }
-
-export async function signInWithGoogle() {
-  const { error } = await signIn.social({ provider: 'google', callbackURL: '/chat' });
-  return error ? { error: error.message ?? 'Google sign-in failed' } : {};
-}

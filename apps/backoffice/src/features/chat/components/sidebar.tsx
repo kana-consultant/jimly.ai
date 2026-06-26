@@ -1,15 +1,8 @@
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { getDisplayName } from '@/lib/display-name';
 import { Sidebar } from '@/components/ui/sidebar';
 import { ChatList } from '@/features/chat/components/chat-list';
 import { LogoutButton } from '@/components/layout/logout-button';
-
-function formatName(email: string): string {
-  const name = email.slice(0, email.indexOf('@'));
-  return name
-    .split(/[._-]/)
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(' ');
-}
 
 function initial(name: string): string {
   return name.charAt(0).toUpperCase();
@@ -17,7 +10,7 @@ function initial(name: string): string {
 
 export function ChatSidebar() {
   const user = useCurrentUser();
-  const displayName = user?.name || (user?.email ? formatName(user.email) : 'User');
+  const displayName = getDisplayName(user, 'User');
   const avatarChar = initial(displayName);
 
   return (
