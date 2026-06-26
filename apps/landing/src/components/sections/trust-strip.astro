@@ -1,0 +1,24 @@
+---
+const STATS = [
+  { num: "70+", label: "Books authored" },
+  { num: "40+", label: "Years of scholarship" },
+  { num: "500+", label: "Academic papers" },
+  { num: "#1", label: "Chief Justice, MK RI 2003–08" },
+  { num: "UI", label: "Professor of Law, FHUI" },
+]
+
+const items = [...STATS, ...STATS]
+---
+
+<section class="mx-auto max-w-275 px-10 py-10" aria-label="Trust statistics">
+  <div class="overflow-hidden rounded-3xl py-10 group">
+    <div class="flex w-max shrink-0 animate-marquee gap-3 px-3 group-hover:paused">
+      {items.map((stat) => (
+        <div class="flex w-48 shrink-0 flex-col items-center gap-1 rounded-2xl bg-primary-foreground/8 px-6 py-5">
+          <span class="font-display text-[28px] font-semibold leading-none text-chart-5">{stat.num}</span>
+          <span class="text-center text-xs whitespace-nowrap text-primary">{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

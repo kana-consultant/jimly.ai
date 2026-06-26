@@ -1,14 +1,14 @@
 ---
 import { getImage } from 'astro:assets';
 import '@/styles/global.css';
-import { BooksSection } from '@/components/landing/books-section';
-import { ChatDemo } from '@/components/landing/chat-demo';
-import { FeaturesSection } from '@/components/landing/features-section';
-import { HeroSection } from '@/components/landing/hero-section';
-import { HowItWorksSection } from '@/components/landing/how-it-works-section';
-import { SiteFooter } from '@/components/landing/site-footer';
-import { SiteNav } from '@/components/landing/site-nav';
-import { TrustStrip } from '@/components/landing/trust-strip';
+import BooksSection from '@/components/sections/books-section.astro';
+import { ChatDemo } from '@/components/chat-demo';
+import FeaturesSection from '@/components/sections/features-section.astro';
+import HeroSection from '@/components/sections/hero-section.astro';
+import HowItWorksSection from '@/components/sections/how-it-works-section.astro';
+import SiteFooter from '@/components/site-footer.astro';
+import SiteNav from '@/components/site-nav.astro';
+import TrustStrip from '@/components/sections/trust-strip.astro';
 import theConstitutionalLawOfIndonesia from '@/images/the-constitutional-law-of-indonesia.png';
 import greenConstitution from '@/images/green-constitution.png';
 import peradilanEtikDanEtikaKonstitusi from '@/images/peradilan-etik-dan-etika-konstitusi.png';
@@ -50,12 +50,12 @@ const bookCovers = await Promise.all(
     <SiteNav logoSrc={logo.src} />
     <div class="pointer-events-none fixed inset-x-0 top-0 z-40 h-28 bg-linear-to-b from-background via-background/70 to-transparent" aria-hidden="true"></div>
   <main>
-    <HeroSection client:load photoSrc={profile.src} />
-    <TrustStrip client:visible />
-    <BooksSection client:visible covers={bookCovers} />
+    <HeroSection photoSrc={profile.src} />
+    <TrustStrip />
+    <BooksSection covers={bookCovers} />
     <ChatDemo client:visible />
-    <FeaturesSection client:visible />
-    <HowItWorksSection client:visible />
+    <FeaturesSection />
+    <HowItWorksSection />
   </main>
   <SiteFooter />
 </body>
