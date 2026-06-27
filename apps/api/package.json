@@ -10,6 +10,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "build": "tsc --noEmit",
     "test": "vitest run",
@@ -21,7 +24,8 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "better-auth": "^1.6.20",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

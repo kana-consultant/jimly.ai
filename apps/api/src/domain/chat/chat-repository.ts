@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatSession, NewChatSession } from '../types/chat';
+import type { ChatMessage, ChatSession, NewChatSession } from './chat';
 
 export interface ChatRepository {
   listSessions(): Promise<ChatSession[]>;

@@ -1,8 +1,8 @@
 import { eq, and, asc, desc } from 'drizzle-orm';
-import type { db as Db } from '../db/client';
-import { chatSessions, chatMessages } from '../db/schema';
-import type { ChatRepository } from './chat-repository';
-import type { ChatMessage, ChatRole, ChatSession } from '../types/chat';
+import type { db as Db } from '#/infrastructure/db/client';
+import { chatSessions, chatMessages } from '#/infrastructure/db/schema';
+import type { ChatRepository } from '#/domain/chat/chat-repository';
+import type { ChatMessage, ChatRole, ChatSession } from '#/domain/chat/chat';
 
 export function createNeonChatRepository(db: typeof Db, userId: string): ChatRepository {
   return {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createNeonChatRepository } from './neon-chat-repository';
-import { db } from '../db/client';
+import { db } from '#/infrastructure/db/client';
 
 describe('NeonChatRepository', () => {
   it('creates then lists a session for a user', async () => {
