@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatRole, NewChatSession } from '../../src/types/chat';
+import type { ChatMessage, ChatRole, NewChatSession } from '#/domain/chat/chat';
 
 const CHAT_ROLES: readonly ChatRole[] = ['user', 'assistant', 'system'];
 const MAX_CONTENT_LENGTH = 8000;

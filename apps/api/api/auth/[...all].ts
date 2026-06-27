@@ -1,4 +1,4 @@
-import { auth } from '../../src/auth/server';
+import { auth } from '#/infrastructure/auth/better-auth';
 
 export const config = { runtime: 'edge' };
 
