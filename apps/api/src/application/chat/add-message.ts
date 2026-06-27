@@ -1,7 +1,13 @@
 import type { ChatRepository } from '#/domain/chat/chat-repository';
 import type { ChatMessage } from '#/domain/chat/chat';
+import { forbidden } from '../shared/errors';
 
-// Phase 2: client-posted message persistence (unchanged behavior).
-// Phase 3 rejects non-`user` roles and moves assistant writes server-side.
-export const makeAddMessage = (repo: ChatRepository) => (input: ChatMessage) =>
-  repo.addMessage(input);
+// Presentation (api/_lib/validate.ts) already restricts this to role 'user' —
+// assistant replies are persisted server-side by send-message.ts instead.
+export const makeAddMessage = (repo: ChatRepository) => async (input: ChatMessage) => {
+  try {
+    await repo.addMessage(input);
+  } catch {
+    throw forbidden('Cannot post to this session');
+  }
+};

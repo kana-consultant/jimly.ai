@@ -1,4 +1,4 @@
-import { eq, and, asc, desc } from 'drizzle-orm';
+import { eq, and, asc, desc, sql } from 'drizzle-orm';
 import type { db as Db } from '#/infrastructure/db/client';
 import { chatSessions, chatMessages } from '#/infrastructure/db/schema';
 import type { ChatRepository } from '#/domain/chat/chat-repository';
@@ -64,20 +64,17 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
       );
     },
     async addMessage(message) {
-      // SECURITY: verify caller owns the parent session before writing into it
-      const [owner] = await db
-        .select({ id: chatSessions.id })
-        .from(chatSessions)
-        .where(and(eq(chatSessions.id, message.sessionId), eq(chatSessions.userId, userId)));
-      if (!owner) throw new Error('Forbidden');
-      await db.insert(chatMessages).values({
-        id: message.id,
-        sessionId: message.sessionId,
-        userId,
-        role: message.role,
-        content: message.content,
-        createdAt: new Date(message.createdAt),
-      });
+      // SECURITY: single guarded INSERT instead of select-then-insert — closes
+      // the TOCTOU race where ownership could change between the check and the write.
+      const result = await db.execute(sql`
+        INSERT INTO ${chatMessages} (id, session_id, user_id, role, content, created_at)
+        SELECT ${message.id}, ${message.sessionId}, ${userId}, ${message.role}, ${message.content}, ${new Date(message.createdAt)}
+        WHERE EXISTS (
+          SELECT 1 FROM ${chatSessions}
+          WHERE ${chatSessions.id} = ${message.sessionId} AND ${chatSessions.userId} = ${userId}
+        )
+      `);
+      if (result.rowCount === 0) throw new Error('Forbidden');
     },
     async getPerfect10SessionId(sessionId) {
       // SECURITY: scope by userId — else a user could hijack another's Perfect10 session
