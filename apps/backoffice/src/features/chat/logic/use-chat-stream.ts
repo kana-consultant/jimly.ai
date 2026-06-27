@@ -5,9 +5,6 @@ import { useChatStore } from '@/features/chat/logic/chat-store';
 import type { ChatMessage, OutgoingMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
-const WORD_DELAY_MS = 35;
-
-const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export function useChatStream() {
   const activeChatId = useChatStore((state) => state.activeChatId);
@@ -25,43 +22,12 @@ export function useChatStream() {
       setStreaming(true);
       setError(null);
       try {
-        let fullContent = '';
-        let buffer = '';
-        let streamDone = false;
-        const waker: { wake: (() => void) | null } = { wake: null };
-
-        const drain = async () => {
-          while (true) {
-            if (buffer.length > 0) {
-              const piece = /^\s*\S*\s*/.exec(buffer)![0] || buffer;
-              buffer = buffer.slice(piece.length);
-              appendToLastMessage(chatId, piece);
-              await sleep(WORD_DELAY_MS);
-              continue;
-            }
-            if (streamDone) return;
-            await new Promise<void>((resolve) => {
-              waker.wake = resolve;
-            });
-          }
-        };
-        const drainPromise = drain();
-
         for await (const chunk of streamChatCompletion(chatId, history)) {
-          fullContent += chunk;
-          buffer += chunk;
-          waker.wake?.();
-          waker.wake = null;
+          appendToLastMessage(chatId, chunk);
         }
-        streamDone = true;
-        waker.wake?.();
-        await drainPromise;
-
-        return fullContent;
       } catch {
         removeLastMessage(chatId);
         setError('Something went wrong while replying. Please try again.');
-        return null;
       } finally {
         setStreaming(false);
       }
