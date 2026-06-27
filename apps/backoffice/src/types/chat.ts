@@ -1,24 +1,7 @@
-export type ChatRole = 'user' | 'assistant' | 'system';
+import type { ChatRole } from '@jimly/api';
 
-export interface ChatMessage {
-  id: string;
-  sessionId: string;
-  role: ChatRole;
-  content: string;
-  createdAt: string;
-}
-
-export interface ChatSession {
-  id: string;
-  userId: string;
-  title: string;
-  pinned: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-/** userId set server-side via RLS; clients never know the real value. */
-export type NewChatSession = Omit<ChatSession, 'userId'>;
+// Shared DTOs come from the API package (type-only). View-only types stay here.
+export type { ChatSession, ChatMessage, ChatRole, NewChatSession } from '@jimly/api';
 
 export interface OutgoingMessage {
   role: ChatRole;
