@@ -30,20 +30,14 @@ export function useSendMessage() {
   const addMessage = useChatStore((state) => state.addMessage);
   const lastAttemptRef = useRef<{ chatId: string; history: OutgoingMessage[] } | null>(null);
 
-  const replyAndPersist = useCallback(
+  // The server persists the assistant's reply itself (send-message.ts) once
+  // the stream completes — the client only renders it, never re-posts it.
+  const requestAssistantReply = useCallback(
     async (chatId: string, history: OutgoingMessage[]) => {
       lastAttemptRef.current = { chatId, history };
-      const fullContent = await streamAssistantReply(chatId, history);
-      if (fullContent === null) return;
-      await repo.addMessage({
-        id: uuid(),
-        sessionId: chatId,
-        role: 'assistant',
-        content: fullContent,
-        createdAt: new Date().toISOString(),
-      });
+      await streamAssistantReply(chatId, history);
     },
-    [streamAssistantReply, repo],
+    [streamAssistantReply],
   );
 
   const sendMessage = useCallback(
@@ -69,16 +63,16 @@ export function useSendMessage() {
         content: m.content,
       }));
 
-      await replyAndPersist(chatId, history);
+      await requestAssistantReply(chatId, history);
     },
-    [activeChatId, messages, addMessage, addSession, setActiveChat, replyAndPersist, repo],
+    [activeChatId, messages, addMessage, addSession, setActiveChat, requestAssistantReply, repo],
   );
 
   const retry = useCallback(() => {
     if (!lastAttemptRef.current) return;
     const { chatId, history } = lastAttemptRef.current;
-    void replyAndPersist(chatId, history);
-  }, [replyAndPersist]);
+    void requestAssistantReply(chatId, history);
+  }, [requestAssistantReply]);
 
   return { activeChatId, messages, isStreaming, error, sendMessage, retry };
 }
