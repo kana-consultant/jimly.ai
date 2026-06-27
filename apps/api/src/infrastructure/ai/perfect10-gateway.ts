@@ -1,6 +1,11 @@
 import { env } from '#/infrastructure/config/env';
 import type { AiGateway } from '#/domain/ports/ai-gateway';
 
+// ponytail: fixed ceilings, not configurable. Raise (or move to env) if a
+// real upstream response legitimately needs longer.
+const REQUEST_TIMEOUT_MS = 15_000;
+const STREAM_TIMEOUT_MS = 60_000;
+
 export function createPerfect10Gateway(): AiGateway {
   const apiFetch = (path: string, origin: string, init?: RequestInit) =>
     fetch(`${env.PERFECT10_API_URL}${path}`, {
@@ -18,6 +23,7 @@ export function createPerfect10Gateway(): AiGateway {
       const res = await apiFetch('/integrate/v1/chat/sessions', origin, {
         method: 'POST',
         body: JSON.stringify({ agent_id: env.PERFECT10_AGENT_ID }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (!res.ok) throw new Error('Failed to create chat session');
       const data = (await res.json()) as { session_id: string };
@@ -28,6 +34,7 @@ export function createPerfect10Gateway(): AiGateway {
       const res = await apiFetch(`/integrate/v1/chat/sessions/${perfect10SessionId}/messages`, origin, {
         method: 'POST',
         body: JSON.stringify({ content }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (!res.ok) throw new Error('Failed to send message');
       const data = (await res.json()) as { assistant_message_id: number };
@@ -37,6 +44,7 @@ export function createPerfect10Gateway(): AiGateway {
     async streamReply(assistantMessageId, origin) {
       const res = await fetch(`${env.PERFECT10_API_URL}/integrate/v1/chat/stream/${assistantMessageId}`, {
         headers: { Accept: 'text/event-stream', 'X-API-Key': env.PERFECT10_API_KEY, 'X-Actual-Origin': origin },
+        signal: AbortSignal.timeout(STREAM_TIMEOUT_MS),
       });
       if (!res.ok || !res.body) throw new Error('Failed to stream reply');
       return res.body.pipeThrough(translateStream());

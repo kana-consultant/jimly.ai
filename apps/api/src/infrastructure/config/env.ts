@@ -13,11 +13,17 @@ const schema = z.object({
   PERFECT10_API_URL: z.string().url(),
   PERFECT10_API_KEY: z.string().min(1),
   PERFECT10_AGENT_ID: z.coerce.number().int(),
-  // Optional: no-op rate limiter when unset (local dev). Wired in Phase 4.
+  // Optional: no-op rate limiter when unset (local dev).
   UPSTASH_REDIS_REST_URL: optional(z.string().url()),
   UPSTASH_REDIS_REST_TOKEN: optional(z.string().min(1)),
-  // Cross-origin web app origin. Required in Phase 4; optional for now.
+  // Cross-origin web app origin — CORS allow-list + better-auth trusted origin.
+  // Optional: unset means same-origin (local dev via the vite proxy); no CORS
+  // headers are sent and cross-site cookies stay off.
   WEB_ORIGIN: optional(z.string().url()),
+  // Shared parent domain (e.g. ".jimly.ai") for cross-subdomain auth cookies.
+  // Optional: unset means same-origin cookies (local dev); set in prod where
+  // the frontend and api are deployed to sibling subdomains.
+  COOKIE_DOMAIN: optional(z.string().min(1)),
 });
 
 export const env = schema.parse(process.env);

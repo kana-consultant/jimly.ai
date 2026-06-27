@@ -1,22 +1,21 @@
 import type { ChatRepository } from '#/domain/chat/chat-repository';
 import type { AiGateway } from '#/domain/ports/ai-gateway';
-import type { RateLimiter } from '#/domain/ports/rate-limiter';
 import { makeListSessions } from './chat/list-sessions';
 import { makeCreateSession } from './chat/create-session';
 import { makeUpdateSession } from './chat/update-session';
 import { makeDeleteSession } from './chat/delete-session';
 import { makeListMessages } from './chat/list-messages';
 import { makeAddMessage } from './chat/add-message';
-import { makeSendChat } from './chat/send-chat';
+import { makeSendMessage } from './chat/send-message';
 
 // Deps are already request-scoped (repo bound to userId) by the composition root.
+// Rate limiting happens in api/_lib/with-user.ts, before use-cases are built.
 export interface UseCaseDeps {
   repo: ChatRepository;
   gateway: AiGateway;
-  rateLimiter: RateLimiter;
 }
 
-export function buildUseCases({ repo, gateway, rateLimiter }: UseCaseDeps) {
+export function buildUseCases({ repo, gateway }: UseCaseDeps) {
   return {
     listSessions: makeListSessions(repo),
     createSession: makeCreateSession(repo),
@@ -24,8 +23,7 @@ export function buildUseCases({ repo, gateway, rateLimiter }: UseCaseDeps) {
     deleteSession: makeDeleteSession(repo),
     listMessages: makeListMessages(repo),
     addMessage: makeAddMessage(repo),
-    sendChat: makeSendChat(repo, gateway),
-    checkRateLimit: (key: string) => rateLimiter.check(key),
+    sendMessage: makeSendMessage(repo, gateway),
   };
 }
 

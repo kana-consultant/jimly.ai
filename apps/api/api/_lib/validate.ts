@@ -1,6 +1,5 @@
-import type { ChatMessage, ChatRole, NewChatSession } from '#/domain/chat/chat';
+import type { ChatMessage, NewChatSession } from '#/domain/chat/chat';
 
-const CHAT_ROLES: readonly ChatRole[] = ['user', 'assistant', 'system'];
 const MAX_CONTENT_LENGTH = 8000;
 
 function isNonEmptyString(value: unknown): value is string {
@@ -57,14 +56,35 @@ export function validateSessionPatch(
  * Validates the body of a POST /api/sessions/:id/messages request.
  * Whitelists exactly the fields of ChatMessage — any other field
  * (e.g. a forged `userId`) is dropped, never forwarded to the repository.
+ *
+ * SECURITY: only `role: "user"` is accepted here. Assistant replies are
+ * persisted server-side by send-message.ts — a client posting `assistant`
+ * or `system` directly would let it forge AI output (security fix #1).
  */
 export function validateMessage(body: unknown): ChatMessage | null {
   if (!isRecord(body)) return null;
   const { id, sessionId, role, content, createdAt } = body;
   if (!isNonEmptyString(id)) return null;
   if (!isNonEmptyString(sessionId)) return null;
-  if (typeof role !== 'string' || !CHAT_ROLES.includes(role as ChatRole)) return null;
+  if (role !== 'user') return null;
   if (typeof content !== 'string' || content.length === 0 || content.length > MAX_CONTENT_LENGTH) return null;
   if (!isNonEmptyString(createdAt)) return null;
-  return { id, sessionId, role: role as ChatRole, content, createdAt };
+  return { id, sessionId, role, content, createdAt };
+}
+
+/**
+ * Validates the body of a POST /api/chat request.
+ * Only the last message's content is forwarded to the AI gateway — the
+ * server is the sole author of conversation history server-side.
+ */
+export function validateChatRequest(body: unknown): { chatId: string; content: string } | null {
+  if (!isRecord(body)) return null;
+  const { chatId, messages } = body;
+  if (!isNonEmptyString(chatId)) return null;
+  if (!Array.isArray(messages) || messages.length === 0) return null;
+  const last = messages[messages.length - 1];
+  if (!isRecord(last)) return null;
+  const { content } = last;
+  if (typeof content !== 'string' || content.length === 0 || content.length > MAX_CONTENT_LENGTH) return null;
+  return { chatId, content };
 }
