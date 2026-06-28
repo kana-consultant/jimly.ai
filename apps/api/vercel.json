@@ -1,4 +1,5 @@
 {
+  "framework": "other",
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "cd ../.. && pnpm --filter @jimly/api build",
   "headers": [
