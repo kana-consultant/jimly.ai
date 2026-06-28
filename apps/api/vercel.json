@@ -1,7 +1,11 @@
 {
   "framework": "other",
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm --filter @jimly/api build",
+  "buildCommand": "cd ../.. && pnpm --filter @jimly/api build && node apps/api/scripts/ensure-public-dir.mjs",
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "/api/auth/[...all]" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
