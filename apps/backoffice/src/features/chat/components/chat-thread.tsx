@@ -1,4 +1,5 @@
-import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -55,48 +56,49 @@ function deriveTopics(messages: { role: string; content: string }[], sessions: C
   return ['Explore more', 'Details', 'Examples', 'Alternatives'];
 }
 
+let scrollEl: HTMLDivElement | null = null;
+let prevLen = 0;
+
+const showSuggestionsStore = new Store(false);
+
+function scrollToBottom(behavior: ScrollBehavior = 'auto') {
+  const container = scrollEl;
+  if (container) {
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior,
+    });
+  }
+}
+
 export function ChatThread() {
   const user = useCurrentUser();
   const { activeChatId, messages, isStreaming, sendMessage } = useSendMessage();
   const { sessions } = useChatSessions();
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const prevLenRef = useRef(messages.length);
-
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const showSuggestions = useStore(showSuggestionsStore, (s) => s);
 
   const hasMessages = activeChatId !== null && messages.length > 0;
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
 
-  const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
+  const topics = deriveTopics(messages, sessions);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
-    const container = scrollRef.current;
-    if (container) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior,
-      });
-    }
-  }, []);
-
-  useEffect(() => {
+  requestAnimationFrame(() => {
     if (hasMessages) {
-      const isNewMessage = messages.length > prevLenRef.current;
-      prevLenRef.current = messages.length;
-
+      const isNewMessage = messages.length > prevLen;
+      prevLen = messages.length;
       if (isNewMessage) {
         scrollToBottom('auto');
       }
     } else {
-      prevLenRef.current = messages.length;
+      prevLen = messages.length;
+      if (showSuggestionsStore.state) {
+        showSuggestionsStore.setState(() => false);
+      }
     }
-  }, [messages.length, hasMessages, scrollToBottom]);
 
-  useEffect(() => {
     if (isStreaming && hasMessages && lastMessage?.content) {
-      const container = scrollRef.current;
+      const container = scrollEl;
       if (container) {
         const threshold = 150;
         const isUserNearBottom =
@@ -107,24 +109,15 @@ export function ChatThread() {
         }
       }
     }
-  }, [lastMessage?.content, isStreaming, hasMessages]);
+  });
 
-  useEffect(() => {
-    if (!hasMessages) {
-      setShowSuggestions(false);
-    }
-  }, [hasMessages]);
+  function handleTopicSelect(topic: string) {
+    sendMessage(topic);
+  }
 
-  const handleTopicSelect = useCallback(
-    (topic: string) => {
-      sendMessage(topic);
-    },
-    [sendMessage],
-  );
-
-  const handleToggleSuggestions = useCallback(() => {
-    setShowSuggestions((prev) => !prev);
-  }, []);
+  function handleToggleSuggestions() {
+    showSuggestionsStore.setState((prev) => !prev);
+  }
 
   const suggestionsVisible = !hasMessages || showSuggestions;
   const displayName = getDisplayName(user);
@@ -132,7 +125,9 @@ export function ChatThread() {
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
       <div
-        ref={scrollRef}
+        ref={(el) => {
+          scrollEl = el;
+        }}
         className={cn(
           'flex-1 overflow-y-auto relative',
           hasMessages ? 'pb-52' : '',

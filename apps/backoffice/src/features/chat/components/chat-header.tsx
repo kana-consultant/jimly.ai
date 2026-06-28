@@ -1,5 +1,6 @@
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
 import { Menu, MoreVertical, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,10 +13,13 @@ import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog'
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
 import { useMobileNavStore } from '@/features/chat/logic/mobile-nav-store';
 
+const confirmDeleteStore = new Store(false);
+const renamingStore = new Store(false);
+
 export function ChatHeader() {
   const { sessions, activeChatId, deleteChat, togglePin, renameChat } = useChatSessions();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [renaming, setRenaming] = useState(false);
+  const confirmDelete = useStore(confirmDeleteStore, (s) => s);
+  const renaming = useStore(renamingStore, (s) => s);
   const toggleMobileNav = useMobileNavStore((state) => state.toggle);
 
   const activeSession = sessions.find((s) => s.id === activeChatId) ?? null;
@@ -26,7 +30,7 @@ export function ChatHeader() {
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
           <Menu className="size-4" />
         </Button>
-        
+
         <div className="hidden md:block" />
 
         <div className="ml-auto md:ml-0">
@@ -39,7 +43,7 @@ export function ChatHeader() {
               }
             />
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setRenaming(true)}>
+              <DropdownMenuItem onClick={() => renamingStore.setState(() => true)}>
                 <Pencil className="size-4" />
                 Rename
               </DropdownMenuItem>
@@ -47,7 +51,7 @@ export function ChatHeader() {
                 {activeSession?.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
                 {activeSession?.pinned ? 'Unpin' : 'Pin'}
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+              <DropdownMenuItem variant="destructive" onClick={() => confirmDeleteStore.setState(() => true)}>
                 <Trash2 className="size-4" />
                 Delete chat
               </DropdownMenuItem>
@@ -60,20 +64,20 @@ export function ChatHeader() {
         <RenameChatDialog
           open={renaming}
           initialTitle={activeSession.title}
-          onOpenChange={setRenaming}
+          onOpenChange={(value) => renamingStore.setState(() => value)}
           onConfirm={(title) => {
             renameChat(activeSession.id, title);
-            setRenaming(false);
+            renamingStore.setState(() => false);
           }}
         />
       )}
 
       <DeleteChatDialog
         open={confirmDelete}
-        onOpenChange={setConfirmDelete}
+        onOpenChange={(value) => confirmDeleteStore.setState(() => value)}
         onConfirm={() => {
           if (activeChatId) deleteChat(activeChatId);
-          setConfirmDelete(false);
+          confirmDeleteStore.setState(() => false);
         }}
       />
     </>

@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
 import { Plus, Search, History } from 'lucide-react';
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
 import { filterChats } from '@/features/chat/logic/use-filtered-chats';
@@ -9,6 +10,10 @@ import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog'
 import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog';
 import { cn } from '@/lib/utils';
 
+const queryStore = new Store('');
+const pendingDeleteIdStore = new Store<string | null>(null);
+const renamingIdStore = new Store<string | null>(null);
+
 export function ChatList({
   collapsed = false,
   onExpand,
@@ -17,13 +22,13 @@ export function ChatList({
   onExpand?: () => void;
 }) {
   const { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat } = useChatSessions();
-  const [query, setQuery] = useState('');
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const query = useStore(queryStore, (s) => s);
+  const pendingDeleteId = useStore(pendingDeleteIdStore, (s) => s);
+  const renamingId = useStore(renamingIdStore, (s) => s);
 
   const renamingSession = sessions.find((s) => s.id === renamingId) ?? null;
 
-  const { pinned, history } = useMemo(() => filterChats(sessions, query), [sessions, query]);
+  const { pinned, history } = filterChats(sessions, query);
 
   const newChatButton = (
     <button
@@ -73,41 +78,41 @@ export function ChatList({
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {newChatButton}
-      <SearchBar query={query} onQueryChange={setQuery} />
+      <SearchBar query={query} onQueryChange={(value) => queryStore.setState(() => value)} />
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
         <PinnedSection
           sessions={pinned}
           activeChatId={activeChatId}
           onSelect={selectChat}
           onTogglePin={togglePin}
-          onDelete={setPendingDeleteId}
-          onRename={setRenamingId}
+          onDelete={(id) => pendingDeleteIdStore.setState(() => id)}
+          onRename={(id) => renamingIdStore.setState(() => id)}
         />
         <HistorySection
           sessions={history}
           activeChatId={activeChatId}
           onSelect={selectChat}
           onTogglePin={togglePin}
-          onDelete={setPendingDeleteId}
-          onRename={setRenamingId}
+          onDelete={(id) => pendingDeleteIdStore.setState(() => id)}
+          onRename={(id) => renamingIdStore.setState(() => id)}
         />
       </div>
       <DeleteChatDialog
         open={pendingDeleteId !== null}
-        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+        onOpenChange={(open) => !open && pendingDeleteIdStore.setState(() => null)}
         onConfirm={() => {
           if (pendingDeleteId) deleteChat(pendingDeleteId);
-          setPendingDeleteId(null);
+          pendingDeleteIdStore.setState(() => null);
         }}
       />
       {renamingSession && (
         <RenameChatDialog
           open={renamingId !== null}
           initialTitle={renamingSession.title}
-          onOpenChange={(open) => !open && setRenamingId(null)}
+          onOpenChange={(open) => !open && renamingIdStore.setState(() => null)}
           onConfirm={(title) => {
             renameChat(renamingSession.id, title);
-            setRenamingId(null);
+            renamingIdStore.setState(() => null);
           }}
         />
       )}

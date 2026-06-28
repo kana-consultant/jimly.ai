@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
+import { type ReactNode } from 'react';
 import { Send, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -11,9 +13,18 @@ interface ChatInputProps {
   suggestions?: ReactNode;
 }
 
+const valueStore = new Store('');
+
+let textareaEl: HTMLTextAreaElement | null = null;
+
+function resizeTextarea() {
+  if (!textareaEl) return;
+  textareaEl.style.height = 'auto';
+  textareaEl.style.height = Math.min(textareaEl.scrollHeight, 200) + 'px';
+}
+
 export function ChatInput({ showSuggestions = false, onToggleSuggestions, suggestions }: ChatInputProps) {
-  const [value, setValue] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const value = useStore(valueStore, (s) => s);
   const { activeChatId, messages, isStreaming, error, sendMessage, retry } = useSendMessage();
 
   const hasMessages = activeChatId !== null && messages.length > 0;
@@ -22,7 +33,8 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
     e.preventDefault();
     const content = value.trim();
     if (!content || isStreaming) return;
-    setValue('');
+    valueStore.setState(() => '');
+    resizeTextarea();
     await sendMessage(content);
   }
 
@@ -32,13 +44,6 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
       handleSubmit(e);
     }
   }
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
-  }, [value]);
 
   return (
     <div className={cn('w-full', hasMessages && 'pb-2')}>
@@ -62,9 +67,14 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
         className="relative rounded-2xl bg-surface shadow-lg transition-shadow duration-200 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20"
       >
         <textarea
-          ref={textareaRef}
+          ref={(el) => {
+            textareaEl = el;
+          }}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            valueStore.setState(() => e.target.value);
+            resizeTextarea();
+          }}
           onKeyDown={handleKeyDown}
           placeholder="Ask anything..."
           disabled={isStreaming}

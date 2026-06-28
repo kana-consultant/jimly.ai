@@ -1,7 +1,8 @@
-import { useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useChatStore } from '@/features/chat/logic/chat-store';
 import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
+
+let sessionsLoaded = false;
 
 export function useChatSessions() {
   const sessions = useChatStore((state) => state.sessions);
@@ -13,59 +14,50 @@ export function useChatSessions() {
   const togglePinSession = useChatStore((state) => state.togglePinSession);
   const renameSession = useChatStore((state) => state.renameSession);
 
-  const selectChat = useCallback(
-    async (chatId: string) => {
-      setActiveChat(chatId);
-      const messages = await chatRepository.listMessages(chatId);
-      setMessages(chatId, messages);
-    },
-    [setActiveChat, setMessages],
-  );
-
-  useEffect(() => {
+  if (!sessionsLoaded) {
+    sessionsLoaded = true;
     chatRepository.listSessions().then((list) => {
       setSessions(list);
     });
-  }, [setSessions]);
+  }
 
-  const newChat = useCallback(() => setActiveChat(null), [setActiveChat]);
+  async function selectChat(chatId: string) {
+    setActiveChat(chatId);
+    const messages = await chatRepository.listMessages(chatId);
+    setMessages(chatId, messages);
+  }
 
-  const deleteChat = useCallback(
-    async (chatId: string) => {
-      try {
-        await chatRepository.deleteSession(chatId);
-        removeSession(chatId);
-        if (activeChatId === chatId) setActiveChat(null);
-        toast.success('Chat deleted');
-      } catch {
-        toast.error('Failed to delete chat');
-      }
-    },
-    [activeChatId, removeSession, setActiveChat],
-  );
+  function newChat() {
+    setActiveChat(null);
+  }
 
-  const togglePin = useCallback(
-    async (chatId: string) => {
-      const session = sessions.find((s) => s.id === chatId);
-      if (!session) return;
-      togglePinSession(chatId);
-      await chatRepository.updateSession(chatId, { pinned: !session.pinned });
-    },
-    [sessions, togglePinSession],
-  );
+  async function deleteChat(chatId: string) {
+    try {
+      await chatRepository.deleteSession(chatId);
+      removeSession(chatId);
+      if (activeChatId === chatId) setActiveChat(null);
+      toast.success('Chat deleted');
+    } catch {
+      toast.error('Failed to delete chat');
+    }
+  }
 
-  const renameChat = useCallback(
-    async (chatId: string, title: string) => {
-      try {
-        renameSession(chatId, title);
-        await chatRepository.updateSession(chatId, { title });
-        toast.success('Chat renamed');
-      } catch {
-        toast.error('Failed to rename chat');
-      }
-    },
-    [renameSession],
-  );
+  async function togglePin(chatId: string) {
+    const session = sessions.find((s) => s.id === chatId);
+    if (!session) return;
+    togglePinSession(chatId);
+    await chatRepository.updateSession(chatId, { pinned: !session.pinned });
+  }
+
+  async function renameChat(chatId: string, title: string) {
+    try {
+      renameSession(chatId, title);
+      await chatRepository.updateSession(chatId, { title });
+      toast.success('Chat renamed');
+    } catch {
+      toast.error('Failed to rename chat');
+    }
+  }
 
   return { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat };
 }

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
 import { Send, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatSkeleton } from '@/components/ui/skeleton';
@@ -10,18 +11,18 @@ type DemoMessage = {
 };
 
 const MESSAGES: DemoMessage[] = [
-  { 
-    type: 'user', 
-    text: 'What is the authority of the Constitutional Court under Indonesian law?' 
+  {
+    type: 'user',
+    text: 'What is the authority of the Constitutional Court under Indonesian law?'
   },
   {
     type: 'bot',
     text: 'The Mahkamah Konstitusi holds five primary authorities under the 1945 Constitution: (1) judicial review of legislation, (2) resolving disputes between state institutions, (3) dissolution of political parties, (4) disputes over election results, and (5) presidential impeachment proceedings.',
     source: 'The Constitutional Law of Indonesia · Ch. 4: Judicial Power',
   },
-  { 
-    type: 'user', 
-    text: 'What does Prof. Jimly say about constitutional ethics?' 
+  {
+    type: 'user',
+    text: 'What does Prof. Jimly say about constitutional ethics?'
   },
   {
     type: 'bot',
@@ -91,64 +92,72 @@ function TypingBubble() {
   );
 }
 
-export function ChatDemo() {
-  const [shown, setShown] = useState<DemoMessage[]>([]);
-  const [typing, setTyping] = useState(false);
-  const bodyRef = useRef<HTMLDivElement>(null);
+const shownStore = new Store<DemoMessage[]>([]);
+const typingStore = new Store(false);
 
-  useEffect(() => {
-    let idx = 0;
-    let cancelled = false;
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
+let bodyEl: HTMLDivElement | null = null;
+let scriptStarted = false;
 
-    function schedule(fn: () => void, delay: number) {
-      const id = setTimeout(() => {
-        if (!cancelled) fn();
-      }, delay);
-      timeouts.push(id);
+function startScript() {
+  let idx = 0;
+  let cancelled = false;
+  const timeouts: ReturnType<typeof setTimeout>[] = [];
+
+  function schedule(fn: () => void, delay: number) {
+    const id = setTimeout(() => {
+      if (!cancelled) fn();
+    }, delay);
+    timeouts.push(id);
+  }
+
+  function play() {
+    if (idx >= MESSAGES.length) {
+      schedule(() => {
+        shownStore.setState(() => []);
+        idx = 0;
+        play();
+      }, 4000);
+      return;
     }
-
-    function play() {
-      if (idx >= MESSAGES.length) {
-        schedule(() => {
-          setShown([]);
-          idx = 0;
-          play();
-        }, 4000);
-        return;
-      }
-      const message = MESSAGES[idx];
-      if (!message) return;
-      if (message.type === 'user') {
-        schedule(
-          () => {
-            setShown((prev) => [...prev, message]);
-            idx++;
-            play();
-          },
-          idx === 0 ? 900 : 2600
-        );
-      } else {
-        setTyping(true);
-        schedule(() => {
-          setTyping(false);
-          setShown((prev) => [...prev, message]);
+    const message = MESSAGES[idx];
+    if (!message) return;
+    if (message.type === 'user') {
+      schedule(
+        () => {
+          shownStore.setState((prev) => [...prev, message]);
           idx++;
           play();
-        }, 1800);
-      }
+        },
+        idx === 0 ? 900 : 2600
+      );
+    } else {
+      typingStore.setState(() => true);
+      schedule(() => {
+        typingStore.setState(() => false);
+        shownStore.setState((prev) => [...prev, message]);
+        idx++;
+        play();
+      }, 1800);
     }
-    play();
+  }
+  play();
+}
 
-    return () => {
-      cancelled = true;
-      timeouts.forEach(clearTimeout);
-    };
-  }, []);
+shownStore.subscribe(() => {
+  if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+});
+typingStore.subscribe(() => {
+  if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+});
 
-  useEffect(() => {
-    if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
-  }, [shown, typing]);
+export function ChatDemo() {
+  const shown = useStore(shownStore, (s) => s);
+  const typing = useStore(typingStore, (s) => s);
+
+  if (!scriptStarted) {
+    scriptStarted = true;
+    startScript();
+  }
 
   return (
     <div className="bg-card shadow-sm" id="demo">
@@ -169,7 +178,12 @@ export function ChatDemo() {
             </div>
             <div className="ml-auto text-xs text-muted-foreground-faint">Referencing 70+ books</div>
           </div>
-          <div ref={bodyRef} className="flex min-h-65 flex-col gap-5 bg-background p-6 text-left">
+          <div
+            ref={(el) => {
+              bodyEl = el;
+            }}
+            className="flex min-h-65 flex-col gap-5 bg-background p-6 text-left"
+          >
             {shown.length === 0 && !typing && <ChatSkeleton />}
             {shown.map((message, i) => (
               <ChatBubble key={i} message={message} visible />

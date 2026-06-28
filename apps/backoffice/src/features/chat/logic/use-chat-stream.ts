@@ -1,39 +1,41 @@
-import { useCallback, useState } from 'react';
+import { Store } from '@tanstack/store';
+import { useStore } from '@tanstack/react-store';
 import { uuid } from '@/lib/uuid';
 import { streamChatCompletion } from '@/features/chat/logic/chat-api-client';
-import { useChatStore } from '@/features/chat/logic/chat-store';
+import { useChatStore, chatStoreActions } from '@/features/chat/logic/chat-store';
 import type { ChatMessage, OutgoingMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
 
+const errorStore = new Store<string | null>(null);
+
+export async function streamAssistantReply(chatId: string, history: OutgoingMessage[]) {
+  chatStoreActions.addMessage(chatId, {
+    id: uuid(),
+    sessionId: chatId,
+    role: 'assistant',
+    content: '',
+    createdAt: new Date().toISOString(),
+  });
+  chatStoreActions.setStreaming(true);
+  errorStore.setState(() => null);
+  try {
+    for await (const chunk of streamChatCompletion(chatId, history)) {
+      chatStoreActions.appendToLastMessage(chatId, chunk);
+    }
+  } catch {
+    chatStoreActions.removeLastMessage(chatId);
+    errorStore.setState(() => 'Something went wrong while replying. Please try again.');
+  } finally {
+    chatStoreActions.setStreaming(false);
+  }
+}
+
 export function useChatStream() {
   const activeChatId = useChatStore((state) => state.activeChatId);
-  const addMessage = useChatStore((state) => state.addMessage);
-  const appendToLastMessage = useChatStore((state) => state.appendToLastMessage);
-  const removeLastMessage = useChatStore((state) => state.removeLastMessage);
-  const setStreaming = useChatStore((state) => state.setStreaming);
   const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? EMPTY_MESSAGES);
   const isStreaming = useChatStore((state) => state.isStreaming);
-  const [error, setError] = useState<string | null>(null);
-
-  const streamAssistantReply = useCallback(
-    async (chatId: string, history: OutgoingMessage[]) => {
-      addMessage(chatId, { id: uuid(), sessionId: chatId, role: 'assistant', content: '', createdAt: new Date().toISOString() });
-      setStreaming(true);
-      setError(null);
-      try {
-        for await (const chunk of streamChatCompletion(chatId, history)) {
-          appendToLastMessage(chatId, chunk);
-        }
-      } catch {
-        removeLastMessage(chatId);
-        setError('Something went wrong while replying. Please try again.');
-      } finally {
-        setStreaming(false);
-      }
-    },
-    [addMessage, appendToLastMessage, removeLastMessage, setStreaming],
-  );
+  const error = useStore(errorStore, (s) => s);
 
   return { activeChatId, messages, isStreaming, error, streamAssistantReply };
 }
