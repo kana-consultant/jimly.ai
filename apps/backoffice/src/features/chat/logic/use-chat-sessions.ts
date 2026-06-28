@@ -26,7 +26,7 @@ export function useChatSessions() {
     chatRepository.listSessions().then((list) => {
       setSessions(list);
     });
-  }, []);
+  }, [setSessions]);
 
   const newChat = useCallback(() => setActiveChat(null), [setActiveChat]);
 
