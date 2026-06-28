@@ -33,7 +33,7 @@ export function withUser(handler: Handler) {
         );
       }
 
-      const ctx: AuthedContext = { userId, origin: new URL(req.url).origin, headers: req.headers };
+      const ctx: AuthedContext = { userId, origin: origin ?? new URL(req.url).origin, headers: req.headers };
       const useCases = buildUseCases({
         repo: createNeonChatRepository(db, userId),
         gateway: createPerfect10Gateway(),
