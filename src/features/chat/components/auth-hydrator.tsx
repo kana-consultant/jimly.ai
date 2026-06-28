@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/auth-store';
 
+let hydrated = false;
+
 export function AuthHydrator({ id, email, name }: { id: string; email: string; name?: string }) {
-  useEffect(() => {
+  if (!hydrated) {
+    hydrated = true;
     useAuthStore.getState().setUser({ id, email, name, createdAt: '' });
-  }, [id, email, name]);
+  }
 
   return null;
 }

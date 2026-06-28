@@ -1,28 +1,28 @@
-import { useEffect, useRef, useState } from "react"
+import { Store, useStore } from "@tanstack/react-store"
+
+const countUpStore = new Store<{ display: string }>({ display: '' })
 
 export function CountUp({ value, duration = 1200 }: { value: string; duration?: number }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const [display, setDisplay] = useState(value)
+  const display = useStore(countUpStore, (s) => s.display) || value
 
-  useEffect(() => {
+  let started = false
+
+  function setRef(el: HTMLSpanElement | null) {
+    if (!el) return
     const match = value.match(/^(\d+)(.*)$/)
     if (!match) return
 
     const target = Number(match[1])
     const suffix = match[2]
-    setDisplay(`0${suffix}`)
+    countUpStore.setState(() => ({ display: `0${suffix}` }))
 
-    const el = ref.current
-    if (!el) return
-
-    let started = false
     function start() {
       if (started) return
       started = true
       const t0 = performance.now()
       function tick(now: number) {
         const progress = Math.min((now - t0) / duration, 1)
-        setDisplay(`${Math.round(target * progress)}${suffix}`)
+        countUpStore.setState(() => ({ display: `${Math.round(target * progress)}${suffix}` }))
         if (progress < 1) requestAnimationFrame(tick)
       }
       requestAnimationFrame(tick)
@@ -42,8 +42,7 @@ export function CountUp({ value, duration = 1200 }: { value: string; duration?: 
       { threshold: 0.4 }
     )
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [value, duration])
+  }
 
-  return <span ref={ref}>{display}</span>
+  return <span ref={setRef}>{display}</span>
 }

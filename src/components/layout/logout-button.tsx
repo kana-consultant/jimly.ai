@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logoutUser } from '@/lib/auth-api-client';
 import { LogoutConfirmDialog } from '@/components/layout/logout-confirm-dialog';
 
+const logoutConfirmStore = new Store({ open: false });
+
 export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const confirmOpen = useStore(logoutConfirmStore, (s) => s.open);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -16,7 +18,7 @@ export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
     <>
       <button
         type="button"
-        onClick={() => setConfirmOpen(true)}
+        onClick={() => logoutConfirmStore.setState((s) => ({ ...s, open: true }))}
         aria-label="Log out"
         className="flex w-full items-center rounded-xl bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20 active:scale-[0.98]"
       >
@@ -34,7 +36,7 @@ export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
       </button>
       <LogoutConfirmDialog
         open={confirmOpen}
-        onOpenChange={setConfirmOpen}
+        onOpenChange={(open) => logoutConfirmStore.setState((s) => ({ ...s, open }))}
         onConfirm={handleLogout}
       />
     </>

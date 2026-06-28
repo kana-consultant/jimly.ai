@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
-import { useState, type ReactNode } from "react"
+import { type ReactNode } from "react"
+import { Store, useStore } from "@tanstack/react-store"
+
+const sidebarStore = new Store({ collapsed: false })
 
 export function Sidebar({
   header,
@@ -13,7 +16,7 @@ export function Sidebar({
   children: (collapsed: boolean, expand: () => void) => ReactNode
   className?: string
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const isCollapsed = useStore(sidebarStore, (s) => s.collapsed)
 
   return (
     <div
@@ -26,7 +29,7 @@ export function Sidebar({
       <div className="flex h-16 shrink-0 items-center px-3 gap-2">
         <button
           type="button"
-          onClick={() => setIsCollapsed((v) => !v)}
+          onClick={() => sidebarStore.setState((s) => ({ ...s, collapsed: !s.collapsed }))}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="flex size-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
@@ -46,7 +49,7 @@ export function Sidebar({
       </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto px-3">
-        {children(isCollapsed, () => setIsCollapsed(false))}
+        {children(isCollapsed, () => sidebarStore.setState((s) => ({ ...s, collapsed: false })))}
       </div>
 
       {footer && (

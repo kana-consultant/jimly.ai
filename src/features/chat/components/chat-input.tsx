@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
+import { type ReactNode } from 'react';
 import { Send, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -11,9 +12,18 @@ interface ChatInputProps {
   suggestions?: ReactNode;
 }
 
+const chatInputStore = new Store({ value: '' });
+let textareaEl: HTMLTextAreaElement | null = null;
+
+function autoResize() {
+  const el = textareaEl;
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+}
+
 export function ChatInput({ showSuggestions = false, onToggleSuggestions, suggestions }: ChatInputProps) {
-  const [value, setValue] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const value = useStore(chatInputStore, (s) => s.value);
   const { activeChatId, messages, isStreaming, error, sendMessage, retry } = useSendMessage();
 
   const hasMessages = activeChatId !== null && messages.length > 0;
@@ -22,7 +32,7 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
     e.preventDefault();
     const content = value.trim();
     if (!content || isStreaming) return;
-    setValue('');
+    chatInputStore.setState(() => ({ value: '' }));
     await sendMessage(content);
   }
 
@@ -33,12 +43,14 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
     }
   }
 
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
-  }, [value]);
+  function handleChange(val: string) {
+    chatInputStore.setState(() => ({ value: val }));
+    autoResize();
+  }
+
+  function setTextareaRef(el: HTMLTextAreaElement | null) {
+    textareaEl = el;
+  }
 
   return (
     <div className={cn('w-full', hasMessages && 'pb-2')}>
@@ -62,9 +74,9 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
         className="relative rounded-2xl bg-surface shadow-lg transition-shadow duration-200 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20"
       >
         <textarea
-          ref={textareaRef}
+          ref={setTextareaRef}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask anything..."
           disabled={isStreaming}

@@ -1,6 +1,7 @@
-import { useCallback, useEffect } from 'react';
 import { useChatStore } from '@/features/chat/logic/chat-store';
 import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
+
+let initialised = false;
 
 export function useChatSessions() {
   const sessions = useChatStore((state) => state.sessions);
@@ -12,49 +13,38 @@ export function useChatSessions() {
   const togglePinSession = useChatStore((state) => state.togglePinSession);
   const renameSession = useChatStore((state) => state.renameSession);
 
-  const selectChat = useCallback(
-    async (chatId: string) => {
-      setActiveChat(chatId);
-      const messages = await chatRepository.listMessages(chatId);
-      setMessages(chatId, messages);
-    },
-    [setActiveChat, setMessages],
-  );
-
-  useEffect(() => {
+  if (!initialised) {
+    initialised = true;
     chatRepository.listSessions().then((list) => {
       setSessions(list);
     });
-  }, []);
+  }
 
-  const newChat = useCallback(() => setActiveChat(null), [setActiveChat]);
+  async function selectChat(chatId: string) {
+    setActiveChat(chatId);
+    const messages = await chatRepository.listMessages(chatId);
+    setMessages(chatId, messages);
+  }
 
-  const deleteChat = useCallback(
-    async (chatId: string) => {
-      await chatRepository.deleteSession(chatId);
-      removeSession(chatId);
-      if (activeChatId === chatId) setActiveChat(null);
-    },
-    [activeChatId, removeSession, setActiveChat],
-  );
+  function newChat() { setActiveChat(null); }
 
-  const togglePin = useCallback(
-    async (chatId: string) => {
-      const session = sessions.find((s) => s.id === chatId);
-      if (!session) return;
-      togglePinSession(chatId);
-      await chatRepository.updateSession(chatId, { pinned: !session.pinned });
-    },
-    [sessions, togglePinSession],
-  );
+  async function deleteChat(chatId: string) {
+    await chatRepository.deleteSession(chatId);
+    removeSession(chatId);
+    if (activeChatId === chatId) setActiveChat(null);
+  }
 
-  const renameChat = useCallback(
-    async (chatId: string, title: string) => {
-      renameSession(chatId, title);
-      await chatRepository.updateSession(chatId, { title });
-    },
-    [renameSession],
-  );
+  async function togglePin(chatId: string) {
+    const session = sessions.find((s) => s.id === chatId);
+    if (!session) return;
+    togglePinSession(chatId);
+    await chatRepository.updateSession(chatId, { pinned: !session.pinned });
+  }
+
+  async function renameChat(chatId: string, title: string) {
+    renameSession(chatId, title);
+    await chatRepository.updateSession(chatId, { title });
+  }
 
   return { sessions, activeChatId, selectChat, newChat, deleteChat, togglePin, renameChat };
 }

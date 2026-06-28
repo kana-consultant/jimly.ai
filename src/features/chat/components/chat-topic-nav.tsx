@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
 
@@ -7,8 +7,10 @@ function truncateLabel(text: string, maxChars = 40): string {
   return trimmed.length <= maxChars ? trimmed : `${trimmed.slice(0, maxChars)}…`;
 }
 
+const hoverStore = new Store<{ hoveredId: string | null }>({ hoveredId: null });
+
 export function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const hoveredId = useStore(hoverStore, (s) => s.hoveredId);
   const userMessages = messages.filter((m) => m.role === 'user');
 
   if (userMessages.length < 2) return null;
@@ -29,8 +31,8 @@ export function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
           <button
             type="button"
             aria-label={truncateLabel(message.content)}
-            onMouseEnter={() => setHoveredId(message.id)}
-            onMouseLeave={() => setHoveredId((id) => (id === message.id ? null : id))}
+            onMouseEnter={() => hoverStore.setState(() => ({ hoveredId: message.id }))}
+            onMouseLeave={() => hoverStore.setState((s) => ({ ...s, hoveredId: s.hoveredId === message.id ? null : s.hoveredId }))}
             onClick={() => handleSelect(message.id)}
             className={cn(
               'size-2 rounded-full transition-all duration-200',

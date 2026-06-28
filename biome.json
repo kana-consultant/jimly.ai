@@ -1,0 +1,40 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "linter": {
+    "rules": {
+      "nursery": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "react": {
+                "importNames": [
+                  "useState",
+                  "useEffect",
+                  "useContext",
+                  "useReducer",
+                  "useRef",
+                  "useMemo",
+                  "useCallback",
+                  "useImperativeHandle",
+                  "useLayoutEffect",
+                  "useDebugValue",
+                  "useId",
+                  "useTransition",
+                  "useDeferredValue",
+                  "useSyncExternalStore",
+                  "useInsertionEffect",
+                  "useActionState",
+                  "useFormStatus",
+                  "useOptimistic",
+                  "use",
+                  "createContext"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,26 +1,26 @@
-import { useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { registerUser } from '@/lib/auth-api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { PasswordInput } from '@/features/auth/password-input';
 
+const registerFormStore = new Store({ name: '', email: '', password: '', error: null as string | null, isSubmitting: false });
+
 export function RegisterForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const name = useStore(registerFormStore, (s) => s.name);
+  const email = useStore(registerFormStore, (s) => s.email);
+  const password = useStore(registerFormStore, (s) => s.password);
+  const error = useStore(registerFormStore, (s) => s.error);
+  const isSubmitting = useStore(registerFormStore, (s) => s.isSubmitting);
   const setUser = useAuthStore((state) => state.setUser);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
+    registerFormStore.setState((s) => ({ ...s, error: null, isSubmitting: true }));
     const result = await registerUser({ email, password, name });
     if ('error' in result) {
-      setError(result.error);
-      setIsSubmitting(false);
+      registerFormStore.setState((s) => ({ ...s, error: result.error, isSubmitting: false }));
       return;
     }
     setUser(result.user);
@@ -38,7 +38,7 @@ export function RegisterForm() {
           type="text"
           placeholder="Jane Doe"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => registerFormStore.setState((s) => ({ ...s, name: e.target.value }))}
           required
         />
       </div>
@@ -51,7 +51,7 @@ export function RegisterForm() {
           type="email"
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => registerFormStore.setState((s) => ({ ...s, email: e.target.value }))}
           required
         />
       </div>
@@ -63,7 +63,7 @@ export function RegisterForm() {
           id="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => registerFormStore.setState((s) => ({ ...s, password: e.target.value }))}
           required
         />
       </div>

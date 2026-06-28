@@ -1,8 +1,8 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { useStore } from '@tanstack/react-store';
+import type { ReactNode } from 'react';
 import type { ChatRepository } from '@/services/chat-repository';
+import { chatRepositoryStore } from '@/stores/chat-repository-store';
 import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
-
-const ChatRepositoryContext = createContext<ChatRepository>(chatRepository);
 
 export function ChatRepositoryProvider({
   value = chatRepository,
@@ -11,9 +11,12 @@ export function ChatRepositoryProvider({
   value?: ChatRepository;
   children: ReactNode;
 }) {
-  return <ChatRepositoryContext.Provider value={value}>{children}</ChatRepositoryContext.Provider>;
+  if (value !== chatRepositoryStore.state) {
+    chatRepositoryStore.setState(() => value);
+  }
+  return <>{children}</>;
 }
 
 export function useChatRepository(): ChatRepository {
-  return useContext(ChatRepositoryContext);
+  return useStore(chatRepositoryStore);
 }

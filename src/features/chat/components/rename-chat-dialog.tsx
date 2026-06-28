@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+
+const renameDialogStore = new Store({ title: '' });
+
+let prevOpen = false;
 
 export function RenameChatDialog({
   open,
@@ -21,11 +25,12 @@ export function RenameChatDialog({
   onOpenChange: (open: boolean) => void;
   onConfirm: (title: string) => void;
 }) {
-  const [title, setTitle] = useState(initialTitle);
+  const title = useStore(renameDialogStore, (s) => s.title);
 
-  useEffect(() => {
-    if (open) setTitle(initialTitle);
-  }, [open, initialTitle]);
+  if (open && !prevOpen) {
+    renameDialogStore.setState(() => ({ title: initialTitle }));
+  }
+  prevOpen = open;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,7 +49,7 @@ export function RenameChatDialog({
           <Input
             autoFocus
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => renameDialogStore.setState(() => ({ title: e.target.value }))}
             placeholder="Chat title"
             className="mt-2"
           />

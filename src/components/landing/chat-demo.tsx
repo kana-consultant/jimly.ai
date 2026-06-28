@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import { Send, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -90,63 +90,80 @@ function TypingBubble() {
   );
 }
 
-export function ChatDemo() {
-  const [shown, setShown] = useState<DemoMessage[]>([]);
-  const [typing, setTyping] = useState(false);
-  const bodyRef = useRef<HTMLDivElement>(null);
+const demoStore = new Store<{ shown: DemoMessage[]; typing: boolean }>({ shown: [], typing: false });
+let bodyEl: HTMLDivElement | null = null;
+let demoStarted = false;
 
-  useEffect(() => {
-    let idx = 0;
-    let cancelled = false;
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
+function playDemo() {
+  let idx = 0;
+  let cancelled = false;
+  const timeouts: ReturnType<typeof setTimeout>[] = [];
 
-    function schedule(fn: () => void, delay: number) {
-      const id = setTimeout(() => {
-        if (!cancelled) fn();
-      }, delay);
-      timeouts.push(id);
+  function schedule(fn: () => void, delay: number) {
+    const id = setTimeout(() => {
+      if (!cancelled) fn();
+    }, delay);
+    timeouts.push(id);
+  }
+
+  function play() {
+    if (idx >= MESSAGES.length) {
+      schedule(() => {
+        demoStore.setState(() => ({ shown: [], typing: false }));
+        idx = 0;
+        play();
+      }, 4000);
+      return;
     }
-
-    function play() {
-      if (idx >= MESSAGES.length) {
-        schedule(() => {
-          setShown([]);
-          idx = 0;
-          play();
-        }, 4000);
-        return;
-      }
-      const message = MESSAGES[idx];
-      if (message.type === 'user') {
-        schedule(
-          () => {
-            setShown((prev) => [...prev, message]);
-            idx++;
-            play();
-          },
-          idx === 0 ? 900 : 2600
-        );
-      } else {
-        setTyping(true);
-        schedule(() => {
-          setTyping(false);
-          setShown((prev) => [...prev, message]);
+    const message = MESSAGES[idx];
+    if (message.type === 'user') {
+      schedule(
+        () => {
+          demoStore.setState((s) => ({ ...s, shown: [...s.shown, message] }));
           idx++;
           play();
-        }, 1800);
-      }
+        },
+        idx === 0 ? 900 : 2600
+      );
+    } else {
+      demoStore.setState((s) => ({ ...s, typing: true }));
+      schedule(() => {
+        demoStore.setState((s) => ({ ...s, typing: false, shown: [...s.shown, message] }));
+        idx++;
+        play();
+      }, 1800);
     }
-    play();
+  }
+  play();
 
-    return () => {
-      cancelled = true;
-      timeouts.forEach(clearTimeout);
-    };
-  }, []);
+  const unsub = demoStore.subscribe(() => {
+    if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+  });
 
-  useEffect(() => {
-    if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
-  }, [shown, typing]);
+  demoStore.subscribe(() => {
+    if (cancelled) return;
+  });
+
+  return () => {
+    cancelled = true;
+    timeouts.forEach(clearTimeout);
+    unsub();
+  };
+}
+
+export function ChatDemo() {
+  const shown = useStore(demoStore, (s) => s.shown);
+  const typing = useStore(demoStore, (s) => s.typing);
+
+  if (!demoStarted) {
+    demoStarted = true;
+    playDemo();
+  }
+
+  function setBodyRef(el: HTMLDivElement | null) {
+    bodyEl = el;
+    if (el) el.scrollTop = el.scrollHeight;
+  }
 
   return (
     <div className="bg-card shadow-sm" id="demo">
@@ -167,7 +184,7 @@ export function ChatDemo() {
             </div>
             <div className="ml-auto text-xs text-muted-foreground-faint">Referencing 70+ books</div>
           </div>
-          <div ref={bodyRef} className="flex min-h-65 flex-col gap-5 bg-background p-6 text-left">
+          <div ref={setBodyRef} className="flex min-h-65 flex-col gap-5 bg-background p-6 text-left">
             {shown.map((message, i) => (
               <ChatBubble key={i} message={message} visible />
             ))}

@@ -1,25 +1,25 @@
-import { useState } from 'react';
+import { Store, useStore } from '@tanstack/react-store';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { loginUser } from '@/lib/auth-api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { PasswordInput } from '@/features/auth/password-input';
 
+const loginFormStore = new Store({ email: '', password: '', error: null as string | null, isSubmitting: false });
+
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const email = useStore(loginFormStore, (s) => s.email);
+  const password = useStore(loginFormStore, (s) => s.password);
+  const error = useStore(loginFormStore, (s) => s.error);
+  const isSubmitting = useStore(loginFormStore, (s) => s.isSubmitting);
   const setUser = useAuthStore((state) => state.setUser);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
+    loginFormStore.setState((s) => ({ ...s, error: null, isSubmitting: true }));
     const result = await loginUser({ email, password });
     if ('error' in result) {
-      setError(result.error);
-      setIsSubmitting(false);
+      loginFormStore.setState((s) => ({ ...s, error: result.error, isSubmitting: false }));
       return;
     }
     setUser(result.user);
@@ -37,7 +37,7 @@ export function LoginForm() {
           type="email"
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => loginFormStore.setState((s) => ({ ...s, email: e.target.value }))}
           required
         />
       </div>
@@ -49,7 +49,7 @@ export function LoginForm() {
           id="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => loginFormStore.setState((s) => ({ ...s, password: e.target.value }))}
           required
         />
       </div>

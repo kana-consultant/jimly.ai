@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { Store, useStore } from "@tanstack/react-store"
+import { type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
+
+const revealStore = new Store<{ visible: boolean }>({ visible: false })
 
 export function Reveal({
   children,
@@ -9,36 +12,33 @@ export function Reveal({
   children: ReactNode | ((visible: boolean) => ReactNode)
   className?: string
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const visible = useStore(revealStore, (s) => s.visible)
 
-  useEffect(() => {
-    const el = ref.current
+  function setRef(el: HTMLDivElement | null) {
     if (!el) return
 
     if (el.getBoundingClientRect().top < window.innerHeight) {
-      setVisible(true)
+      revealStore.setState(() => ({ visible: true }))
       return
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setVisible(true)
+          revealStore.setState(() => ({ visible: true }))
           observer.disconnect()
         }
       },
       { threshold: 0.1 }
     )
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+  }
 
   const isRenderProp = typeof children === "function"
 
   return (
     <div
-      ref={ref}
+      ref={setRef}
       className={cn(
         !isRenderProp && "opacity-0 translate-y-5 transition-[opacity,transform] duration-500 ease-out",
         !isRenderProp && visible && "opacity-100 translate-y-0",
