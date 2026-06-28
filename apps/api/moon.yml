@@ -2,7 +2,7 @@ $schema: "https://moonrepo.dev/schemas/project.json"
 type: "application"
 language: "typescript"
 tasks:
-  dev: { command: "vercel dev --listen 3001", local: true }
+  dev: { command: "vercel dev --listen 127.0.0.1:3001", local: true }
   build: { command: "tsc --noEmit" }
   test: { command: "vitest run", local: true }
   db-generate: { command: "drizzle-kit generate", local: true }
