@@ -1,5 +1,5 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
-type: "application"
+type: "library"
 language: "typescript"
 tasks:
   dev: { command: "vercel dev --listen 127.0.0.1:3001", local: true }

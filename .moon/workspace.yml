@@ -2,6 +2,7 @@ $schema: "https://moonrepo.dev/schemas/workspace.json"
 projects:
   landing: "apps/landing"
   backoffice: "apps/backoffice"
+  api: "apps/api"
 vcs:
   manager: "git"
   defaultBranch: "main"
