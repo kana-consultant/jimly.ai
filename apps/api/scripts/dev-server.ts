@@ -27,6 +27,7 @@ async function toWebRequest(req: IncomingMessage): Promise<Request> {
 async function sendResponse(webRes: Response, res: ServerResponse): Promise<void> {
   res.statusCode = webRes.status;
   webRes.headers.forEach((v, k) => res.setHeader(k, v));
+  res.flushHeaders();
   if (webRes.body) {
     const reader = webRes.body.getReader();
     for (;;) {
@@ -66,7 +67,12 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const handler = route.mod[method];
     if (!handler) { res.statusCode = 405; return void res.end('Method not allowed'); }
 
-    await sendResponse(await handler(webReq), res);
+    const webRes = await handler(webReq);
+    if (webRes.status >= 400) {
+      const body = await webRes.clone().text();
+      console.error(`[dev] ${method} ${pathname} → ${webRes.status}`, body);
+    }
+    await sendResponse(webRes, res);
   } catch (err) {
     console.error('[dev-server]', err);
     if (!res.headersSent) { res.statusCode = 500; res.end('Error'); }

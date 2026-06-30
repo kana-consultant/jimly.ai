@@ -176,7 +176,7 @@ export function ChatThread() {
               animate={{ opacity: 1, transition: { duration: 0.2 } }}
             >
               <AnimatePresence initial={false}>
-                {messages.map((message) => (
+                {messages.map((message, i) => (
                   <motion.div
                     key={message.id}
                     id={`msg-${message.id}`}
@@ -184,7 +184,10 @@ export function ChatThread() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChatBubble message={message} />
+                    <ChatBubble
+                      message={message}
+                      isStreaming={isStreaming && i === messages.length - 1 && message.role === 'assistant'}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>

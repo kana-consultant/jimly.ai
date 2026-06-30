@@ -30,7 +30,9 @@ export function withUser(handler: Handler) {
         );
       }
 
-      const ctx: AuthedContext = { userId, origin: origin ?? new URL(req.url).origin, headers: req.headers };
+      const referer = req.headers.get('referer');
+      const derivedOrigin = origin ?? (referer ? new URL(referer).origin : new URL(req.url).origin);
+      const ctx: AuthedContext = { userId, origin: derivedOrigin, headers: req.headers };
       const useCases = buildUseCases({
         repo: createNeonChatRepository(db, userId),
         gateway: createPerfect10Gateway(),

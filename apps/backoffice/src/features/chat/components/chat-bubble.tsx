@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types/chat';
 
-export function ChatBubble({ message }: { message: ChatMessage }) {
+export function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; isStreaming?: boolean }) {
   const isUser = message.role === 'user';
   const isEmpty = !isUser && message.content === '';
 
@@ -33,6 +33,9 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {message.content}
         </ReactMarkdown>
+        {isStreaming && (
+          <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
+        )}
       </div>
       {isUser && (
         <div className="w-7 h-7 rounded-full bg-primary/10 mt-1 shrink-0 flex items-center justify-center text-xs font-bold text-primary">
