@@ -21,7 +21,5 @@ export function createHttpChatRepository(): ChatRepository {
     deleteSession: (id) => send(`/api/sessions/${id}`, 'DELETE').then(() => undefined),
     listMessages: (sid) => send(`/api/sessions/${sid}/messages`, 'GET').then(json) as Promise<ChatMessage[]>,
     addMessage: (m: ChatMessage) => send(`/api/sessions/${m.sessionId}/messages`, 'POST', m).then(json).then(() => undefined),
-    getPerfect10SessionId: async () => null, // server-only; never called from browser
-    setPerfect10SessionId: async () => {}, // server-only
   };
 }

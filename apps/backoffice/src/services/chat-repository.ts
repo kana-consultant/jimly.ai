@@ -7,6 +7,4 @@ export interface ChatRepository {
   deleteSession(id: string): Promise<void>;
   listMessages(sessionId: string): Promise<ChatMessage[]>;
   addMessage(message: ChatMessage): Promise<void>;
-  getPerfect10SessionId(sessionId: string): Promise<string | null>;
-  setPerfect10SessionId(sessionId: string, perfect10SessionId: string): Promise<void>;
 }
