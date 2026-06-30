@@ -1,5 +1,6 @@
 import { env } from '#/infrastructure/config/env';
 import type { AiGateway } from '#/domain/ports/ai-gateway';
+import { sseDataLine, sseDoneLine, splitSseLines } from './sse-codec';
 
 // ponytail: fixed ceilings, not configurable. Raise (or move to env) if a
 // real upstream response legitimately needs longer.
@@ -54,25 +55,23 @@ export function createPerfect10Gateway(): AiGateway {
 
 function translateStream(): TransformStream<Uint8Array, Uint8Array> {
   const decoder = new TextDecoder();
-  const encoder = new TextEncoder();
   let buffer = '';
 
   return new TransformStream({
     transform(chunk, controller) {
-      buffer += decoder.decode(chunk, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
+      const { lines, remainder } = splitSseLines(buffer, decoder.decode(chunk, { stream: true }));
+      buffer = remainder;
 
       for (const line of lines) {
         if (!line.startsWith('data:')) continue;
         const data = line.slice(5).trim();
         if (!data) continue;
-
         try {
           const parsed = JSON.parse(data) as { text?: string };
           if (parsed.text) {
-            const out = JSON.stringify({ choices: [{ delta: { content: parsed.text } }] });
-            controller.enqueue(encoder.encode(`data: ${out}\n\n`));
+            controller.enqueue(
+              sseDataLine(JSON.stringify({ choices: [{ delta: { content: parsed.text } }] })),
+            );
           }
         } catch {
           // ignore malformed upstream lines
@@ -80,7 +79,7 @@ function translateStream(): TransformStream<Uint8Array, Uint8Array> {
       }
     },
     flush(controller) {
-      controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+      controller.enqueue(sseDoneLine());
     },
   });
 }

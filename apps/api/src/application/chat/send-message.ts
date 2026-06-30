@@ -2,14 +2,11 @@ import type { ChatRepository } from '#/domain/chat/chat-repository';
 import type { AiGateway } from '#/domain/ports/ai-gateway';
 import type { AuthedContext } from '../shared/context';
 import { badGateway } from '../shared/errors';
+import { parseDeltaContent, splitSseLines } from '#/infrastructure/ai/sse-codec';
 
 export interface SendMessageInput {
   chatId: string;
   content: string;
-}
-
-interface UpstreamDelta {
-  choices?: { delta?: { content?: string } }[];
 }
 
 // Reads the gateway's SSE stream while passing every chunk through unchanged,
@@ -27,20 +24,14 @@ function persistReplyOnComplete(
     new TransformStream<Uint8Array, Uint8Array>({
       transform(chunk, controller) {
         controller.enqueue(chunk);
-        buffer += decoder.decode(chunk, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
+        const { lines, remainder } = splitSseLines(buffer, decoder.decode(chunk, { stream: true }));
+        buffer = remainder;
         for (const line of lines) {
           if (!line.startsWith('data:')) continue;
           const data = line.slice(5).trim();
           if (!data || data === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(data) as UpstreamDelta;
-            const delta = parsed.choices?.[0]?.delta?.content;
-            if (delta) fullText += delta;
-          } catch {
-            // ignore malformed upstream line
-          }
+          const delta = parseDeltaContent(data);
+          if (delta) fullText += delta;
         }
       },
       async flush() {
