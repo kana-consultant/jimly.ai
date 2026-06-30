@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
 import { cn } from '@/lib/utils';
@@ -10,9 +11,9 @@ function truncateLabel(text: string, maxChars = 40): string {
 
 const hoveredIdStore = new Store<string | null>(null);
 
-export function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
+export const ChatTopicNav = memo(function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
   const hoveredId = useStore(hoveredIdStore, (s) => s);
-  const userMessages = messages.filter((m) => m.role === 'user');
+  const userMessages = useMemo(() => messages.filter((m) => m.role === 'user'), [messages]);
 
   if (userMessages.length < 2) return null;
 
@@ -44,4 +45,4 @@ export function ChatTopicNav({ messages }: { messages: ChatMessage[] }) {
       ))}
     </div>
   );
-}
+});

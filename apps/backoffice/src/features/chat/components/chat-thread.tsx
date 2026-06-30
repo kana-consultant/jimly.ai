@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -81,7 +82,7 @@ export function ChatThread() {
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
 
-  const topics = deriveTopics(messages, sessions);
+  const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
 
   requestAnimationFrame(() => {
     if (hasMessages) {

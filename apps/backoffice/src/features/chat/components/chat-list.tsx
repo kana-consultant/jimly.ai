@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
 import { Plus, Search, History } from 'lucide-react';
@@ -28,7 +29,7 @@ export function ChatList({
 
   const renamingSession = sessions.find((s) => s.id === renamingId) ?? null;
 
-  const { pinned, history } = filterChats(sessions, query);
+  const { pinned, history } = useMemo(() => filterChats(sessions, query), [sessions, query]);
 
   const newChatButton = (
     <button
