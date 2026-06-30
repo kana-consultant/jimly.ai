@@ -74,17 +74,13 @@ export function validateMessage(body: unknown): ChatMessage | null {
 
 /**
  * Validates the body of a POST /api/chat request.
- * Only the last message's content is forwarded to the AI gateway — the
- * server is the sole author of conversation history server-side.
+ * Accepts {chatId, content} directly — history array removed.
+ * The server is the sole author of conversation history server-side.
  */
 export function validateChatRequest(body: unknown): { chatId: string; content: string } | null {
   if (!isRecord(body)) return null;
-  const { chatId, messages } = body;
+  const { chatId, content } = body;
   if (!isNonEmptyString(chatId)) return null;
-  if (!Array.isArray(messages) || messages.length === 0) return null;
-  const last = messages[messages.length - 1];
-  if (!isRecord(last)) return null;
-  const { content } = last;
   if (typeof content !== 'string' || content.length === 0 || content.length > MAX_CONTENT_LENGTH) return null;
   return { chatId, content };
 }

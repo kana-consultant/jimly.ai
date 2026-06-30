@@ -1,10 +1,15 @@
-import type { OutgoingMessage } from '@/types/chat';
+import { parseDeltaContent } from './sse-codec';
 
-export async function* streamChatCompletion(chatId: string, messages: OutgoingMessage[]): AsyncGenerator<string> {
+export async function* streamChatCompletion(
+  chatId: string,
+  content: string,
+  signal?: AbortSignal,
+): AsyncGenerator<string> {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chatId, messages }),
+    body: JSON.stringify({ chatId, content }),
+    signal,
   });
 
   if (!res.ok || !res.body) throw new Error('Chat stream request failed');
@@ -25,18 +30,8 @@ export async function* streamChatCompletion(chatId: string, messages: OutgoingMe
       if (!line.startsWith('data:')) continue;
       const data = line.slice(5).trim();
       if (data === '[DONE]') return;
-
       const delta = parseDeltaContent(data);
       if (delta) yield delta;
     }
-  }
-}
-
-function parseDeltaContent(data: string): string | null {
-  try {
-    const parsed = JSON.parse(data);
-    return parsed.choices?.[0]?.delta?.content ?? null;
-  } catch {
-    return null;
   }
 }

@@ -3,13 +3,12 @@ import { useStore } from '@tanstack/react-store';
 import { uuid } from '@/lib/uuid';
 import { streamChatCompletion } from '@/features/chat/logic/chat-api-client';
 import { useChatStore, chatStoreActions } from '@/features/chat/logic/chat-store';
-import type { ChatMessage, OutgoingMessage } from '@/types/chat';
+import type { ChatMessage } from '@/types/chat';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
-
 const errorStore = new Store<string | null>(null);
 
-export async function streamAssistantReply(chatId: string, history: OutgoingMessage[]) {
+export async function streamAssistantReply(chatId: string, content: string, signal?: AbortSignal) {
   chatStoreActions.addMessage(chatId, {
     id: uuid(),
     sessionId: chatId,
@@ -20,12 +19,14 @@ export async function streamAssistantReply(chatId: string, history: OutgoingMess
   chatStoreActions.setStreaming(true);
   errorStore.setState(() => null);
   try {
-    for await (const chunk of streamChatCompletion(chatId, history)) {
+    for await (const chunk of streamChatCompletion(chatId, content, signal)) {
       chatStoreActions.appendToLastMessage(chatId, chunk);
     }
-  } catch {
+  } catch (err) {
     chatStoreActions.removeLastMessage(chatId);
-    errorStore.setState(() => 'Something went wrong while replying. Please try again.');
+    if (!(err instanceof Error && err.name === 'AbortError')) {
+      errorStore.setState(() => 'Something went wrong while replying. Please try again.');
+    }
   } finally {
     chatStoreActions.setStreaming(false);
   }
@@ -37,5 +38,5 @@ export function useChatStream() {
   const isStreaming = useChatStore((state) => state.isStreaming);
   const error = useStore(errorStore, (s) => s);
 
-  return { activeChatId, messages, isStreaming, error, streamAssistantReply };
+  return { activeChatId, messages, isStreaming, error };
 }

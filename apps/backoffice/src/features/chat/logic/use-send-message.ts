@@ -4,9 +4,10 @@ import { useChatStream, streamAssistantReply } from '@/features/chat/logic/use-c
 import { generateChatTitle } from '@/features/chat/logic/generate-chat-title';
 import { useChatRepository } from '@/features/chat/logic/chat-repository-context';
 import type { ChatRepository } from '@/services/chat-repository';
-import type { ChatMessage, NewChatSession, OutgoingMessage } from '@/types/chat';
+import type { ChatMessage, NewChatSession } from '@/types/chat';
 
-let lastAttempt: { chatId: string; history: OutgoingMessage[] } | null = null;
+let lastAttempt: { chatId: string; content: string } | null = null;
+let abortController: AbortController | null = null;
 
 async function persistTurn(
   repo: ChatRepository,
@@ -23,9 +24,11 @@ async function persistTurn(
   await repo.addMessage(userMessage);
 }
 
-async function requestAssistantReply(chatId: string, history: OutgoingMessage[]) {
-  lastAttempt = { chatId, history };
-  await streamAssistantReply(chatId, history);
+async function requestAssistantReply(chatId: string, content: string) {
+  abortController?.abort();
+  abortController = new AbortController();
+  lastAttempt = { chatId, content };
+  await streamAssistantReply(chatId, content, abortController.signal);
 }
 
 export function useSendMessage() {
@@ -54,19 +57,12 @@ export function useSendMessage() {
       addSession({ ...newSession, userId: '' });
     }
     await persistTurn(repo, chatId, userMessage, now, newSession);
-
-    const history = [...messages, { role: 'user' as const, content }].map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
-
-    await requestAssistantReply(chatId, history);
+    await requestAssistantReply(chatId, content);
   }
 
   function retry() {
     if (!lastAttempt) return;
-    const { chatId, history } = lastAttempt;
-    void requestAssistantReply(chatId, history);
+    void requestAssistantReply(lastAttempt.chatId, lastAttempt.content);
   }
 
   return { activeChatId, messages, isStreaming, error, sendMessage, retry };
