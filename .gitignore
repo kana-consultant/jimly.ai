@@ -1,16 +1,20 @@
 # build output
 dist/
+*.tsbuildinfo
 # generated types
 .astro/
-.claude/
 .vercel/
 .omc/
 .vscode/
 .playwright-mcp/
+.claude/
 md/
+docs/
 
 # dependencies
 node_modules/
+# moon build cache
+.moon/cache/
 
 # logs
 npm-debug.log*
@@ -22,9 +26,15 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.local
 
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+
+# local-only Claude Code settings (redundant with .claude/ above, kept explicit)
+.claude/launch.json
+.claude/settings.local.json
+.vercel

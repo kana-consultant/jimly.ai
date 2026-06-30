@@ -1,0 +1,77 @@
+---
+const BOOKS = [
+  {
+    title: "The Constitutional Law of Indonesia",
+    meta: "2009 · Comprehensive Overview",
+    gradient: "from-[#102A43] to-[#1A3A57]",
+    spine: "bg-primary",
+  },
+  {
+    title: "Green Constitution",
+    meta: "2010 · Konstitusi Hijau",
+    gradient: "from-[#1F4D36] to-[#2D6B4A]",
+    spine: "bg-secondary",
+  },
+  {
+    title: "Peradilan Etik dan Etika Konstitusi",
+    meta: "2014 · Legal Ethics",
+    gradient: "from-[#3A1A2A] to-[#5A2A40]",
+    spine: "bg-primary",
+  },
+  {
+    title: "Konstitusi Ekonomi",
+    meta: "2010 · Economic Constitution",
+    gradient: "from-[#2A1A3A] to-[#3D2657]",
+    spine: "bg-secondary",
+  },
+  {
+    title: "Pancasila: Identitas Konstitusi",
+    meta: "2020 · National Identity",
+    gradient: "from-[#3A2A10] to-[#5C4218]",
+    spine: "bg-primary",
+  },
+  {
+    title: "Pengantar Ilmu Hukum Tata Negara",
+    meta: "2006 · State Administrative Law",
+    gradient: "from-[#1A2A3A] to-[#243B53]",
+    spine: "bg-secondary",
+  },
+]
+
+interface Props {
+  covers: string[]
+}
+
+const { covers } = Astro.props
+---
+
+<section class="mx-auto max-w-275 px-10 py-22" id="books">
+  <div class="mb-12">
+    <h2 class="font-sans text-[clamp(34px,3.5vw,48px)] leading-tight font-semibold tracking-tight text-primary">
+      Built on <em class="font-normal text-chart-5 italic">decades of scholarship</em>
+    </h2>
+    <p class="mt-3 max-w-125 text-[15px] leading-relaxed text-muted-foreground">
+      jimly.ai is trained on Prof. Jimly's major published works — a library of Indonesian constitutional
+      thought unmatched in depth.
+    </p>
+  </div>
+  <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
+    {BOOKS.map((book, i) => (
+      <div class="group overflow-hidden rounded-2xl bg-card shadow-sm transition-[transform,box-shadow] duration-500 hover:-translate-y-1.5 hover:shadow-lg">
+        <div class={`h-1.5 ${book.spine}`} />
+        <div class="p-4 pb-3.5">
+          <div class={`relative mb-3 aspect-3/4 w-full overflow-hidden rounded-md bg-linear-to-br transition-transform duration-300 group-hover:scale-105 ${book.gradient}`}>
+            <img
+              src={covers[i]}
+              alt={book.title}
+              loading="lazy"
+              class="h-full w-full object-cover"
+            />
+          </div>
+          <div class="mb-1 text-[12.5px] leading-snug font-semibold text-primary">{book.title}</div>
+          <div class="text-[11px] text-muted-foreground-faint">{book.meta}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
