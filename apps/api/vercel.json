@@ -3,9 +3,9 @@
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "cd ../.. && pnpm --filter @jimly/api build && node apps/api/scripts/ensure-public-dir.mjs",
   "outputDirectory": "public",
-  "functions": {
-    "routes/**/*.ts": {}
-  },
+  "builds": [
+    { "src": "routes/**/*.ts", "use": "@vercel/node" }
+  ],
   "rewrites": [
     { "source": "/api/auth/:path*", "destination": "/routes/auth/handler" },
     { "source": "/api/sessions/:id/messages", "destination": "/routes/sessions/:id/messages" },

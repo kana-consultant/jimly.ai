@@ -3,8 +3,7 @@
   "include": ["src", "routes"],
   "compilerOptions": {
     "types": ["node"],
-    "baseUrl": ".",
-    "paths": { "#/*": ["./src/*"] },
+    "paths": { "@/*": ["./src/*"], "#/*": ["./src/*"] },
     "noEmit": true
   }
 }
