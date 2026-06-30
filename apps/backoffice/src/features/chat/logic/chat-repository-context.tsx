@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import type { ChatRepository } from '@/services/chat-repository';
 import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
 
-let activeRepository: ChatRepository = chatRepository;
+const ChatRepositoryContext = createContext<ChatRepository>(chatRepository);
 
 export function ChatRepositoryProvider({
   value = chatRepository,
@@ -11,10 +11,9 @@ export function ChatRepositoryProvider({
   value?: ChatRepository;
   children: ReactNode;
 }) {
-  activeRepository = value;
-  return children;
+  return <ChatRepositoryContext.Provider value={value}>{children}</ChatRepositoryContext.Provider>;
 }
 
 export function useChatRepository(): ChatRepository {
-  return activeRepository;
+  return useContext(ChatRepositoryContext);
 }
