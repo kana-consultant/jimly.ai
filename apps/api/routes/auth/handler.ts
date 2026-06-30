@@ -2,6 +2,7 @@ import type { IncomingMessage } from 'node:http';
 import { auth } from '#/infrastructure/auth/better-auth';
 import { createAuthRateLimiter } from '#/infrastructure/ratelimit/upstash';
 import { preflightResponse, withCors } from '#/presentation/http/cors';
+import { env } from '#/infrastructure/config/env';
 
 export const config = { runtime: 'nodejs' };
 
@@ -26,14 +27,18 @@ function readBody(req: IncomingMessage): Promise<Buffer> {
   });
 }
 
-// vercel dev sometimes hands this catch-all route a raw Node IncomingMessage
-// (relative `.url`, body as a 'data'/'end' stream, no `.clone`/`.arrayBuffer`)
-// instead of a spec Request, breaking better-auth's internal `new URL(req.url)`
-// and `request.clone()`. Build a real Request from it when that happens.
 async function toWebRequest(req: Request): Promise<Request> {
-  if (typeof (req as unknown as { clone?: unknown }).clone === 'function') return req;
-  const host = header(req, 'host') ?? 'localhost';
-  const url = new URL(req.url, `http://${host}`);
+  const base = env.BETTER_AUTH_URL;
+  if (typeof (req as unknown as { clone?: unknown }).clone === 'function') {
+    // Rewrite host to BETTER_AUTH_URL so better-auth's URL-based router matches,
+    // even when the request arrives via a reverse proxy with a different host header.
+    const url = new URL(req.url);
+    const baseUrl = new URL(base);
+    if (url.origin === baseUrl.origin) return req;
+    const normalized = new URL(url.pathname + url.search, base);
+    return new Request(normalized, req as unknown as RequestInit);
+  }
+  const url = new URL(req.url, base);
   const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
   const headers = req.headers instanceof Headers ? req.headers : new Headers(req.headers as HeadersInit);
   return new Request(url, {
@@ -43,10 +48,6 @@ async function toWebRequest(req: Request): Promise<Request> {
   });
 }
 
-// @vercel/node's dev server only recognizes Web-style Request->Response
-// handlers via named HTTP-method exports (or `fetch`); a bare default export
-// falls through to the legacy Node (req,res) path and hangs forever since we
-// never call res.end(). Export every method this catch-all needs to handle.
 async function handler(rawReq: Request): Promise<Response> {
   const origin = header(rawReq, 'origin');
   if (rawReq.method === 'OPTIONS') return preflightResponse(origin);
@@ -62,7 +63,6 @@ async function handler(rawReq: Request): Promise<Response> {
 
   const webReq = await toWebRequest(rawReq);
   const authRes = await auth.handler(webReq);
-  // ponytail: stream-through; vercel dev may hang — smoke-test before merging.
   return withCors(origin, authRes.body, { status: authRes.status, headers: authRes.headers });
 }
 

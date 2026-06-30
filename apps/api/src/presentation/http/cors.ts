@@ -1,11 +1,11 @@
 import { env } from '#/infrastructure/config/env';
 
 function isAllowedOrigin(origin: string | null): origin is string {
-  return origin !== null && origin === env.WEB_ORIGIN;
+  if (!origin) return false;
+  if (env.WEB_ORIGIN) return origin === env.WEB_ORIGIN;
+  return /^https?:\/\/localhost(:\d+)?$/.test(origin);
 }
 
-// Echoes the exact allowed origin (never `*`) so credentialed cross-origin
-// requests from the frontend are accepted (security fix #6 / cross-origin auth).
 export function corsHeaders(origin: string | null): HeadersInit {
   if (!isAllowedOrigin(origin)) return {};
   return {
@@ -21,18 +21,11 @@ export function preflightResponse(origin: string | null): Response {
     headers: {
       ...corsHeaders(origin),
       'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
     },
   });
 }
 
-// Takes body + init directly (not an existing Response) so we never re-pipe
-// another Response's `.body` stream into a new one — doing so left the
-// Vercel dev Node adapter hanging indefinitely on the response write.
-// Drop hop-by-hop / framing headers from the upstream response. They describe
-// the *original* body stream; reusing them on a reconstructed Response with a
-// different byte length makes Vercel's Node dev adapter write a stale
-// Content-Length, so the client waits forever for bytes that never arrive.
 const STRIPPED_HEADERS = ['content-length', 'content-encoding', 'transfer-encoding', 'connection'];
 
 export function withCors(origin: string | null, body: BodyInit | null, init: ResponseInit = {}): Response {

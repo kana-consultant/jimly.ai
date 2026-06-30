@@ -12,9 +12,6 @@ type Handler = (c: { req: Request; ctx: AuthedContext; useCases: UseCases }) => 
 
 const rateLimiter = createRateLimiter();
 
-// Per-request composition root: preflight -> authenticate -> rate-limit ->
-// build scoped deps -> assemble use-cases. Errors and CORS are handled once,
-// here, instead of in every handler.
 export function withUser(handler: Handler) {
   return async (req: Request): Promise<Response> => {
     const origin = req.headers.get('origin');
