@@ -48,13 +48,10 @@ async function toWebRequest(req: Request): Promise<Request> {
 // falls through to the legacy Node (req,res) path and hangs forever since we
 // never call res.end(). Export every method this catch-all needs to handle.
 async function handler(rawReq: Request): Promise<Response> {
-  console.log('[auth] hit', rawReq.method, rawReq.url);
   const origin = header(rawReq, 'origin');
-  console.log('[auth] origin', origin);
   if (rawReq.method === 'OPTIONS') return preflightResponse(origin);
 
   const limit = await rateLimiter.check(clientIp(rawReq));
-  console.log('[auth] rateLimit', limit);
   if (!limit.ok) {
     return withCors(
       origin,
@@ -64,11 +61,9 @@ async function handler(rawReq: Request): Promise<Response> {
   }
 
   const webReq = await toWebRequest(rawReq);
-  console.log('[auth] webReq', webReq.method, webReq.url);
   const authRes = await auth.handler(webReq);
-  const bodyText = await authRes.text();
-  console.log('[auth] result', authRes.status, bodyText);
-  return withCors(origin, bodyText, { status: authRes.status, headers: authRes.headers });
+  // ponytail: stream-through; vercel dev may hang — smoke-test before merging.
+  return withCors(origin, authRes.body, { status: authRes.status, headers: authRes.headers });
 }
 
 export { handler as GET, handler as POST, handler as PATCH, handler as DELETE, handler as OPTIONS };

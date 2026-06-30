@@ -3,8 +3,15 @@
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "cd ../.. && pnpm --filter @jimly/api build && node apps/api/scripts/ensure-public-dir.mjs",
   "outputDirectory": "public",
+  "functions": {
+    "routes/**/*.ts": {}
+  },
   "rewrites": [
-    { "source": "/api/auth/:path*", "destination": "/api/auth/handler" }
+    { "source": "/api/auth/:path*", "destination": "/routes/auth/handler" },
+    { "source": "/api/sessions/:id/messages", "destination": "/routes/sessions/:id/messages" },
+    { "source": "/api/sessions/:id", "destination": "/routes/sessions/:id" },
+    { "source": "/api/sessions", "destination": "/routes/sessions/index" },
+    { "source": "/api/chat", "destination": "/routes/chat" }
   ],
   "headers": [
     {

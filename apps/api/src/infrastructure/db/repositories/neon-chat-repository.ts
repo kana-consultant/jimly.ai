@@ -3,6 +3,7 @@ import type { db as Db } from '#/infrastructure/db/client';
 import { chatSessions, chatMessages } from '#/infrastructure/db/schema';
 import type { ChatRepository } from '#/domain/chat/chat-repository';
 import type { ChatMessage, ChatRole, ChatSession } from '#/domain/chat/chat';
+import { forbidden } from '#/application/shared/errors';
 
 export function createNeonChatRepository(db: typeof Db, userId: string): ChatRepository {
   return {
@@ -74,7 +75,7 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
           WHERE ${chatSessions.id} = ${message.sessionId} AND ${chatSessions.userId} = ${userId}
         )
       `);
-      if (result.rowCount === 0) throw new Error('Forbidden');
+      if (result.rowCount === 0) throw forbidden('Not your session');
     },
     async getPerfect10SessionId(sessionId) {
       // SECURITY: scope by userId — else a user could hijack another's Perfect10 session
