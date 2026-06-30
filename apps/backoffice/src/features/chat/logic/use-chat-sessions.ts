@@ -45,16 +45,26 @@ export function useChatSessions() {
   async function togglePin(chatId: string) {
     const session = sessions.find((s) => s.id === chatId);
     if (!session) return;
+    const prevPinned = session.pinned;
     togglePinSession(chatId);
-    await chatRepository.updateSession(chatId, { pinned: !session.pinned });
+    try {
+      await chatRepository.updateSession(chatId, { pinned: !prevPinned });
+    } catch {
+      togglePinSession(chatId); // rollback
+      toast.error('Failed to toggle pin');
+    }
   }
 
   async function renameChat(chatId: string, title: string) {
+    const session = sessions.find((s) => s.id === chatId);
+    if (!session) return;
+    const prevTitle = session.title;
+    renameSession(chatId, title);
     try {
-      renameSession(chatId, title);
       await chatRepository.updateSession(chatId, { title });
       toast.success('Chat renamed');
     } catch {
+      renameSession(chatId, prevTitle); // rollback
       toast.error('Failed to rename chat');
     }
   }
