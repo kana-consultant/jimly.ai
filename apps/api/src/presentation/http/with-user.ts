@@ -41,6 +41,7 @@ export function withUser(handler: Handler) {
       return handler({ req, ctx, useCases });
     });
 
-    return withCors(origin, res);
+    const bodyText = await res.text();
+    return withCors(origin, bodyText, { status: res.status, headers: res.headers });
   };
 }

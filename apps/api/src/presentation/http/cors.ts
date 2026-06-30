@@ -26,8 +26,18 @@ export function preflightResponse(origin: string | null): Response {
   });
 }
 
-export function withCors(origin: string | null, res: Response): Response {
-  const headers = new Headers(res.headers);
+// Takes body + init directly (not an existing Response) so we never re-pipe
+// another Response's `.body` stream into a new one — doing so left the
+// Vercel dev Node adapter hanging indefinitely on the response write.
+// Drop hop-by-hop / framing headers from the upstream response. They describe
+// the *original* body stream; reusing them on a reconstructed Response with a
+// different byte length makes Vercel's Node dev adapter write a stale
+// Content-Length, so the client waits forever for bytes that never arrive.
+const STRIPPED_HEADERS = ['content-length', 'content-encoding', 'transfer-encoding', 'connection'];
+
+export function withCors(origin: string | null, body: BodyInit | null, init: ResponseInit = {}): Response {
+  const headers = new Headers(init.headers);
+  for (const name of STRIPPED_HEADERS) headers.delete(name);
   for (const [key, value] of Object.entries(corsHeaders(origin))) headers.set(key, value);
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  return new Response(body, { ...init, headers });
 }
