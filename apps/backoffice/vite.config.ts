@@ -9,6 +9,16 @@ export default defineConfig({
   envDir: path.resolve(__dirname, '../..'),
   server: {
     port: 5173,
-    proxy: { '/api': 'http://127.0.0.1:3001' },
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3001',
+        configure: (proxy) => {
+          // prevent gzip buffering of SSE chunks
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Accept-Encoding', 'identity');
+          });
+        },
+      },
+    },
   },
 });

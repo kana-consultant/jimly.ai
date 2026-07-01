@@ -9,7 +9,12 @@ const handler = withUser(async ({ req, ctx, useCases }) => {
 
   const stream = await useCases.sendMessage(body, ctx);
   return new Response(stream, {
-    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'X-Accel-Buffering': 'no',
+      Connection: 'keep-alive',
+    },
   });
 });
 

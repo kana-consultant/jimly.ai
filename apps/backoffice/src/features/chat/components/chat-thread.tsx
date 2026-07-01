@@ -1,12 +1,12 @@
-import { useMemo } from 'react';
-import { Store } from '@tanstack/store';
-import { useStore } from '@tanstack/react-store';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/lib/display-name';
 import { useSendMessage } from '@/features/chat/logic/use-send-message';
 import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
+import { deriveTopics } from '@/features/chat/logic/derive-topics';
+import { useScrollToBottom } from '@/features/chat/logic/use-scroll-to-bottom';
 import type { ChatSession } from '@/types/chat';
 import { ChatBubble } from '@/features/chat/components/chat-bubble';
 import { StreamingIndicator } from '@/features/chat/components/streaming-indicator';
@@ -14,111 +14,22 @@ import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
 import { ChatInput } from '@/features/chat/components/chat-input';
 import { ChatTopicNav } from '@/features/chat/components/chat-topic-nav';
 
-const INTENT_TOPICS: Record<string, string[]> = {
-  research: ['Competitors', 'Market trends', 'Industry reports'],
-  brainstorm: ['Alternatives', 'Creative ideas', 'New approaches'],
-  summarize: ['Key points', 'Outline', 'Extract insights'],
-  code: ['Debug this', 'Refactor', 'Write tests'],
-  write: ['Draft reply', 'Rewrite', 'Expand this'],
-  explain: ['Simplify', 'Examples', 'Step-by-step'],
-  compare: ['Pros and cons', 'Alternatives', 'Trade-offs'],
-  analyze: ['Key insights', 'Root causes', 'Implications'],
-};
-
-const DEFAULT_TOPICS = ['Research', 'Brainstorm', 'Summarize', 'Check facts'];
-
-function truncateWords(text: string, maxWords = 2): string {
-  const words = text.trim().split(/\s+/);
-  return words.length <= maxWords ? text.trim() : words.slice(0, maxWords).join(' ');
-}
-
-function deriveTopics(messages: { role: string; content: string }[], sessions: ChatSession[]): string[] {
-  if (!messages.length) {
-    const recentTitles = sessions
-      .slice()
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 4)
-      .map((s) => truncateWords(s.title));
-    return recentTitles.length ? recentTitles : DEFAULT_TOPICS;
-  }
-
-  const userMessages = messages.filter((m) => m.role === 'user');
-  if (!userMessages.length) return DEFAULT_TOPICS;
-
-  const lastUser = userMessages[userMessages.length - 1]!.content.toLowerCase();
-  for (const [intent, topics] of Object.entries(INTENT_TOPICS)) {
-    if (lastUser.includes(intent)) return topics;
-  }
-
-  if (lastUser.includes('?')) {
-    return ['Tell more', 'Simplify', 'Examples', 'Step-by-step'];
-  }
-
-  return ['Explore more', 'Details', 'Examples', 'Alternatives'];
-}
-
-let scrollEl: HTMLDivElement | null = null;
-let prevLen = 0;
-
-const showSuggestionsStore = new Store(false);
-
-function scrollToBottom(behavior: ScrollBehavior = 'auto') {
-  const container = scrollEl;
-  if (container) {
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior,
-    });
-  }
-}
-
 export function ChatThread() {
   const user = useCurrentUser();
   const { activeChatId, messages, isStreaming, sendMessage } = useSendMessage();
   const { sessions } = useChatSessions();
-  const showSuggestions = useStore(showSuggestionsStore, (s) => s);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const hasMessages = activeChatId !== null && messages.length > 0;
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
 
   const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
+  const scrollRef = useScrollToBottom(isStreaming, messages.length, hasMessages);
 
-  requestAnimationFrame(() => {
-    if (hasMessages) {
-      const isNewMessage = messages.length > prevLen;
-      prevLen = messages.length;
-      if (isNewMessage) {
-        scrollToBottom('auto');
-      }
-    } else {
-      prevLen = messages.length;
-      if (showSuggestionsStore.state) {
-        showSuggestionsStore.setState(() => false);
-      }
-    }
-
-    if (isStreaming && hasMessages && lastMessage?.content) {
-      const container = scrollEl;
-      if (container) {
-        const threshold = 150;
-        const isUserNearBottom =
-          container.scrollHeight - container.scrollTop - container.clientHeight <= threshold;
-
-        if (isUserNearBottom) {
-          container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
-        }
-      }
-    }
-  });
-
-  function handleTopicSelect(topic: string) {
-    sendMessage(topic);
-  }
-
-  function handleToggleSuggestions() {
-    showSuggestionsStore.setState((prev) => !prev);
-  }
+  useEffect(() => {
+    if (!hasMessages) setShowSuggestions(false);
+  }, [hasMessages]);
 
   const suggestionsVisible = !hasMessages || showSuggestions;
   const displayName = getDisplayName(user);
@@ -126,9 +37,7 @@ export function ChatThread() {
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
       <div
-        ref={(el) => {
-          scrollEl = el;
-        }}
+        ref={scrollRef}
         className={cn(
           'flex-1 overflow-y-auto relative',
           hasMessages ? 'pb-52' : '',
@@ -162,7 +71,7 @@ export function ChatThread() {
                   showSuggestions={false}
                   suggestions={
                     <div className="flex justify-center mt-3">
-                      <SuggestedTopics topics={topics} onSelect={handleTopicSelect} />
+                      <SuggestedTopics topics={topics} onSelect={sendMessage} />
                     </div>
                   }
                 />
@@ -216,11 +125,11 @@ export function ChatThread() {
         <div className="absolute inset-x-0 bottom-6 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
           <ChatInput
             showSuggestions={showSuggestions}
-            onToggleSuggestions={handleToggleSuggestions}
+            onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}
             suggestions={
               suggestionsVisible ? (
                 <div className="flex justify-center mt-3">
-                  <SuggestedTopics topics={topics} onSelect={handleTopicSelect} />
+                  <SuggestedTopics topics={topics} onSelect={sendMessage} />
                 </div>
               ) : null
             }

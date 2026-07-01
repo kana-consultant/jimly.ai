@@ -11,6 +11,9 @@ importers:
       '@moonrepo/cli':
         specifier: ^1.30.0
         version: 1.41.7
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
 
   apps/api:
     dependencies:

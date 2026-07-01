@@ -1,9 +1,4 @@
-const DEFAULT_TOPICS = [
-  'Research',
-  'Brainstorm',
-  'Summarize',
-  'Check Facts',
-];
+import { DEFAULT_TOPICS } from '@/features/chat/logic/derive-topics';
 
 export function SuggestedTopics({
   topics = DEFAULT_TOPICS,

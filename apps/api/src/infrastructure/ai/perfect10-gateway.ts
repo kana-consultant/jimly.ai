@@ -43,8 +43,8 @@ export function createPerfect10Gateway(): AiGateway {
     },
 
     async streamReply(assistantMessageId, origin) {
-      const res = await fetch(`${env.PERFECT10_API_URL}/integrate/v1/chat/stream/${assistantMessageId}`, {
-        headers: { Accept: 'text/event-stream', 'X-API-Key': env.PERFECT10_API_KEY, 'X-Actual-Origin': origin },
+      const res = await apiFetch(`/integrate/v1/chat/stream/${assistantMessageId}`, origin, {
+        headers: { Accept: 'text/event-stream' },
         signal: AbortSignal.timeout(STREAM_TIMEOUT_MS),
       });
       if (!res.ok || !res.body) throw new Error('Failed to stream reply');

@@ -2,7 +2,7 @@ import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/lib/display-name';
 import { Sidebar } from '@/components/ui/sidebar';
 import { ChatList } from '@/features/chat/components/chat-list';
-import { LogoutButton } from '@/components/layout/logout-button';
+import { LogoutButton } from '@/components/ui/sidebar';
 
 function initial(name: string): string {
   return name.charAt(0).toUpperCase();
