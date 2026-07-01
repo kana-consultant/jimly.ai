@@ -3,12 +3,12 @@ import { Toaster } from 'sonner';
 import { LoginRoute } from './routes/login';
 import { RegisterRoute } from './routes/register';
 import { ChatRoute } from './routes/chat';
-import { RequireAuth } from './routes/guard';
+import { RequireAuth, RedirectIfAuth } from './routes/guard';
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/chat" replace /> },
-  { path: '/login', element: <LoginRoute /> },
-  { path: '/register', element: <RegisterRoute /> },
+  { path: '/login', element: <RedirectIfAuth><LoginRoute /></RedirectIfAuth> },
+  { path: '/register', element: <RedirectIfAuth><RegisterRoute /></RedirectIfAuth> },
   {
     path: '/chat',
     element: (
