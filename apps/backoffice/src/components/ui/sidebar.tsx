@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/libs/utils"
 import { PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react"
 import { useState, type ReactNode } from "react"
-import { logoutUser } from "@/lib/auth-api-client"
+import { logoutUser } from "@/libs/auth-api-client"
 import {
   Dialog,
   DialogContent,

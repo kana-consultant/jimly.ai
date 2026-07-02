@@ -1,5 +1,5 @@
-import type { User, AuthCredentials } from '@/types/auth';
-import { signIn, signUp, signOut } from '@/auth/client';
+import type { User, AuthCredentials } from '@/libs/auth/types';
+import { signIn, signUp, signOut } from '@/libs/auth/client';
 
 type AuthApiResult = { user: User } | { error: string };
 

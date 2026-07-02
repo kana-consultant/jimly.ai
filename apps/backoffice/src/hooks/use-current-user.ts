@@ -1,4 +1,4 @@
-import { useSession } from '@/auth/client';
+import { useSession } from '@/libs/auth/client';
 
 export function useCurrentUser() {
   const { data } = useSession();
