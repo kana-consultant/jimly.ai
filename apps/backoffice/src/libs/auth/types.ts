@@ -5,8 +5,13 @@ export interface User {
   createdAt: string;
 }
 
-export interface AuthCredentials {
+export interface LoginCredentials {
   email: string;
   password: string;
-  name?: string;
+}
+
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  name: string;
 }
