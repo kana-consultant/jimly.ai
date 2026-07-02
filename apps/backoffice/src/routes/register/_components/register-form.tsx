@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { registerUser } from '@/lib/auth-api-client';
-import { PasswordInput } from '@/features/auth/password-input';
+import { registerUser } from '@/libs/auth-api-client';
+import { PasswordInput } from '@/components/ui/form/password-input';
 
 export function RegisterForm() {
   const [name, setName] = useState('');

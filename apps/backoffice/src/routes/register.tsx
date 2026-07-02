@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowLeft, Quote } from 'lucide-react';
-import { RegisterForm } from '@/features/auth/register-form';
+import { RegisterForm } from '@/routes/register/_components/register-form';
 
 function QuoteBlock() {
   return (
