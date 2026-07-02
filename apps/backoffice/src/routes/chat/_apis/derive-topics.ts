@@ -1,4 +1,4 @@
-import type { ChatSession } from '@/types/chat';
+import type { ChatSession } from '@/routes/chat/types';
 
 const INTENT_TOPICS: Record<string, string[]> = {
   research: ['Competitors', 'Market trends', 'Industry reports'],

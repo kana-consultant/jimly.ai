@@ -1,5 +1,5 @@
-import type { ChatRepository } from '@/services/chat-repository';
-import type { ChatMessage, ChatSession, NewChatSession } from '@/types/chat';
+import type { ChatRepository } from '@/routes/chat/_apis/chat-repository';
+import type { ChatMessage, ChatSession, NewChatSession } from '@/routes/chat/types';
 
 const json = (r: Response) => {
   if (!r.ok) throw new Error(r.statusText);

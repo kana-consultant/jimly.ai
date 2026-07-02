@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import type { ChatRepository } from '@/services/chat-repository';
-import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
+import type { ChatRepository } from '@/routes/chat/_apis/chat-repository';
+import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
 
 const ChatRepositoryContext = createContext<ChatRepository>(chatRepository);
 
