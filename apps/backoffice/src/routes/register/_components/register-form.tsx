@@ -3,26 +3,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { registerUser } from '@/libs/auth-api-client';
 import { PasswordInput } from '@/components/ui/form/password-input';
+import { useAuthForm } from '@/routes/auth/_hooks/use-auth-form';
 
 export function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    const result = await registerUser({ email, password, name });
-    if ('error' in result) {
-      setError(result.error);
-      setIsSubmitting(false);
-      return;
-    }
-    window.location.href = '/chat';
-  }
+  const { error, isSubmitting, handleSubmit } = useAuthForm(
+    () => registerUser({ email, password, name }),
+    '/chat',
+  );
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
