@@ -1,5 +1,6 @@
 import { withUser } from '#/presentation/http/with-user';
 import { validateSessionPatch } from '#/presentation/http/validate';
+import { badRequest } from '#/presentation/http/respond';
 
 export const config = { runtime: 'nodejs' };
 
@@ -7,7 +8,7 @@ const handler = withUser(async ({ req, useCases }) => {
   const id = new URL(req.url).pathname.split('/').pop()!;
   if (req.method === 'PATCH') {
     const patch = validateSessionPatch(await req.json());
-    if (!patch) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    if (!patch) return badRequest();
     await useCases.updateSession({ id, patch });
     return Response.json({ ok: true });
   }

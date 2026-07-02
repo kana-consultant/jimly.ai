@@ -14,3 +14,7 @@ export async function respond(fn: () => Promise<Response>): Promise<Response> {
     return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export function badRequest(message = 'Invalid request body'): Response {
+  return Response.json({ error: message }, { status: 400 });
+}

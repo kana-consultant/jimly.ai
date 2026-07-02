@@ -1,11 +1,12 @@
 import { withUser } from '#/presentation/http/with-user';
 import { validateChatRequest } from '#/presentation/http/validate';
+import { badRequest } from '#/presentation/http/respond';
 
 export const config = { runtime: 'nodejs' };
 
 const handler = withUser(async ({ req, ctx, useCases }) => {
   const body = validateChatRequest(await req.json());
-  if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  if (!body) return badRequest();
 
   const stream = await useCases.sendMessage(body, ctx);
   return new Response(stream, {

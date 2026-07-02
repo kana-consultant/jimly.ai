@@ -1,5 +1,6 @@
 import { withUser } from '#/presentation/http/with-user';
 import { validateNewSession } from '#/presentation/http/validate';
+import { badRequest } from '#/presentation/http/respond';
 
 export const config = { runtime: 'nodejs' };
 
@@ -7,7 +8,7 @@ const handler = withUser(async ({ req, useCases }) => {
   if (req.method === 'GET') return Response.json(await useCases.listSessions());
   if (req.method === 'POST') {
     const body = validateNewSession(await req.json());
-    if (!body) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    if (!body) return badRequest();
     await useCases.createSession(body);
     return Response.json({ ok: true });
   }
