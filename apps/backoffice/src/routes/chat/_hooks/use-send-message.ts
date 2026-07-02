@@ -1,10 +1,10 @@
-import { uuid } from '@/lib/uuid';
-import { useChatStore } from '@/features/chat/logic/chat-store';
-import { useChatStream, streamAssistantReply } from '@/features/chat/logic/use-chat-stream';
-import { generateChatTitle } from '@/features/chat/logic/generate-chat-title';
-import { useChatRepository } from '@/features/chat/logic/chat-repository-context';
-import type { ChatRepository } from '@/services/chat-repository';
-import type { ChatMessage, NewChatSession } from '@/types/chat';
+import { uuid } from '@/libs/uuid';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatStream, streamAssistantReply } from '@/routes/chat/_hooks/use-chat-stream';
+import { generateChatTitle } from '@/routes/chat/_apis/generate-chat-title';
+import { useChatRepository } from '@/routes/chat/_apis/chat-repository-context';
+import type { ChatRepository } from '@/routes/chat/_apis/chat-repository';
+import type { ChatMessage, NewChatSession } from '@/routes/chat/types';
 
 let lastAttempt: { chatId: string; content: string } | null = null;
 let abortController: AbortController | null = null;

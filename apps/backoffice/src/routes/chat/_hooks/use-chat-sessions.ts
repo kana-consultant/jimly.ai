@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
-import { useChatStore } from '@/features/chat/logic/chat-store';
-import { chatRepository } from '@/features/chat/logic/chat-repository-instance';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
 
 let sessionsLoaded = false;
 

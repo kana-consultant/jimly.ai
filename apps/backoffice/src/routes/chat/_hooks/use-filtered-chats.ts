@@ -1,4 +1,4 @@
-import type { ChatSession } from '@/types/chat';
+import type { ChatSession } from '@/routes/chat/types';
 
 export interface FilteredChats {
   pinned: ChatSession[];

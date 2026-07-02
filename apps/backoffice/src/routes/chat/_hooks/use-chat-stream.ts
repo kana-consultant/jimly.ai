@@ -1,9 +1,9 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import { uuid } from '@/lib/uuid';
-import { streamChatCompletion } from '@/features/chat/logic/chat-api-client';
-import { useChatStore, chatStoreActions } from '@/features/chat/logic/chat-store';
-import type { ChatMessage } from '@/types/chat';
+import { uuid } from '@/libs/uuid';
+import { streamChatCompletion } from '@/routes/chat/_apis/chat-api-client';
+import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
+import type { ChatMessage } from '@/routes/chat/types';
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
 const errorStore = new Store<string | null>(null);

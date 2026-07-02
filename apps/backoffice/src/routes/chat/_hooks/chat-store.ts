@@ -1,6 +1,6 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import type { ChatMessage, ChatSession } from '@/types/chat';
+import type { ChatMessage, ChatSession } from '@/routes/chat/types';
 
 interface ChatState {
   sessions: ChatSession[];
