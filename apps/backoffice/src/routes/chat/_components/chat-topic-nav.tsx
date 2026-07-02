@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import { cn } from '@/lib/utils';
-import type { ChatMessage } from '@/types/chat';
+import { cn } from '@/libs/utils';
+import type { ChatMessage } from '@/routes/chat/types';
 
 function truncateLabel(text: string, maxChars = 40): string {
   const trimmed = text.trim().replace(/\s+/g, ' ');

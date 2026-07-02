@@ -1,8 +1,8 @@
-import { Pin } from 'lucide-react';
-import { ChatListItem } from '@/features/chat/components/chat-list-item';
-import type { ChatSession } from '@/types/chat';
+import { History } from 'lucide-react';
+import { ChatListItem } from '@/routes/chat/_components/chat-list-item';
+import type { ChatSession } from '@/routes/chat/types';
 
-export function PinnedSection({
+export function HistorySection({
   sessions,
   activeChatId,
   onSelect,
@@ -22,8 +22,8 @@ export function PinnedSection({
   return (
     <div className="flex flex-col gap-1">
       <p className="flex items-center gap-1.5 px-2 text-xs font-medium text-sidebar-foreground/60">
-        <Pin className="size-3.5" />
-        Pinned
+        <History className="size-3.5" />
+        History
       </p>
       {sessions.map((session) => (
         <ChatListItem

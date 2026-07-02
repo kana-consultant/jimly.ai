@@ -4,8 +4,8 @@ import { type ReactNode } from 'react';
 import { Send, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import { useSendMessage } from '@/features/chat/logic/use-send-message';
+import { cn } from '@/libs/utils';
+import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
 
 interface ChatInputProps {
   showSuggestions?: boolean;

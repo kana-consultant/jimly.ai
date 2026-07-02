@@ -1,7 +1,7 @@
-import { ChatSidebar } from '@/features/chat/components/sidebar';
-import { MobileSidebarOverlay } from '@/features/chat/components/mobile-sidebar-overlay';
-import { ChatHeader } from '@/features/chat/components/chat-header';
-import { ChatThread } from '@/features/chat/components/chat-thread';
+import { ChatSidebar } from '@/routes/chat/_components/sidebar';
+import { MobileSidebarOverlay } from '@/routes/chat/_components/mobile-sidebar-overlay';
+import { ChatHeader } from '@/routes/chat/_components/chat-header';
+import { ChatThread } from '@/routes/chat/_components/chat-thread';
 
 // Phase 5 wires real session identity into the auth store (replacing the
 // server-rendered `Astro.locals` hydration this page used before the SPA move).

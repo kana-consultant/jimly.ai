@@ -1,5 +1,5 @@
-import { ChatSidebar } from '@/features/chat/components/sidebar';
-import { useMobileNavStore } from '@/features/chat/logic/mobile-nav-store';
+import { ChatSidebar } from '@/routes/chat/_components/sidebar';
+import { useMobileNavStore } from '@/routes/chat/_hooks/mobile-nav-store';
 
 export function MobileSidebarOverlay() {
   const open = useMobileNavStore((state) => state.open);

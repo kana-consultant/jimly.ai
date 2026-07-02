@@ -1,4 +1,4 @@
-import { DEFAULT_TOPICS } from '@/features/chat/logic/derive-topics';
+import { DEFAULT_TOPICS } from '@/routes/chat/_apis/derive-topics';
 
 export function SuggestedTopics({
   topics = DEFAULT_TOPICS,

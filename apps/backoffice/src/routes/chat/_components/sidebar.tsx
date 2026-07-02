@@ -1,7 +1,7 @@
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { getDisplayName } from '@/lib/display-name';
+import { getDisplayName } from '@/libs/display-name';
 import { Sidebar } from '@/components/ui/sidebar';
-import { ChatList } from '@/features/chat/components/chat-list';
+import { ChatList } from '@/routes/chat/_components/chat-list';
 import { LogoutButton } from '@/components/ui/sidebar';
 
 function initial(name: string): string {

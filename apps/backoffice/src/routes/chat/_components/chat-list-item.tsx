@@ -6,8 +6,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import type { ChatSession } from '@/types/chat';
+import { cn } from '@/libs/utils';
+import type { ChatSession } from '@/routes/chat/types';
 
 export function ChatListItem({
   session,

@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { cn } from '@/lib/utils';
-import type { ChatMessage } from '@/types/chat';
+import { cn } from '@/libs/utils';
+import type { ChatMessage } from '@/routes/chat/types';
 
 export function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; isStreaming?: boolean }) {
   const isUser = message.role === 'user';

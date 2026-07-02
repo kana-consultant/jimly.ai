@@ -8,10 +8,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { DeleteChatDialog } from '@/features/chat/components/delete-chat-dialog';
-import { RenameChatDialog } from '@/features/chat/components/rename-chat-dialog';
-import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
-import { useMobileNavStore } from '@/features/chat/logic/mobile-nav-store';
+import { DeleteChatDialog } from '@/routes/chat/_components/delete-chat-dialog';
+import { RenameChatDialog } from '@/routes/chat/_components/rename-chat-dialog';
+import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
+import { useMobileNavStore } from '@/routes/chat/_hooks/mobile-nav-store';
 
 const confirmDeleteStore = new Store(false);
 const renamingStore = new Store(false);

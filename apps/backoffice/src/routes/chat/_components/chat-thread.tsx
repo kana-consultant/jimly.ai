@@ -1,18 +1,18 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { getDisplayName } from '@/lib/display-name';
-import { useSendMessage } from '@/features/chat/logic/use-send-message';
-import { useChatSessions } from '@/features/chat/logic/use-chat-sessions';
-import { deriveTopics } from '@/features/chat/logic/derive-topics';
-import { useScrollToBottom } from '@/features/chat/logic/use-scroll-to-bottom';
-import type { ChatSession } from '@/types/chat';
-import { ChatBubble } from '@/features/chat/components/chat-bubble';
-import { StreamingIndicator } from '@/features/chat/components/streaming-indicator';
-import { SuggestedTopics } from '@/features/chat/components/suggested-topics';
-import { ChatInput } from '@/features/chat/components/chat-input';
-import { ChatTopicNav } from '@/features/chat/components/chat-topic-nav';
+import { getDisplayName } from '@/libs/display-name';
+import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
+import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
+import { deriveTopics } from '@/routes/chat/_apis/derive-topics';
+import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
+import type { ChatSession } from '@/routes/chat/types';
+import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
+import { StreamingIndicator } from '@/routes/chat/_components/streaming-indicator';
+import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
+import { ChatInput } from '@/routes/chat/_components/chat-input';
+import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
 
 export function ChatThread() {
   const user = useCurrentUser();
