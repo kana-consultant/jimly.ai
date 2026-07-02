@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { photoSrc } = Astro.props
+const backofficeUrl = import.meta.env.PUBLIC_BACKOFFICE_URL
 ---
 
 <section class="bg-card shadow-sm" id="about" aria-label="About">
@@ -31,7 +32,7 @@ const { photoSrc } = Astro.props
       </p>
       <div class="flex items-center gap-2.5">
         <a
-          href="/register"
+          href={`${backofficeUrl}/register`}
           class="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 py-2.75 text-sm font-medium whitespace-nowrap text-primary-foreground transition-all hover:bg-primary/80"
         >
           Get Started
