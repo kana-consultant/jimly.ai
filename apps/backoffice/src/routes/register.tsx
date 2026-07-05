@@ -94,8 +94,13 @@ function RightPanel() {
             >
               Log in
             </Link>
-            <span className="flex-1 rounded-full bg-background py-2 text-center text-sm font-medium text-foreground shadow-sm">
-              Sign up
+            <span className="relative flex-1 rounded-full py-2 text-center text-sm font-medium text-foreground">
+              <motion.span
+                layoutId="auth-tab"
+                className="absolute inset-0 rounded-full bg-background shadow-sm"
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+              />
+              <span className="relative">Sign up</span>
             </span>
           </div>
 
@@ -120,10 +125,10 @@ function RightPanel() {
 export function RegisterRoute() {
   return (
     <motion.main
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="relative flex h-dvh w-full flex-col overflow-y-auto md:flex-row md:overflow-y-hidden"
       style={{ '--auth-ink': '#102A43', '--auth-accent': '#C49A45' } as React.CSSProperties}
     >

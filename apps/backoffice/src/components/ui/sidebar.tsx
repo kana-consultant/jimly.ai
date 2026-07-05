@@ -101,7 +101,7 @@ export function LogoutButton({ iconOnly = false }: { iconOnly?: boolean }) {
 
   const handleLogout = async () => {
     await logoutUser()
-    window.location.href = "/login"
+    window.location.href = "/app/login"
   }
 
   return (
