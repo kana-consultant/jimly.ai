@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
 import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
 
 let sessionsLoaded = false;
@@ -23,8 +23,13 @@ export function useChatSessions() {
 
   async function selectChat(chatId: string) {
     setActiveChat(chatId);
-    const messages = await chatRepository.listMessages(chatId);
-    setMessages(chatId, messages);
+    chatStoreActions.setLoadingMessages(true);
+    try {
+      const messages = await chatRepository.listMessages(chatId);
+      setMessages(chatId, messages);
+    } finally {
+      chatStoreActions.setLoadingMessages(false);
+    }
   }
 
   function newChat() {

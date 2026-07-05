@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/libs/display-name';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
 import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
 import { deriveTopics } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
 import type { ChatSession } from '@/routes/chat/types';
@@ -13,11 +14,25 @@ import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/stre
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
 import { ChatInput } from '@/routes/chat/_components/chat-input';
 import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function HistoryChatSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 px-4 py-6 md:px-6 w-full max-w-3xl mx-auto">
+      {[0.75, 1, 0.6, 0.85, 0.5].map((w, i) => (
+        <div key={i} className={cn('flex', i % 2 === 0 ? 'justify-start' : 'justify-end')}>
+          <Skeleton className="h-10 rounded-2xl" style={{ width: `${w * 100}%`, maxWidth: '480px' }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function ChatThread() {
   const user = useCurrentUser();
   const { activeChatId, messages, isStreaming, isPending, sendMessage } = useSendMessage();
   const { sessions } = useChatSessions();
+  const isLoadingMessages = useChatStore((state) => state.isLoadingMessages);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const hasMessages = activeChatId !== null && messages.length > 0;
@@ -44,7 +59,16 @@ export function ChatThread() {
         )}
       >
         <AnimatePresence mode="wait">
-          {!hasMessages ? (
+          {isLoadingMessages ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+            >
+              <HistoryChatSkeleton />
+            </motion.div>
+          ) : !hasMessages ? (
             <motion.div
               key="empty"
               className="flex min-h-full flex-col items-center justify-center gap-6 px-4 py-12"
