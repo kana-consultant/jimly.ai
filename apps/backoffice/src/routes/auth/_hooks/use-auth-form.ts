@@ -17,7 +17,7 @@ export function useAuthForm(
       setIsSubmitting(false);
       return;
     }
-    window.location.href = redirectTo;
+    window.location.href = '/app' + redirectTo;
   }
 
   return { error, isSubmitting, handleSubmit };
