@@ -19,24 +19,27 @@ function AuthLayout() {
   );
 }
 
-const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/chat" replace /> },
-  {
-    element: <AuthLayout />,
-    children: [
-      { path: '/login', element: <LoginRoute /> },
-      { path: '/register', element: <RegisterRoute /> },
-    ],
-  },
-  {
-    path: '/chat',
-    element: (
-      <RequireAuth>
-        <ChatRoute />
-      </RequireAuth>
-    ),
-  },
-]);
+const router = createBrowserRouter(
+  [
+    { path: '/', element: <Navigate to="/chat" replace /> },
+    {
+      element: <AuthLayout />,
+      children: [
+        { path: '/login', element: <LoginRoute /> },
+        { path: '/register', element: <RegisterRoute /> },
+      ],
+    },
+    {
+      path: '/chat',
+      element: (
+        <RequireAuth>
+          <ChatRoute />
+        </RequireAuth>
+      ),
+    },
+  ],
+  { basename: '/app' },
+);
 
 export function App() {
   return (
