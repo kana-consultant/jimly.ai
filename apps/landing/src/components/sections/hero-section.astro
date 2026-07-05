@@ -1,0 +1,49 @@
+---
+interface Props {
+  photoSrc: string
+}
+
+const { photoSrc } = Astro.props
+const backofficeUrl = import.meta.env.PUBLIC_BACKOFFICE_URL
+---
+
+<section class="bg-card shadow-sm" id="about" aria-label="About">
+  <div class="mx-auto grid max-w-275 grid-cols-1 items-center gap-12 px-10 py-22 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+    <div class="mx-auto w-full max-w-100 my-6">
+      <div class="relative aspect-4/5 overflow-hidden rounded-3xl">
+        <img src={photoSrc} alt="Prof. Dr. H. Jimly Asshiddiqie" class="size-full object-cover" />
+
+        <div class="absolute inset-x-0 bottom-0 h-1/4 bg-linear-to-t from-card to-transparent pointer-events-none" />
+      </div>
+    </div>
+
+    <div>
+      <h1 class="mb-5 font-sans text-[clamp(34px,4vw,56px)] leading-[1.1] font-semibold tracking-tight text-primary">
+        Ask Indonesian law.
+        <br />
+        Answered by <em class="font-normal text-chart-5 italic">Prof. Jimly</em>'s lifetime of
+        scholarship.
+      </h1>
+      <p class="mb-8 max-w-140 text-[15px] leading-loose text-muted-foreground">
+        jimly.ai is an AI legal assistant trained exclusively on the work of Prof. Dr. H. Jimly
+        Asshiddiqie — founding Chief Justice of Indonesia's Constitutional Court and the nation's
+        foremost constitutional scholar. Every answer traces back to his 70+ books, so you get guidance as
+        authoritative as the source it's built on.
+      </p>
+      <div class="flex items-center gap-2.5">
+        <a
+          href={`${backofficeUrl}/register`}
+          class="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 py-2.75 text-sm font-medium whitespace-nowrap text-primary-foreground transition-all hover:bg-primary/80"
+        >
+          Get Started
+        </a>
+        <a
+          href="#demo"
+          class="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-6 py-2.75 text-sm font-medium whitespace-nowrap text-foreground transition-all hover:bg-primary hover:text-primary-foreground"
+        >
+          Demo
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
