@@ -66,4 +66,5 @@ async function handler(rawReq: Request): Promise<Response> {
   return withCors(origin, authRes.body, { status: authRes.status, headers: authRes.headers });
 }
 
+export default handler;
 export { handler as GET, handler as POST, handler as PATCH, handler as DELETE, handler as OPTIONS };
