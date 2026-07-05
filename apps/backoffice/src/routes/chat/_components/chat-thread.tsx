@@ -6,9 +6,8 @@ import { getDisplayName } from '@/libs/display-name';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
 import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
 import { useChatStore } from '@/routes/chat/_hooks/chat-store';
-import { deriveTopics } from '@/routes/chat/_apis/derive-topics';
+import { deriveEmptyStateSuggestions, deriveActiveConversationSuggestions } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
-import type { ChatSession } from '@/routes/chat/types';
 import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
 import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
@@ -39,7 +38,13 @@ export function ChatThread() {
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
 
-  const topics = useMemo(() => deriveTopics(messages, sessions), [messages, sessions]);
+  const topics = useMemo(
+    () =>
+      hasMessages
+        ? deriveActiveConversationSuggestions(messages)
+        : deriveEmptyStateSuggestions(sessions),
+    [hasMessages, messages, sessions],
+  );
   const scrollRef = useScrollToBottom(isStreaming, messages.length, hasMessages);
 
   useEffect(() => {
