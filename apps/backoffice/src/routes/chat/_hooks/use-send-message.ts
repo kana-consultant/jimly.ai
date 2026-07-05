@@ -6,7 +6,6 @@ import { useChatRepository } from '@/routes/chat/_apis/chat-repository-context';
 import type { ChatRepository } from '@/routes/chat/_apis/chat-repository';
 import type { ChatMessage, NewChatSession } from '@/routes/chat/types';
 
-let lastAttempt: { chatId: string; content: string } | null = null;
 let abortController: AbortController | null = null;
 
 async function persistTurn(
@@ -26,34 +25,30 @@ async function persistTurn(
 async function requestAssistantReply(chatId: string, content: string) {
   abortController?.abort();
   abortController = new AbortController();
-  lastAttempt = { chatId, content };
+  chatStoreActions.setLastAttempt({ chatId, content });
   await streamAssistantReply(chatId, content, abortController.signal);
 }
 
 export function useSendMessage() {
   const repo = useChatRepository();
   const { activeChatId, messages, isStreaming, isPending, error } = useChatStream();
-  const setActiveChat = useChatStore((state) => state.setActiveChat);
-  const addSession = useChatStore((state) => state.addSession);
-  const addMessage = useChatStore((state) => state.addMessage);
+  const lastAttempt = useChatStore((state) => state.lastAttempt);
 
-  // The server persists the assistant's reply itself (send-message.ts) once
-  // the stream completes — the client only renders it, never re-posts it.
 
   async function sendMessage(content: string) {
     const isNewChat = activeChatId === null;
     const chatId = activeChatId ?? uuid();
     const now = new Date().toISOString();
 
-    if (isNewChat) setActiveChat(chatId);
+    if (isNewChat) chatStoreActions.setActiveChat(chatId);
 
     const userMessage = { id: uuid(), sessionId: chatId, role: 'user' as const, content, createdAt: now };
-    addMessage(chatId, userMessage);
+    chatStoreActions.addMessage(chatId, userMessage);
 
     let newSession: NewChatSession | undefined;
     if (isNewChat) {
       newSession = { id: chatId, title: generateChatTitle(content), pinned: false, createdAt: now, updatedAt: now };
-      addSession({ ...newSession, userId: '' });
+      chatStoreActions.addSession({ ...newSession, userId: '' });
     }
     chatStoreActions.setPending(true);
     try {

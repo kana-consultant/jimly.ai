@@ -9,6 +9,27 @@ export interface SendMessageInput {
   content: string;
 }
 
+async function callGateway<T>(fn: () => Promise<T>, msg: string): Promise<T> {
+  try {
+    return await fn();
+  } catch {
+    throw badGateway(msg);
+  }
+}
+
+async function resolveOrCreatePerfect10Session(
+  repo: ChatRepository,
+  gateway: AiGateway,
+  chatId: string,
+  origin: string,
+): Promise<string> {
+  const existing = await repo.getPerfect10SessionId(chatId);
+  if (existing) return existing;
+  const pid = await callGateway(() => gateway.createSession(origin), 'Failed to create chat session');
+  await repo.setPerfect10SessionId(chatId, pid);
+  return pid;
+}
+
 function persistReplyOnComplete(
   upstream: ReadableStream<Uint8Array>,
   onComplete: (fullText: string) => Promise<void>,
@@ -41,21 +62,8 @@ function persistReplyOnComplete(
 export const makeSendMessage =
   (repo: ChatRepository, gateway: AiGateway) =>
   async (input: SendMessageInput, ctx: AuthedContext): Promise<ReadableStream<Uint8Array>> => {
-    const getOrCreateSession = async () => {
-      let pid = await repo.getPerfect10SessionId(input.chatId);
-      if (!pid) {
-        try {
-          pid = await gateway.createSession(ctx.origin);
-        } catch {
-          throw badGateway('Failed to create chat session');
-        }
-        await repo.setPerfect10SessionId(input.chatId, pid);
-      }
-      return pid;
-    };
-
     const [pid] = await Promise.all([
-      getOrCreateSession(),
+      resolveOrCreatePerfect10Session(repo, gateway, input.chatId, ctx.origin),
       repo.addMessage({
         id: crypto.randomUUID(),
         sessionId: input.chatId,
@@ -65,19 +73,15 @@ export const makeSendMessage =
       }),
     ]);
 
-    let assistantId: number;
-    try {
-      assistantId = await gateway.sendMessage(pid, input.content, ctx.origin);
-    } catch {
-      throw badGateway('Failed to send message');
-    }
+    const assistantId = await callGateway(
+      () => gateway.sendMessage(pid, input.content, ctx.origin),
+      'Failed to send message',
+    );
 
-    let upstream: ReadableStream<Uint8Array>;
-    try {
-      upstream = await gateway.streamReply(assistantId, ctx.origin);
-    } catch {
-      throw badGateway('Failed to stream reply');
-    }
+    const upstream = await callGateway(
+      () => gateway.streamReply(assistantId, ctx.origin),
+      'Failed to stream reply',
+    );
 
     return persistReplyOnComplete(upstream, (fullText) =>
       repo.addMessage({

@@ -6,6 +6,8 @@ import type { ChatMessage, ChatRole, ChatSession } from '#/domain/chat/chat';
 import { forbidden } from '#/application/shared/errors';
 
 export function createNeonChatRepository(db: typeof Db, userId: string): ChatRepository {
+  const ownedSession = (id: string) => and(eq(chatSessions.id, id), eq(chatSessions.userId, userId));
+
   return {
     async listSessions() {
       const rows = await db
@@ -35,20 +37,19 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
       });
     },
     async updateSession(id, patch) {
-      const update: Record<string, unknown> = {};
-      if (patch.updatedAt !== undefined) update.updatedAt = new Date(patch.updatedAt);
-      if (patch.pinned !== undefined) update.pinned = patch.pinned;
-      if (patch.title !== undefined) update.title = patch.title;
       await db
         .update(chatSessions)
-        .set(update)
-        .where(and(eq(chatSessions.id, id), eq(chatSessions.userId, userId)));
+        .set({
+          ...(patch.updatedAt !== undefined && { updatedAt: new Date(patch.updatedAt) }),
+          ...(patch.pinned !== undefined && { pinned: patch.pinned }),
+          ...(patch.title !== undefined && { title: patch.title }),
+        })
+        .where(ownedSession(id));
     },
     async deleteSession(id) {
-      await db.delete(chatSessions).where(and(eq(chatSessions.id, id), eq(chatSessions.userId, userId)));
+      await db.delete(chatSessions).where(ownedSession(id));
     },
     async listMessages(sessionId) {
-      // SECURITY: scope by userId — messages carry user_id; without this any user reads any session (IDOR)
       const rows = await db
         .select()
         .from(chatMessages)
@@ -65,8 +66,6 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
       );
     },
     async addMessage(message) {
-      // SECURITY: single guarded INSERT instead of select-then-insert — closes
-      // the TOCTOU race where ownership could change between the check and the write.
       const result = await db.execute(sql`
         INSERT INTO ${chatMessages} (id, session_id, user_id, role, content, created_at)
         SELECT ${message.id}, ${message.sessionId}, ${userId}, ${message.role}, ${message.content}, ${new Date(message.createdAt)}
@@ -82,14 +81,14 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
       const [row] = await db
         .select({ pid: chatSessions.perfect10SessionId })
         .from(chatSessions)
-        .where(and(eq(chatSessions.id, sessionId), eq(chatSessions.userId, userId)));
+        .where(ownedSession(sessionId));
       return row?.pid ?? null;
     },
     async setPerfect10SessionId(sessionId, perfect10SessionId) {
       await db
         .update(chatSessions)
         .set({ perfect10SessionId })
-        .where(and(eq(chatSessions.id, sessionId), eq(chatSessions.userId, userId)));
+        .where(ownedSession(sessionId));
     },
   };
 }
