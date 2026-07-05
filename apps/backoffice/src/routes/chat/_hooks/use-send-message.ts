@@ -1,5 +1,5 @@
 import { uuid } from '@/libs/uuid';
-import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
 import { useChatStream, streamAssistantReply } from '@/routes/chat/_hooks/use-chat-stream';
 import { generateChatTitle } from '@/routes/chat/_apis/generate-chat-title';
 import { useChatRepository } from '@/routes/chat/_apis/chat-repository-context';
@@ -21,7 +21,6 @@ async function persistTurn(
   } else {
     await repo.updateSession(chatId, { updatedAt: now });
   }
-  await repo.addMessage(userMessage);
 }
 
 async function requestAssistantReply(chatId: string, content: string) {
@@ -33,7 +32,7 @@ async function requestAssistantReply(chatId: string, content: string) {
 
 export function useSendMessage() {
   const repo = useChatRepository();
-  const { activeChatId, messages, isStreaming, error } = useChatStream();
+  const { activeChatId, messages, isStreaming, isPending, error } = useChatStream();
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const addSession = useChatStore((state) => state.addSession);
   const addMessage = useChatStore((state) => state.addMessage);
@@ -56,7 +55,12 @@ export function useSendMessage() {
       newSession = { id: chatId, title: generateChatTitle(content), pinned: false, createdAt: now, updatedAt: now };
       addSession({ ...newSession, userId: '' });
     }
-    await persistTurn(repo, chatId, userMessage, now, newSession);
+    chatStoreActions.setPending(true);
+    try {
+      await persistTurn(repo, chatId, userMessage, now, newSession);
+    } finally {
+      chatStoreActions.setPending(false);
+    }
     await requestAssistantReply(chatId, content);
   }
 
@@ -65,5 +69,5 @@ export function useSendMessage() {
     void requestAssistantReply(lastAttempt.chatId, lastAttempt.content);
   }
 
-  return { activeChatId, messages, isStreaming, error, sendMessage, retry };
+  return { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry };
 }

@@ -5,7 +5,8 @@ import { sseDataLine, sseDoneLine, splitSseLines } from './sse-codec';
 // ponytail: fixed ceilings, not configurable. Raise (or move to env) if a
 // real upstream response legitimately needs longer.
 const REQUEST_TIMEOUT_MS = 15_000;
-const STREAM_TIMEOUT_MS = 60_000;
+const LLM_TIMEOUT_MS = 60_000;
+const STREAM_TIMEOUT_MS = 120_000;
 
 export function createPerfect10Gateway(): AiGateway {
   const apiFetch = (path: string, origin: string, init?: RequestInit) =>
@@ -35,7 +36,7 @@ export function createPerfect10Gateway(): AiGateway {
       const res = await apiFetch(`/integrate/v1/chat/sessions/${perfect10SessionId}/messages`, origin, {
         method: 'POST',
         body: JSON.stringify({ content }),
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
       if (!res.ok) throw new Error('Failed to send message');
       const data = (await res.json()) as { assistant_message_id: number };
@@ -56,9 +57,10 @@ export function createPerfect10Gateway(): AiGateway {
 function translateStream(): TransformStream<Uint8Array, Uint8Array> {
   const decoder = new TextDecoder();
   let buffer = '';
+  let fullText = '';
 
   return new TransformStream({
-    transform(chunk, controller) {
+    transform(chunk) {
       const { lines, remainder } = splitSseLines(buffer, decoder.decode(chunk, { stream: true }));
       buffer = remainder;
 
@@ -68,17 +70,18 @@ function translateStream(): TransformStream<Uint8Array, Uint8Array> {
         if (!data) continue;
         try {
           const parsed = JSON.parse(data) as { text?: string };
-          if (parsed.text) {
-            controller.enqueue(
-              sseDataLine(JSON.stringify({ choices: [{ delta: { content: parsed.text } }] })),
-            );
-          }
+          if (parsed.text) fullText += parsed.text;
         } catch {
           // ignore malformed upstream lines
         }
       }
     },
     flush(controller) {
+      if (fullText) {
+        controller.enqueue(
+          sseDataLine(JSON.stringify({ choices: [{ delta: { content: fullText } }] })),
+        );
+      }
       controller.enqueue(sseDoneLine());
     },
   });

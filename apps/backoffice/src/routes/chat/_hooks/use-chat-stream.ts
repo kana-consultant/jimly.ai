@@ -20,7 +20,12 @@ export async function streamAssistantReply(chatId: string, content: string, sign
   errorStore.setState(() => null);
   try {
     for await (const chunk of streamChatCompletion(chatId, content, signal)) {
-      chatStoreActions.appendToLastMessage(chatId, chunk);
+      const tokens = chunk.split(/(?<=\s)|(?=\s)/);
+      for (const token of tokens) {
+        if (!token) continue;
+        chatStoreActions.appendToLastMessage(chatId, token);
+        await new Promise<void>((r) => setTimeout(r, 0));
+      }
     }
   } catch (err) {
     chatStoreActions.removeLastMessage(chatId);
@@ -36,7 +41,8 @@ export function useChatStream() {
   const activeChatId = useChatStore((state) => state.activeChatId);
   const messages = useChatStore((state) => state.messagesByChatId[activeChatId ?? ''] ?? EMPTY_MESSAGES);
   const isStreaming = useChatStore((state) => state.isStreaming);
+  const isPending = useChatStore((state) => state.isPending);
   const error = useStore(errorStore, (s) => s);
 
-  return { activeChatId, messages, isStreaming, error };
+  return { activeChatId, messages, isStreaming, isPending, error };
 }

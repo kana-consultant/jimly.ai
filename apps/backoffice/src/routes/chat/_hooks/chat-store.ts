@@ -7,6 +7,7 @@ interface ChatState {
   activeChatId: string | null;
   messagesByChatId: Record<string, ChatMessage[]>;
   isStreaming: boolean;
+  isPending: boolean;
 }
 
 const initialState: ChatState = {
@@ -14,6 +15,7 @@ const initialState: ChatState = {
   activeChatId: null,
   messagesByChatId: {},
   isStreaming: false,
+  isPending: false,
 };
 
 const store = new Store<ChatState>(initialState);
@@ -95,6 +97,9 @@ const actions = {
 
   setStreaming: (isStreaming: boolean) =>
     store.setState((state) => ({ ...state, isStreaming })),
+
+  setPending: (isPending: boolean) =>
+    store.setState((state) => ({ ...state, isPending })),
 };
 
 export function useChatStore<T>(selector: (state: ChatState & typeof actions) => T): T {

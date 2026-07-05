@@ -9,14 +9,14 @@ import { deriveTopics } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
 import type { ChatSession } from '@/routes/chat/types';
 import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
-import { StreamingIndicator } from '@/routes/chat/_components/streaming-indicator';
+import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
 import { ChatInput } from '@/routes/chat/_components/chat-input';
 import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
 
 export function ChatThread() {
   const user = useCurrentUser();
-  const { activeChatId, messages, isStreaming, sendMessage } = useSendMessage();
+  const { activeChatId, messages, isStreaming, isPending, sendMessage } = useSendMessage();
   const { sessions } = useChatSessions();
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -100,6 +100,17 @@ export function ChatThread() {
                   </motion.div>
                 ))}
               </AnimatePresence>
+
+              {isPending && !isStreaming && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <MiniSkeleton />
+                </motion.div>
+              )}
 
               {showThinking && (
                 <motion.div

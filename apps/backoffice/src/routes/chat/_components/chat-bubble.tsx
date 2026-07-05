@@ -30,9 +30,11 @@ export function ChatBubble({ message, isStreaming = false }: { message: ChatMess
           '[&_code]:rounded [&_code]:bg-muted [&_code]:text-foreground [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm',
         )}
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {message.content}
-        </ReactMarkdown>
+        {isStreaming ? (
+          <span className="whitespace-pre-wrap">{message.content}</span>
+        ) : (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+        )}
         {isStreaming && (
           <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
         )}
