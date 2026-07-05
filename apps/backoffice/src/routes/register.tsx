@@ -1,4 +1,6 @@
 import { ArrowUpRight, ArrowLeft, Quote } from 'lucide-react';
+import { Link } from 'react-router';
+import { motion } from 'framer-motion';
 import { RegisterForm } from '@/routes/register/_components/register-form';
 
 function QuoteBlock() {
@@ -65,13 +67,13 @@ function LeftPanel() {
             Create an account and start exploring precise constitutional insights and legal intelligence
             within seconds.
           </p>
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="group mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-(--auth-accent) hover:bg-(--auth-accent) hover:text-(--auth-ink)"
           >
             Log in instead
             <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          </Link>
         </div>
 
         <QuoteBlock />
@@ -86,12 +88,12 @@ function RightPanel() {
       <div className="flex h-full w-full flex-col justify-center bg-background px-8 py-14 sm:px-14">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex gap-1 rounded-full bg-muted p-1">
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="flex-1 rounded-full py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Log in
-            </a>
+            </Link>
             <span className="flex-1 rounded-full bg-background py-2 text-center text-sm font-medium text-foreground shadow-sm">
               Sign up
             </span>
@@ -117,12 +119,16 @@ function RightPanel() {
 
 export function RegisterRoute() {
   return (
-    <main
+    <motion.main
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="relative flex h-dvh w-full flex-col overflow-y-auto md:flex-row md:overflow-y-hidden"
       style={{ '--auth-ink': '#102A43', '--auth-accent': '#C49A45' } as React.CSSProperties}
     >
       <LeftPanel />
       <RightPanel />
-    </main>
+    </motion.main>
   );
 }

@@ -1,4 +1,6 @@
 import { ArrowUpRight, ArrowLeft, Quote } from 'lucide-react';
+import { Link } from 'react-router';
+import { motion } from 'framer-motion';
 import { LoginForm } from '@/routes/login/_components/login-form';
 
 function QuoteBlock() {
@@ -64,13 +66,13 @@ function LeftPanel() {
           <p className="mt-5 text-sm leading-relaxed text-white/55 sm:text-base">
             Sign in and pick the thread back up — your workspace is exactly how you left it.
           </p>
-          <a
-            href="/register"
+          <Link
+            to="/register"
             className="group mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-(--auth-accent) hover:bg-(--auth-accent) hover:text-(--auth-ink)"
           >
             Create account instead
             <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          </Link>
         </div>
 
         <QuoteBlock />
@@ -88,12 +90,12 @@ function RightPanel() {
             <span className="flex-1 rounded-full bg-background py-2 text-center text-sm font-medium text-foreground shadow-sm">
               Log in
             </span>
-            <a
-              href="/register"
+            <Link
+              to="/register"
               className="flex-1 rounded-full py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Sign up
-            </a>
+            </Link>
           </div>
 
           <div>
@@ -116,12 +118,16 @@ function RightPanel() {
 
 export function LoginRoute() {
   return (
-    <main
+    <motion.main
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="relative flex h-dvh w-full flex-col overflow-y-auto md:flex-row md:overflow-y-hidden"
       style={{ '--auth-ink': '#102A43', '--auth-accent': '#C49A45' } as React.CSSProperties}
     >
       <LeftPanel />
       <RightPanel />
-    </main>
+    </motion.main>
   );
 }
