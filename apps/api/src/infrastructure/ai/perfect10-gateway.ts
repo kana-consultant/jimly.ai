@@ -57,10 +57,9 @@ export function createPerfect10Gateway(): AiGateway {
 function translateStream(): TransformStream<Uint8Array, Uint8Array> {
   const decoder = new TextDecoder();
   let buffer = '';
-  let fullText = '';
 
   return new TransformStream({
-    transform(chunk) {
+    transform(chunk, controller) {
       const { lines, remainder } = splitSseLines(buffer, decoder.decode(chunk, { stream: true }));
       buffer = remainder;
 
@@ -70,18 +69,17 @@ function translateStream(): TransformStream<Uint8Array, Uint8Array> {
         if (!data) continue;
         try {
           const parsed = JSON.parse(data) as { text?: string };
-          if (parsed.text) fullText += parsed.text;
+          if (parsed.text) {
+            controller.enqueue(
+              sseDataLine(JSON.stringify({ choices: [{ delta: { content: parsed.text } }] })),
+            );
+          }
         } catch {
           // ignore malformed upstream lines
         }
       }
     },
     flush(controller) {
-      if (fullText) {
-        controller.enqueue(
-          sseDataLine(JSON.stringify({ choices: [{ delta: { content: fullText } }] })),
-        );
-      }
       controller.enqueue(sseDoneLine());
     },
   });
