@@ -9,9 +9,6 @@ export interface SendMessageInput {
   content: string;
 }
 
-// Reads the gateway's SSE stream while passing every chunk through unchanged,
-// and persists the assistant's full reply once the upstream stream ends —
-// the client never gets to author an assistant message (security fix #1).
 function persistReplyOnComplete(
   upstream: ReadableStream<Uint8Array>,
   onComplete: (fullText: string) => Promise<void>,
@@ -41,28 +38,32 @@ function persistReplyOnComplete(
   );
 }
 
-// Server-authored chat turn: persist the user's message, relay it upstream,
-// then persist the assistant's reply once the stream completes.
 export const makeSendMessage =
   (repo: ChatRepository, gateway: AiGateway) =>
   async (input: SendMessageInput, ctx: AuthedContext): Promise<ReadableStream<Uint8Array>> => {
-    await repo.addMessage({
-      id: crypto.randomUUID(),
-      sessionId: input.chatId,
-      role: 'user',
-      content: input.content,
-      createdAt: new Date().toISOString(),
-    });
-
-    let pid = await repo.getPerfect10SessionId(input.chatId);
-    if (!pid) {
-      try {
-        pid = await gateway.createSession(ctx.origin);
-      } catch {
-        throw badGateway('Failed to create chat session');
+    const getOrCreateSession = async () => {
+      let pid = await repo.getPerfect10SessionId(input.chatId);
+      if (!pid) {
+        try {
+          pid = await gateway.createSession(ctx.origin);
+        } catch {
+          throw badGateway('Failed to create chat session');
+        }
+        await repo.setPerfect10SessionId(input.chatId, pid);
       }
-      await repo.setPerfect10SessionId(input.chatId, pid);
-    }
+      return pid;
+    };
+
+    const [pid] = await Promise.all([
+      getOrCreateSession(),
+      repo.addMessage({
+        id: crypto.randomUUID(),
+        sessionId: input.chatId,
+        role: 'user',
+        content: input.content,
+        createdAt: new Date().toISOString(),
+      }),
+    ]);
 
     let assistantId: number;
     try {
