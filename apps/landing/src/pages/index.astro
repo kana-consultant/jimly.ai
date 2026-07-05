@@ -1,0 +1,61 @@
+---
+import { getImage } from 'astro:assets';
+import '@/styles/global.css';
+import BooksSection from '@/components/sections/books-section.astro';
+import { ChatDemo } from '@/components/chat-demo';
+import FeaturesSection from '@/components/sections/features-section.astro';
+import HeroSection from '@/components/sections/hero-section.astro';
+import HowItWorksSection from '@/components/sections/how-it-works-section.astro';
+import SiteFooter from '@/components/site-footer.astro';
+import SiteNav from '@/components/site-nav.astro';
+import TrustStrip from '@/components/sections/trust-strip.astro';
+import theConstitutionalLawOfIndonesia from '@/images/the-constitutional-law-of-indonesia.png';
+import greenConstitution from '@/images/green-constitution.png';
+import peradilanEtikDanEtikaKonstitusi from '@/images/peradilan-etik-dan-etika-konstitusi.png';
+import konstitusiEkonomi from '@/images/konstitusi-ekonomi.png';
+import pancasilaIdentitasKonstitusi from '@/images/pancasila-identitas-konstitusi.png';
+import pengantarIlmuHukumTataNegara from '@/images/pengantar-ilmu-hukum-tata-negara.png';
+
+const logo = await getImage({ src: '/logo.png', width: 1024, height: 1024 });
+const profile = await getImage({ src: '/jimly-profile.png', width: 1188, height: 1324 });
+
+const bookCovers = await Promise.all(
+  [
+    theConstitutionalLawOfIndonesia,
+    greenConstitution,
+    peradilanEtikDanEtikaKonstitusi,
+    konstitusiEkonomi,
+    pancasilaIdentitasKonstitusi,
+    pengantarIlmuHukumTataNegara,
+  ].map((src) => getImage({ src, width: 480, height: 640 }))
+).then((images) => images.map((image) => image.src));
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <title>jimly.ai  AI Legal Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="font-jakarta bg-background text-foreground antialiased">
+    <SiteNav logoSrc={logo.src} />
+    <div class="pointer-events-none fixed inset-x-0 top-0 z-40 h-28 bg-linear-to-b from-background via-background/70 to-transparent" aria-hidden="true"></div>
+  <main>
+    <HeroSection photoSrc={profile.src} />
+    <TrustStrip />
+    <BooksSection covers={bookCovers} />
+    <ChatDemo client:visible />
+    <FeaturesSection />
+    <HowItWorksSection />
+  </main>
+  <SiteFooter />
+</body>
+</html>

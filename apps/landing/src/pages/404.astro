@@ -1,0 +1,28 @@
+---
+import '@/styles/global.css';
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <title>404 — jimly.ai</title>
+</head>
+<body class="font-jakarta flex min-h-screen flex-col items-center justify-center gap-4 bg-background text-foreground antialiased">
+  <p class="font-display text-sm font-semibold tracking-widest text-chart-5">404</p>
+  <h1 class="text-center font-sans text-[clamp(28px,4vw,40px)] font-semibold tracking-tight text-primary">
+    Page not found
+  </h1>
+  <p class="max-w-100 text-center text-[15px] leading-relaxed text-muted-foreground">
+    The page you're looking for doesn't exist.
+  </p>
+  <a
+    href="/"
+    class="mt-2 inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 text-sm font-medium whitespace-nowrap text-primary-foreground transition-all hover:bg-primary/80"
+  >
+    Back to home
+  </a>
+</body>
+</html>

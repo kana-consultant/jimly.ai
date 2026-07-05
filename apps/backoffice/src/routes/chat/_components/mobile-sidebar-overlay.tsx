@@ -1,0 +1,18 @@
+import { ChatSidebar } from '@/routes/chat/_components/sidebar';
+import { useMobileNavStore } from '@/routes/chat/_hooks/mobile-nav-store';
+
+export function MobileSidebarOverlay() {
+  const open = useMobileNavStore((state) => state.open);
+  const close = useMobileNavStore((state) => state.close);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-40 flex md:hidden">
+      <div className="absolute inset-0 bg-black/50" onClick={close} />
+      <div className="relative z-50 flex bg-background">
+        <ChatSidebar />
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,7 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+type: "application"
+language: "typescript"
+tasks:
+  dev: { command: "astro dev", local: true }
+  build: { command: "astro build" }
+  preview: { command: "astro preview", local: true }
