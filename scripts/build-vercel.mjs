@@ -77,8 +77,8 @@ mkdirSync(resolve(root, '.vercel/output/static'), { recursive: true });
 mkdirSync(resolve(root, '.vercel/output/functions'), { recursive: true });
 
 // ── 2. Build apps ─────────────────────────────────────────────────────────────
-run('pnpm --filter @jimly/landing build');
-run('pnpm --filter @jimly/backoffice build');
+run('pnpm --filter landing build');
+run('pnpm --filter backoffice build');
 
 // ── 3. Copy static outputs ────────────────────────────────────────────────────
 // Landing → root
