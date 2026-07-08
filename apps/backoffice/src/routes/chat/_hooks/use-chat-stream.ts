@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
 import { uuid } from '@/libs/uuid';
@@ -79,6 +80,10 @@ export function useChatStream() {
   const isStreaming = useChatStore((state) => state.isStreaming);
   const isPending = useChatStore((state) => state.isPending);
   const error = useStore(errorStore, (s) => s);
+
+  useEffect(() => {
+    errorStore.setState(() => null);
+  }, [activeChatId]);
 
   return { activeChatId, messages, isStreaming, isPending, error };
 }
