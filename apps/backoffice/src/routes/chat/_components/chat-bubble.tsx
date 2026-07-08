@@ -1,11 +1,94 @@
+import { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ThumbsUp, ThumbsDown, Copy, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/libs/utils';
-import type { ChatMessage } from '@/routes/chat/types';
+import type { ChatMessage, FeedbackValue } from '@/routes/chat/types';
 
-export function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; isStreaming?: boolean }) {
+interface ChatBubbleProps {
+  message: ChatMessage;
+  isStreaming?: boolean;
+  onRegenerate?: (id: string) => void;
+  onFeedback?: (id: string, value: FeedbackValue) => void;
+  onRemoveFeedback?: (id: string) => void;
+}
+
+function ActionBar({
+  message,
+  onRegenerate,
+  onFeedback,
+  onRemoveFeedback,
+}: {
+  message: ChatMessage;
+  onRegenerate?: (id: string) => void;
+  onFeedback?: (id: string, value: FeedbackValue) => void;
+  onRemoveFeedback?: (id: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    void navigator.clipboard.writeText(message.content).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleFeedback(value: FeedbackValue) {
+    if (message.feedback === value) {
+      onRemoveFeedback?.(message.id);
+    } else {
+      onFeedback?.(message.id, value);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-0.5 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+      <button
+        onClick={handleCopy}
+        title="Copy"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+      </button>
+      <button
+        onClick={() => onRegenerate?.(message.id)}
+        title="Regenerate"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => handleFeedback('up')}
+        title="Good response"
+        className={cn(
+          'p-1.5 rounded-md transition-colors',
+          message.feedback === 'up'
+            ? 'text-green-500 bg-green-500/10'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+        )}
+      >
+        <ThumbsUp className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => handleFeedback('down')}
+        title="Bad response"
+        className={cn(
+          'p-1.5 rounded-md transition-colors',
+          message.feedback === 'down'
+            ? 'text-red-500 bg-red-500/10'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+        )}
+      >
+        <ThumbsDown className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+export const ChatBubble = memo(function ChatBubble({ message, isStreaming = false, onRegenerate, onFeedback, onRemoveFeedback }: ChatBubbleProps) {
   const isUser = message.role === 'user';
-  const isEmpty = !isUser && message.content === '';
+  const isProcessing = !isUser && message.status === 'processing';
+  const isEmpty = !isUser && !isProcessing && message.content === '';
 
   if (isEmpty) return null;
 
@@ -18,25 +101,45 @@ export function ChatBubble({ message, isStreaming = false }: { message: ChatMess
           className="w-7 h-7 rounded-full mt-1 shrink-0"
         />
       )}
-      <div
-        className={cn(
-          'text-base leading-relaxed',
-          isUser
-            ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-xs font-medium max-w-[80%]'
-            : 'bg-transparent text-foreground py-1 max-w-[90%]',
+      <div className={cn('flex flex-col', isUser ? 'items-end max-w-[80%]' : 'items-start max-w-[90%] group')}>
+        <div
+          className={cn(
+            'text-base leading-relaxed',
+            isUser
+              ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-xs font-medium'
+              : 'bg-transparent text-foreground py-1',
 
-          '[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
-          '[&_a]:underline [&_a]:text-chart-5 [&_a]:font-medium hover:[&_a]:opacity-80',
-          '[&_code]:rounded [&_code]:bg-muted [&_code]:text-foreground [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm',
-        )}
-      >
-        {isStreaming ? (
-          <span className="whitespace-pre-wrap">{message.content}</span>
-        ) : (
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-        )}
-        {isStreaming && (
-          <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
+            '[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
+            '[&_a]:underline [&_a]:text-chart-5 [&_a]:font-medium hover:[&_a]:opacity-80',
+            '[&_code]:rounded [&_code]:bg-muted [&_code]:text-foreground [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm',
+          )}
+        >
+          {isProcessing ? (
+            <span className="flex items-center gap-2 text-muted-foreground text-sm">
+              <span className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
+              </span>
+              Processing in background…
+            </span>
+          ) : isStreaming ? (
+            <>
+              <span className="whitespace-pre-wrap">{message.content}</span>
+              <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
+            </>
+          ) : (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+          )}
+        </div>
+
+        {!isUser && !isProcessing && !isStreaming && (
+          <ActionBar
+            message={message}
+            onRegenerate={onRegenerate}
+            onFeedback={onFeedback}
+            onRemoveFeedback={onRemoveFeedback}
+          />
         )}
       </div>
       {isUser && (
@@ -46,4 +149,4 @@ export function ChatBubble({ message, isStreaming = false }: { message: ChatMess
       )}
     </div>
   );
-}
+});

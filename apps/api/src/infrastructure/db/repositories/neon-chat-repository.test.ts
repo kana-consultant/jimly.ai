@@ -19,10 +19,10 @@ describe('NeonChatRepository', () => {
     const sid = crypto.randomUUID();
     const now = new Date().toISOString();
     await a.createSession({ id: sid, title: 'A', pinned: false, createdAt: now, updatedAt: now });
-    await a.addMessage({ id: crypto.randomUUID(), sessionId: sid, role: 'user', content: 'secret', createdAt: now });
+    await a.addMessage({ id: crypto.randomUUID(), sessionId: sid, role: 'user', content: 'secret', status: 'completed', createdAt: now });
     expect(await b.listMessages(sid)).toEqual([]); // b cannot read a's messages
     await expect(
-      b.addMessage({ id: crypto.randomUUID(), sessionId: sid, role: 'user', content: 'x', createdAt: now }),
+      b.addMessage({ id: crypto.randomUUID(), sessionId: sid, role: 'user', content: 'x', status: 'completed', createdAt: now }),
     ).rejects.toThrow(); // b cannot write into a's session
     await a.deleteSession(sid);
   });

@@ -69,7 +69,7 @@ export function validateMessage(body: unknown): ChatMessage | null {
   if (role !== 'user') return null;
   if (typeof content !== 'string' || content.length === 0 || content.length > MAX_CONTENT_LENGTH) return null;
   if (!isNonEmptyString(createdAt)) return null;
-  return { id, sessionId, role, content, createdAt };
+  return { id, sessionId, role, content, status: 'completed' as const, createdAt };
 }
 
 /**
@@ -83,4 +83,11 @@ export function validateChatRequest(body: unknown): { chatId: string; content: s
   if (!isNonEmptyString(chatId)) return null;
   if (typeof content !== 'string' || content.length === 0 || content.length > MAX_CONTENT_LENGTH) return null;
   return { chatId, content };
+}
+
+export function validateFeedback(body: unknown): { value: 'up' | 'down' } | null {
+  if (!isRecord(body)) return null;
+  const { value } = body;
+  if (value !== 'up' && value !== 'down') return null;
+  return { value };
 }

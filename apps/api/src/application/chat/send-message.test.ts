@@ -31,8 +31,12 @@ function makeRepo(overrides: Partial<ChatRepository> = {}): ChatRepository {
     deleteSession: vi.fn(),
     listMessages: vi.fn(),
     addMessage: vi.fn().mockResolvedValue(undefined),
+    updateMessage: vi.fn().mockResolvedValue(undefined),
     getPerfect10SessionId: vi.fn().mockResolvedValue('pid-1'),
     setPerfect10SessionId: vi.fn().mockResolvedValue(undefined),
+    upsertFeedback: vi.fn().mockResolvedValue(undefined),
+    deleteFeedback: vi.fn().mockResolvedValue(undefined),
+    listFeedbackByUser: vi.fn().mockResolvedValue([]),
     ...overrides,
   };
 }
@@ -73,14 +77,17 @@ describe('makeSendMessage', () => {
     const gateway = makeGateway();
     const sendMessage = makeSendMessage(repo, gateway);
 
-    const stream = await sendMessage({ chatId: 'c1', content: 'hi' }, ctx);
-    expect(repo.addMessage).toHaveBeenCalledTimes(1); // only the user message so far
+    const { stream, backgroundSave } = await sendMessage({ chatId: 'c1', content: 'hi' }, ctx);
+    // user message + placeholder assistant both added before stream starts
+    expect(repo.addMessage).toHaveBeenCalledTimes(2);
+    expect(repo.updateMessage).not.toHaveBeenCalled();
 
     await drain(stream);
+    await backgroundSave;
 
-    expect(repo.addMessage).toHaveBeenCalledTimes(2);
-    expect(repo.addMessage).toHaveBeenLastCalledWith(
-      expect.objectContaining({ sessionId: 'c1', role: 'assistant', content: 'Hello' }),
+    expect(repo.updateMessage).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ content: 'Hello', status: 'completed' }),
     );
   });
 

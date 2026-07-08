@@ -1,8 +1,8 @@
-import { eq, and, asc, desc, sql } from 'drizzle-orm';
+import { eq, and, asc, desc, sql, inArray } from 'drizzle-orm';
 import type { db as Db } from '#/infrastructure/db/client';
-import { chatSessions, chatMessages } from '#/infrastructure/db/schema';
+import { chatSessions, chatMessages, messageFeedback } from '#/infrastructure/db/schema';
 import type { ChatRepository } from '#/domain/chat/chat-repository';
-import type { ChatMessage, ChatRole, ChatSession } from '#/domain/chat/chat';
+import type { ChatMessage, ChatRole, ChatSession, FeedbackValue, MessageFeedback } from '#/domain/chat/chat';
 import { forbidden } from '#/application/shared/errors';
 
 export function createNeonChatRepository(db: typeof Db, userId: string): ChatRepository {
@@ -51,8 +51,20 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
     },
     async listMessages(sessionId) {
       const rows = await db
-        .select()
+        .select({
+          id: chatMessages.id,
+          sessionId: chatMessages.sessionId,
+          role: chatMessages.role,
+          content: chatMessages.content,
+          status: chatMessages.status,
+          createdAt: chatMessages.createdAt,
+          feedbackValue: messageFeedback.value,
+        })
         .from(chatMessages)
+        .leftJoin(
+          messageFeedback,
+          and(eq(messageFeedback.messageId, chatMessages.id), eq(messageFeedback.userId, userId)),
+        )
         .where(and(eq(chatMessages.sessionId, sessionId), eq(chatMessages.userId, userId)))
         .orderBy(asc(chatMessages.createdAt));
       return rows.map(
@@ -61,20 +73,67 @@ export function createNeonChatRepository(db: typeof Db, userId: string): ChatRep
           sessionId: r.sessionId,
           role: r.role as ChatRole,
           content: r.content,
+          status: r.status as ChatMessage['status'],
+          ...(r.feedbackValue ? { feedback: r.feedbackValue as FeedbackValue } : {}),
           createdAt: r.createdAt.toISOString(),
         }),
       );
     },
     async addMessage(message) {
       const result = await db.execute(sql`
-        INSERT INTO ${chatMessages} (id, session_id, user_id, role, content, created_at)
-        SELECT ${message.id}, ${message.sessionId}, ${userId}, ${message.role}, ${message.content}, ${new Date(message.createdAt)}
+        INSERT INTO ${chatMessages} (id, session_id, user_id, role, content, status, created_at)
+        SELECT ${message.id}, ${message.sessionId}, ${userId}, ${message.role}, ${message.content}, ${message.status ?? 'completed'}, ${new Date(message.createdAt)}
         WHERE EXISTS (
           SELECT 1 FROM ${chatSessions}
           WHERE ${chatSessions.id} = ${message.sessionId} AND ${chatSessions.userId} = ${userId}
         )
       `);
       if (result.rowCount === 0) throw forbidden('Not your session');
+    },
+    async updateMessage(id, patch) {
+      await db
+        .update(chatMessages)
+        .set({
+          ...(patch.content !== undefined && { content: patch.content }),
+          ...(patch.status !== undefined && { status: patch.status }),
+        })
+        .where(and(eq(chatMessages.id, id), eq(chatMessages.userId, userId)));
+    },
+    async upsertFeedback(feedback) {
+      await db
+        .insert(messageFeedback)
+        .values({
+          id: feedback.id,
+          messageId: feedback.messageId,
+          userId,
+          value: feedback.value,
+          createdAt: new Date(feedback.createdAt),
+        })
+        .onConflictDoUpdate({
+          target: [messageFeedback.messageId, messageFeedback.userId],
+          set: { value: feedback.value },
+        });
+    },
+    async deleteFeedback(messageId) {
+      await db
+        .delete(messageFeedback)
+        .where(and(eq(messageFeedback.messageId, messageId), eq(messageFeedback.userId, userId)));
+    },
+    async listFeedbackByUser(messageIds) {
+      if (messageIds.length === 0) return [];
+      const rows = await db
+        .select()
+        .from(messageFeedback)
+        .where(and(inArray(messageFeedback.messageId, messageIds), eq(messageFeedback.userId, userId)));
+      return rows.map(
+        (r): MessageFeedback => ({
+          id: r.id,
+          messageId: r.messageId,
+          userId: r.userId,
+          value: r.value as FeedbackValue,
+          createdAt: r.createdAt.toISOString(),
+        }),
+      );
     },
     async getPerfect10SessionId(sessionId) {
       // SECURITY: scope by userId — else a user could hijack another's Perfect10 session

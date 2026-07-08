@@ -1,6 +1,6 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import type { ChatMessage, ChatSession } from '@/routes/chat/types';
+import type { ChatMessage, ChatSession, FeedbackValue } from '@/routes/chat/types';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -98,6 +98,37 @@ const actions = {
         },
       };
     }),
+
+  removeMessage: (chatId: string, messageId: string) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).filter((m) => m.id !== messageId),
+      },
+    })),
+
+  setMessageFeedback: (messageId: string, value: FeedbackValue | null) =>
+    store.setState((state) => {
+      const updated: Record<string, ChatMessage[]> = {};
+      for (const [chatId, msgs] of Object.entries(state.messagesByChatId)) {
+        updated[chatId] = msgs.map((m) =>
+          m.id === messageId ? { ...m, feedback: value ?? undefined } : m,
+        );
+      }
+      return { ...state, messagesByChatId: updated };
+    }),
+
+  updateMessage: (chatId: string, messageId: string, patch: Partial<ChatMessage>) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).map((m) =>
+          m.id === messageId ? { ...m, ...patch } : m,
+        ),
+      },
+    })),
 
   setStreaming: (isStreaming: boolean) =>
     store.setState((state) => ({ ...state, isStreaming })),

@@ -1,13 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/libs/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/libs/display-name';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
 import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
-import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
+import { useMessageFeedback } from '@/routes/chat/_hooks/use-message-feedback';
 import { deriveEmptyStateSuggestions, deriveActiveConversationSuggestions } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
+import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
 import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
 import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
@@ -29,21 +31,49 @@ function HistoryChatSkeleton() {
 
 export function ChatThread() {
   const user = useCurrentUser();
-  const { activeChatId, messages, isStreaming, isPending, sendMessage } = useSendMessage();
+  const { activeChatId, messages, isStreaming, isPending, sendMessage, regenerate } = useSendMessage();
   const { sessions } = useChatSessions();
   const isLoadingMessages = useChatStore((state) => state.isLoadingMessages);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { submitFeedback, removeFeedback } = useMessageFeedback(activeChatId ?? '');
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasMessages = activeChatId !== null && messages.length > 0;
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
+  const hasProcessing = messages.some((m) => m.role === 'assistant' && m.status === 'processing');
+
+  // Poll for processing messages
+  useEffect(() => {
+    if (!activeChatId || !hasProcessing || isStreaming) return;
+
+    pollRef.current = setInterval(async () => {
+      const updated = await chatRepository.listMessages(activeChatId).catch(() => null);
+      if (!updated) return;
+      chatStoreActions.setMessages(activeChatId, updated);
+      const stillProcessing = updated.some((m) => m.role === 'assistant' && m.status === 'processing');
+      if (!stillProcessing && pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    }, 3000);
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [activeChatId, hasProcessing, isStreaming]);
 
   const topics = useMemo(
     () =>
-      hasMessages
-        ? deriveActiveConversationSuggestions(messages)
-        : deriveEmptyStateSuggestions(sessions),
-    [hasMessages, messages, sessions],
+      isStreaming
+        ? []
+        : hasMessages
+          ? deriveActiveConversationSuggestions(messages)
+          : deriveEmptyStateSuggestions(sessions),
+    [isStreaming, hasMessages, messages, sessions],
   );
   const scrollRef = useScrollToBottom(isStreaming, messages.length, hasMessages);
 
@@ -125,6 +155,9 @@ export function ChatThread() {
                     <ChatBubble
                       message={message}
                       isStreaming={isStreaming && i === messages.length - 1 && message.role === 'assistant'}
+                      onRegenerate={regenerate}
+                      onFeedback={submitFeedback}
+                      onRemoveFeedback={removeFeedback}
                     />
                   </motion.div>
                 ))}

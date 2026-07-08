@@ -7,6 +7,7 @@ import { makeDeleteSession } from './chat/delete-session';
 import { makeListMessages } from './chat/list-messages';
 import { makeAddMessage } from './chat/add-message';
 import { makeSendMessage } from './chat/send-message';
+import { makeSaveFeedback, makeDeleteFeedback } from './chat/save-feedback';
 
 // Deps are already request-scoped (repo bound to userId) by the composition root.
 // Rate limiting happens in api/_lib/with-user.ts, before use-cases are built.
@@ -24,6 +25,8 @@ export function buildUseCases({ repo, gateway }: UseCaseDeps) {
     listMessages: makeListMessages(repo),
     addMessage: makeAddMessage(repo),
     sendMessage: makeSendMessage(repo, gateway),
+    saveFeedback: makeSaveFeedback(repo),
+    deleteFeedback: makeDeleteFeedback(repo),
   };
 }
 

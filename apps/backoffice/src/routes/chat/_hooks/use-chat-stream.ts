@@ -14,6 +14,7 @@ export async function streamAssistantReply(chatId: string, content: string, sign
     sessionId: chatId,
     role: 'assistant',
     content: '',
+    status: 'completed',
     createdAt: new Date().toISOString(),
   });
   chatStoreActions.setStreaming(true);
