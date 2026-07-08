@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/libs/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -10,12 +10,49 @@ import { useMessageFeedback } from '@/routes/chat/_hooks/use-message-feedback';
 import { deriveEmptyStateSuggestions, deriveActiveConversationSuggestions } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
 import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
-import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
+import { ChatBubble, StreamingBubble } from '@/routes/chat/_components/chat-bubble';
+import type { ChatMessage, FeedbackValue } from '@/routes/chat/types';
 import { ThinkingUI } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
 import { ChatInput } from '@/routes/chat/_components/chat-input';
 import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
 import { Skeleton } from '@/components/ui/skeleton';
+
+interface HistoryMessageListProps {
+  messages: ChatMessage[];
+  onRegenerate: (id: string) => void;
+  onFeedback: (id: string, value: FeedbackValue) => void;
+  onRemoveFeedback: (id: string) => void;
+}
+
+const HistoryMessageList = memo(function HistoryMessageList({
+  messages,
+  onRegenerate,
+  onFeedback,
+  onRemoveFeedback,
+}: HistoryMessageListProps) {
+  return (
+    <AnimatePresence initial={false}>
+      {messages.map((message) => (
+        <motion.div
+          key={message.id}
+          id={`msg-${message.id}`}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChatBubble
+            message={message}
+            isStreaming={false}
+            onRegenerate={onRegenerate}
+            onFeedback={onFeedback}
+            onRemoveFeedback={onRemoveFeedback}
+          />
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  );
+});
 
 function HistoryChatSkeleton() {
   return (
@@ -38,7 +75,14 @@ export function ChatThread() {
   const { submitFeedback, removeFeedback } = useMessageFeedback(activeChatId ?? '');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const hasMessages = activeChatId !== null && messages.length > 0;
+  const streamingMessageId = useChatStore((state) => state.streamingMessageId);
+
+  const historyMessages = useMemo(
+    () => streamingMessageId ? messages.filter((m) => m.id !== streamingMessageId) : messages,
+    [messages, streamingMessageId],
+  );
+
+  const hasMessages = activeChatId !== null && (historyMessages.length > 0 || isStreaming);
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
   const hasProcessing = messages.some((m) => m.role === 'assistant' && m.status === 'processing');
@@ -157,25 +201,22 @@ export function ChatThread() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { duration: 0.2 } }}
             >
-              <AnimatePresence initial={false}>
-                {messages.map((message, i) => (
-                  <motion.div
-                    key={message.id}
-                    id={`msg-${message.id}`}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChatBubble
-                      message={message}
-                      isStreaming={isStreaming && i === messages.length - 1 && message.role === 'assistant'}
-                      onRegenerate={regenerate}
-                      onFeedback={submitFeedback}
-                      onRemoveFeedback={removeFeedback}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              <HistoryMessageList
+                messages={historyMessages}
+                onRegenerate={regenerate}
+                onFeedback={submitFeedback}
+                onRemoveFeedback={removeFeedback}
+              />
+
+              {isStreaming && !showThinking && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <StreamingBubble />
+                </motion.div>
+              )}
 
               {showThinkingUI && (
                 <motion.div

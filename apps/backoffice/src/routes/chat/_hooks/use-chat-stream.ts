@@ -9,33 +9,55 @@ const EMPTY_MESSAGES: ChatMessage[] = [];
 const errorStore = new Store<string | null>(null);
 
 export async function streamAssistantReply(chatId: string, content: string, signal?: AbortSignal) {
+  const msgId = uuid();
   chatStoreActions.addMessage(chatId, {
-    id: uuid(),
+    id: msgId,
     sessionId: chatId,
     role: 'assistant',
     content: '',
     status: 'completed',
     createdAt: new Date().toISOString(),
   });
+  chatStoreActions.setStreamingMessageId(msgId);
+  chatStoreActions.setStreamingContent('');
   chatStoreActions.setStreaming(true);
   errorStore.setState(() => null);
+
+  let buffer = '';
+  let rafId: number | null = null;
+
+  function flushBuffer() {
+    chatStoreActions.setStreamingContent(buffer);
+    rafId = null;
+  }
+
+  function scheduleFlush() {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(flushBuffer);
+  }
+
   try {
     for await (const chunk of streamChatCompletion(chatId, content, signal)) {
-      const tokens = chunk.split(/(?<=\s)|(?=\s)/);
-      for (const token of tokens) {
-        if (!token) continue;
-        chatStoreActions.appendToLastMessage(chatId, token);
-        await new Promise<void>((r) => setTimeout(r, 0));
-      }
+      buffer += chunk;
+      scheduleFlush();
     }
   } catch (err) {
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
     chatStoreActions.removeLastMessage(chatId);
+    chatStoreActions.setStreamingContent(null);
+    chatStoreActions.setStreamingMessageId(null);
     if (!(err instanceof Error && err.name === 'AbortError')) {
       errorStore.setState(() => 'Something went wrong while replying. Please try again.');
     }
+    return;
   } finally {
     chatStoreActions.setStreaming(false);
   }
+
+  if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+  chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+  chatStoreActions.setStreamingContent(null);
+  chatStoreActions.setStreamingMessageId(null);
 }
 
 export function useChatStream() {

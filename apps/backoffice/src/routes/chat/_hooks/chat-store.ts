@@ -10,6 +10,8 @@ interface ChatState {
   isPending: boolean;
   isLoadingMessages: boolean;
   lastAttempt: { chatId: string; content: string } | null;
+  streamingContent: string | null;
+  streamingMessageId: string | null;
 }
 
 const initialState: ChatState = {
@@ -20,6 +22,8 @@ const initialState: ChatState = {
   isPending: false,
   isLoadingMessages: false,
   lastAttempt: null,
+  streamingContent: null,
+  streamingMessageId: null,
 };
 
 const store = new Store<ChatState>(initialState);
@@ -141,6 +145,12 @@ const actions = {
 
   setLastAttempt: (lastAttempt: { chatId: string; content: string } | null) =>
     store.setState((state) => ({ ...state, lastAttempt })),
+
+  setStreamingContent: (streamingContent: string | null) =>
+    store.setState((state) => ({ ...state, streamingContent })),
+
+  setStreamingMessageId: (streamingMessageId: string | null) =>
+    store.setState((state) => ({ ...state, streamingMessageId })),
 };
 
 export function useChatStore<T>(selector: (state: ChatState & typeof actions) => T): T {

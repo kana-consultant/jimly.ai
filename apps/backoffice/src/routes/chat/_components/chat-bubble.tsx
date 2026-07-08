@@ -1,4 +1,5 @@
 import { memo, useState, useRef, useEffect } from 'react';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -108,6 +109,26 @@ function ActionBar({
       >
         <RefreshCw className="w-3.5 h-3.5" />
       </button>
+    </div>
+  );
+}
+
+export function StreamingBubble() {
+  const content = useChatStore((state) => state.streamingContent ?? '');
+
+  return (
+    <div className="flex w-full gap-3 justify-start">
+      <img
+        src="/logo.png"
+        alt="AI"
+        className="w-7 h-7 rounded-full mt-1 shrink-0"
+      />
+      <div className="flex flex-col items-start max-w-[90%]">
+        <div className="text-base leading-relaxed bg-transparent text-foreground py-1 [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
+          <StreamingText content={content} />
+          <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
+        </div>
+      </div>
     </div>
   );
 }
