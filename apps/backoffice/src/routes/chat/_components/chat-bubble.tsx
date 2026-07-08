@@ -6,6 +6,8 @@ import remarkGfm from 'remark-gfm';
 import { ThumbsUp, ThumbsDown, Copy, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/libs/utils';
 import type { ChatMessage, FeedbackValue } from '@/routes/chat/types';
+import { extractUrls } from '@/routes/chat/_utils/extract-urls';
+import { SourcesModal } from '@/routes/chat/_components/sources-modal';
 
 function StreamingText({ content }: { content: string }) {
   const prevRef = useRef('');
@@ -70,7 +72,8 @@ function ActionBar({
   }
 
   return (
-    <div className="flex items-center gap-0.5 mt-1.5">
+    <div className="flex items-center gap-0.5 mt-1.5 flex-wrap">
+      <SourcesModal urls={extractUrls(message.content)} />
       <button
         onClick={handleCopy}
         title="Copy"
