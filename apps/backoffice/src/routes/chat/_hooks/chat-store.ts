@@ -28,6 +28,20 @@ const initialState: ChatState = {
 
 const store = new Store<ChatState>(initialState);
 
+function mergeMessageArrays(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
+  const byId = new Map(existing.map((m) => [m.id, m]));
+  const merged = incoming.map((m) => {
+    const prev = byId.get(m.id);
+    if (!prev) return m;
+    return prev.content === m.content && prev.status === m.status && prev.feedback === m.feedback
+      ? prev
+      : { ...prev, ...m };
+  });
+  return merged.length === existing.length && merged.every((m, i) => m === existing[i])
+    ? existing
+    : merged;
+}
+
 const actions = {
   setActiveChat: (chatId: string | null) =>
     store.setState((state) => ({ ...state, activeChatId: chatId })),
@@ -65,6 +79,14 @@ const actions = {
       ...state,
       messagesByChatId: { ...state.messagesByChatId, [chatId]: messages },
     })),
+
+  mergeMessages: (chatId: string, incoming: ChatMessage[]) =>
+    store.setState((state) => {
+      const existing = state.messagesByChatId[chatId] ?? [];
+      const merged = mergeMessageArrays(existing, incoming);
+      if (merged === existing) return state;
+      return { ...state, messagesByChatId: { ...state.messagesByChatId, [chatId]: merged } };
+    }),
 
   addMessage: (chatId: string, message: ChatMessage) =>
     store.setState((state) => ({
@@ -112,16 +134,16 @@ const actions = {
       },
     })),
 
-  setMessageFeedback: (messageId: string, value: FeedbackValue | null) =>
-    store.setState((state) => {
-      const updated: Record<string, ChatMessage[]> = {};
-      for (const [chatId, msgs] of Object.entries(state.messagesByChatId)) {
-        updated[chatId] = msgs.map((m) =>
+  setMessageFeedback: (chatId: string, messageId: string, value: FeedbackValue | null) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).map((m) =>
           m.id === messageId ? { ...m, feedback: value ?? undefined } : m,
-        );
-      }
-      return { ...state, messagesByChatId: updated };
-    }),
+        ),
+      },
+    })),
 
   updateMessage: (chatId: string, messageId: string, patch: Partial<ChatMessage>) =>
     store.setState((state) => ({

@@ -83,9 +83,13 @@ export function ChatThread() {
   );
 
   const hasMessages = activeChatId !== null && (historyMessages.length > 0 || isStreaming);
-  const lastMessage = messages[messages.length - 1];
-  const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
-  const hasProcessing = messages.some((m) => m.role === 'assistant' && m.status === 'processing');
+  const { showThinking, hasProcessing } = useMemo(() => {
+    const last = messages.at(-1);
+    return {
+      showThinking: isStreaming && last?.role === 'assistant' && last.content === '',
+      hasProcessing: messages.some((m) => m.role === 'assistant' && m.status === 'processing'),
+    };
+  }, [messages, isStreaming]);
 
   const isWaiting = isPending || showThinking;
   const [showThinkingUI, setShowThinkingUI] = useState(false);
@@ -108,7 +112,7 @@ export function ChatThread() {
     pollRef.current = setInterval(async () => {
       const updated = await chatRepository.listMessages(activeChatId).catch(() => null);
       if (!updated) return;
-      chatStoreActions.setMessages(activeChatId, updated);
+      chatStoreActions.mergeMessages(activeChatId, updated);
       const stillProcessing = updated.some((m) => m.role === 'assistant' && m.status === 'processing');
       if (!stillProcessing && pollRef.current) {
         clearInterval(pollRef.current);

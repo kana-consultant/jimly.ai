@@ -15,16 +15,16 @@ const sendJson = (url: string, method: string, body: unknown) =>
 
 export function useMessageFeedback(sessionId: string) {
   const submitFeedback = useCallback(async (messageId: string, value: FeedbackValue) => {
-    chatStoreActions.setMessageFeedback(messageId, value);
+    chatStoreActions.setMessageFeedback(sessionId, messageId, value);
     try {
       await sendJson(`/api/sessions/${sessionId}/messages/${messageId}/feedback`, 'POST', { value });
     } catch {
-      chatStoreActions.setMessageFeedback(messageId, null);
+      chatStoreActions.setMessageFeedback(sessionId, messageId, null);
     }
   }, [sessionId]);
 
   const removeFeedback = useCallback(async (messageId: string) => {
-    chatStoreActions.setMessageFeedback(messageId, null);
+    chatStoreActions.setMessageFeedback(sessionId, messageId, null);
     try {
       await send(`/api/sessions/${sessionId}/messages/${messageId}/feedback`, 'DELETE');
     } catch {
