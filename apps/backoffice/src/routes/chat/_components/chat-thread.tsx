@@ -68,7 +68,7 @@ function HistoryChatSkeleton() {
 
 export function ChatThread() {
   const user = useCurrentUser();
-  const { activeChatId, messages, isStreaming, isPending, sendMessage, regenerate } = useSendMessage();
+  const { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry, regenerate } = useSendMessage();
   const { sessions } = useChatSessions();
   const isLoadingMessages = useChatStore((state) => state.isLoadingMessages);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -227,6 +227,25 @@ export function ChatThread() {
                   transition={{ duration: 0.2 }}
                 >
                   <ThinkingUI />
+                </motion.div>
+              )}
+
+              {error && (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
+                  <span className="flex-1">{error}</span>
+                  <button
+                    onClick={retry}
+                    className="shrink-0 font-medium underline underline-offset-2 hover:no-underline"
+                  >
+                    Retry
+                  </button>
                 </motion.div>
               )}
             </motion.div>

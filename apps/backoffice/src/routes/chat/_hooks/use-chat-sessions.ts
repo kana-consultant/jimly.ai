@@ -9,7 +9,9 @@ export function useChatSessions() {
   const activeChatId = useChatStore((state) => state.activeChatId);
 
   useEffect(() => {
-    repo.listSessions().then((list) => chatStoreActions.setSessions(list));
+    repo.listSessions()
+      .then((list) => chatStoreActions.setSessions(list))
+      .catch(() => toast.error('Failed to load chat sessions'));
   }, [repo]);
 
   async function selectChat(chatId: string) {
@@ -18,6 +20,8 @@ export function useChatSessions() {
     try {
       const messages = await repo.listMessages(chatId);
       chatStoreActions.setMessages(chatId, messages);
+    } catch {
+      toast.error('Failed to load messages');
     } finally {
       chatStoreActions.setLoadingMessages(false);
     }

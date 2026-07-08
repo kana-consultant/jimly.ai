@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { uuid } from '@/libs/uuid';
 import { useChatStore, chatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
 import { useChatStream, streamAssistantReply } from '@/routes/chat/_hooks/use-chat-stream';
@@ -59,6 +60,7 @@ export function useSendMessage() {
     }
     chatStoreActions.setPending(true);
     persistTurn(repo, chatId, userMessage, now, newSession)
+      .catch(() => toast.error('Failed to save message'))
       .finally(() => chatStoreActions.setPending(false));
     await requestAssistantReply(chatId, content);
   }, [activeChatId, repo]);
