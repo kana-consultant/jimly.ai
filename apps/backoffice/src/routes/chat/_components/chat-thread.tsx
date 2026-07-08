@@ -230,24 +230,6 @@ export function ChatThread() {
                 </motion.div>
               )}
 
-              {error && (
-                <motion.div
-                  key="error"
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-                >
-                  <span className="flex-1">{error}</span>
-                  <button
-                    onClick={retry}
-                    className="shrink-0 font-medium underline underline-offset-2 hover:no-underline"
-                  >
-                    Retry
-                  </button>
-                </motion.div>
-              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -261,6 +243,26 @@ export function ChatThread() {
 
       {hasMessages && (
         <div className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 mb-2 text-sm text-destructive"
+              >
+                <span className="flex-1">{error}</span>
+                <button
+                  onClick={retry}
+                  className="shrink-0 font-medium underline underline-offset-2 hover:no-underline"
+                >
+                  Retry
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <ChatInput
             showSuggestions={showSuggestions}
             onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}
