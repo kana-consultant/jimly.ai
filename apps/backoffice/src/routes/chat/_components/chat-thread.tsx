@@ -11,7 +11,7 @@ import { deriveEmptyStateSuggestions, deriveActiveConversationSuggestions } from
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
 import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
 import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
-import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/streaming-indicator';
+import { ThinkingUI } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
 import { ChatInput } from '@/routes/chat/_components/chat-input';
 import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
@@ -42,6 +42,20 @@ export function ChatThread() {
   const lastMessage = messages[messages.length - 1];
   const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
   const hasProcessing = messages.some((m) => m.role === 'assistant' && m.status === 'processing');
+
+  const isWaiting = isPending || showThinking;
+  const [showThinkingUI, setShowThinkingUI] = useState(false);
+  const thinkingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isWaiting) {
+      thinkingTimer.current = setTimeout(() => setShowThinkingUI(true), 300);
+    } else {
+      if (thinkingTimer.current) clearTimeout(thinkingTimer.current);
+      setShowThinkingUI(false);
+    }
+    return () => { if (thinkingTimer.current) clearTimeout(thinkingTimer.current); };
+  }, [isWaiting]);
 
   // Poll for processing messages
   useEffect(() => {
@@ -163,24 +177,15 @@ export function ChatThread() {
                 ))}
               </AnimatePresence>
 
-              {isPending && !isStreaming && (
+              {showThinkingUI && (
                 <motion.div
+                  key="thinking"
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <MiniSkeleton />
-                </motion.div>
-              )}
-
-              {showThinking && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <StreamingIndicator />
+                  <ThinkingUI />
                 </motion.div>
               )}
             </motion.div>

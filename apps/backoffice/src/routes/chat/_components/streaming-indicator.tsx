@@ -1,51 +1,126 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const THINKING_PHRASES = [
-  'Thinking...',
-  'Still thinking...',
-  'Almost done thinking...',
-  'Just a moment...',
+const STEPS = [
+  { label: 'Reading conversation', delay: 400 },
+  { label: 'Looking through sources', delay: 1400 },
+  { label: 'Formulating answer', delay: 2800 },
 ];
 
-export function StreamingIndicator() {
-  const [phraseIndex, setPhraseIndex] = useState(0);
+const SUBTITLES = [
+  'Analyzing context...',
+  'Processing your request...',
+  'Searching knowledge base...',
+  'Connecting the dots...',
+];
+
+export function ThinkingUI() {
+  const [visibleSteps, setVisibleSteps] = useState(0);
+  const [subtitleIndex, setSubtitleIndex] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setPhraseIndex((i) => (i + 1) % THINKING_PHRASES.length);
-    }, 2000);
+    const timers = STEPS.map((step, i) =>
+      setTimeout(() => setVisibleSteps((n) => Math.max(n, i + 1)), step.delay),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setSubtitleIndex((i) => (i + 1) % SUBTITLES.length), 2000);
     return () => clearInterval(id);
   }, []);
+
+  const allVisible = visibleSteps >= STEPS.length;
 
   return (
     <div className="flex w-full justify-start gap-3 items-start">
       <img src="/logo.png" alt="AI" className="w-7 h-7 rounded-full mt-0.5 shrink-0" />
-      <div className="flex flex-col gap-2 max-w-sm w-full">
-        <span className="text-xs text-muted-foreground/60 italic transition-all duration-300">
-          {THINKING_PHRASES[phraseIndex]}
-        </span>
-        <div className="h-3 rounded-full bg-muted-foreground/15 animate-pulse w-3/4" />
-        <div className="h-3 rounded-full bg-muted-foreground/15 animate-pulse w-full" />
-        <div className="h-3 rounded-full bg-muted-foreground/15 animate-pulse w-2/4" />
+      <div className="flex flex-col gap-1 min-w-0">
+        {/* Header */}
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+          <span className="text-sm font-medium text-foreground">Thinking</span>
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={subtitleIndex}
+            initial={{ opacity: 0, y: 2 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -2 }}
+            transition={{ duration: 0.25 }}
+            className="text-xs text-muted-foreground/70 italic ml-3.5"
+          >
+            {SUBTITLES[subtitleIndex]}
+          </motion.span>
+        </AnimatePresence>
+
+        {/* Divider */}
+        <AnimatePresence>
+          {visibleSteps > 0 && (
+            <motion.div
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="h-px bg-border/60 my-1 origin-left"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Steps */}
+        <div className="flex flex-col gap-0.5">
+          <AnimatePresence>
+            {STEPS.slice(0, visibleSteps).map((step, i) => {
+              const isActive = i === visibleSteps - 1 && !allVisible;
+              const isDone = i < visibleSteps - 1 || allVisible;
+              return (
+                <motion.div
+                  key={step.label}
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-1.5"
+                >
+                  {isDone && !isActive ? (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                      className="text-xs text-emerald-500 font-bold w-3 text-center shrink-0"
+                    >
+                      ✓
+                    </motion.span>
+                  ) : (
+                    <span className="w-3 flex items-center justify-center shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    </span>
+                  )}
+                  <span className={`text-xs ${isDone && !isActive ? 'text-muted-foreground/60' : 'text-muted-foreground'}`}>
+                    {step.label}{isActive ? '...' : ''}
+                  </span>
+                </motion.div>
+              );
+            })}
+
+            {allVisible && (
+              <motion.div
+                key="almost-done"
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-1.5"
+              >
+                <span className="w-3 flex items-center justify-center shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                </span>
+                <span className="text-xs text-muted-foreground">Almost done...</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
 }
 
-export function MiniSkeleton() {
-  return (
-    <div className="flex w-full justify-start gap-3 items-center">
-      <img src="/logo.png" alt="AI" className="w-7 h-7 rounded-full shrink-0" />
-      <div className="flex gap-1.5 items-center py-2">
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
-            style={{ animationDelay: `${i * 0.15}s`, animationDuration: '0.9s' }}
-          />
-        ))}
-        <span className="ml-1 text-xs text-muted-foreground/60 italic">Thinking...</span>
-      </div>
-    </div>
-  );
-}
+export const StreamingIndicator = ThinkingUI;
+export const MiniSkeleton = ThinkingUI;
