@@ -36,22 +36,35 @@ export async function streamAssistantReply(chatId: string, content: string, sign
     rafId = requestAnimationFrame(flushBuffer);
   }
 
+  function abortStream(message: string) {
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    chatStoreActions.removeLastMessage(chatId);
+    chatStoreActions.setStreamingContent(null);
+    chatStoreActions.setStreamingMessageId(null);
+    errorStore.setState(() => message);
+  }
+
   try {
     for await (const chunk of streamChatCompletion(chatId, content, signal)) {
       buffer += chunk;
       scheduleFlush();
     }
   } catch (err) {
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    chatStoreActions.removeLastMessage(chatId);
-    chatStoreActions.setStreamingContent(null);
-    chatStoreActions.setStreamingMessageId(null);
     if (!(err instanceof Error && err.name === 'AbortError')) {
-      errorStore.setState(() => 'Something went wrong while replying. Please try again.');
+      abortStream('Something went wrong while replying. Please try again.');
+    } else {
+      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+      chatStoreActions.setStreamingContent(null);
+      chatStoreActions.setStreamingMessageId(null);
     }
     return;
   } finally {
     chatStoreActions.setStreaming(false);
+  }
+
+  if (!buffer) {
+    abortStream('AI returned an empty response. Please try again.');
+    return;
   }
 
   if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
