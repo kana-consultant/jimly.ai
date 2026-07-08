@@ -1,9 +1,36 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ThumbsUp, ThumbsDown, Copy, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/libs/utils';
 import type { ChatMessage, FeedbackValue } from '@/routes/chat/types';
+
+function StreamingText({ content }: { content: string }) {
+  const prevRef = useRef('');
+  const oldContent = prevRef.current;
+  const newContent = content.slice(oldContent.length);
+
+  useEffect(() => {
+    prevRef.current = content;
+  });
+
+  return (
+    <span className="whitespace-pre-wrap">
+      {oldContent}
+      {newContent && (
+        <motion.span
+          key={content.length}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.12 }}
+        >
+          {newContent}
+        </motion.span>
+      )}
+    </span>
+  );
+}
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -125,7 +152,7 @@ export const ChatBubble = memo(function ChatBubble({ message, isStreaming = fals
             </span>
           ) : isStreaming ? (
             <>
-              <span className="whitespace-pre-wrap">{message.content}</span>
+              <StreamingText content={message.content} />
               <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
             </>
           ) : (
