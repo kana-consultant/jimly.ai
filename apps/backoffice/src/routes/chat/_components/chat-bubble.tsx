@@ -51,13 +51,6 @@ function ActionBar({
         {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
       <button
-        onClick={() => onRegenerate?.(message.id)}
-        title="Regenerate"
-        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-      >
-        <RefreshCw className="w-3.5 h-3.5" />
-      </button>
-      <button
         onClick={() => handleFeedback('up')}
         title="Good response"
         className={cn(
@@ -80,6 +73,13 @@ function ActionBar({
         )}
       >
         <ThumbsDown className="w-3.5 h-3.5" />
+      </button>
+      <button
+        onClick={() => onRegenerate?.(message.id)}
+        title="Regenerate"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
       </button>
     </div>
   );
