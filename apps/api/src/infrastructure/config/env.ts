@@ -16,6 +16,7 @@ const schema = z.object({
   WEB_ORIGIN: optional(z.string().url()),
   COOKIE_DOMAIN: optional(z.string().min(1)),
   VERCEL_URL: optional(z.string().min(1)),
+  VERCEL_BRANCH_URL: optional(z.string().min(1)),
 });
 
 export const env = schema.parse(process.env);

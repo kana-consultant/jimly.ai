@@ -12,6 +12,7 @@ export const auth = betterAuth({
     env.BETTER_AUTH_URL,
     ...(env.WEB_ORIGIN ? [env.WEB_ORIGIN] : []),
     ...(env.VERCEL_URL ? [`https://${env.VERCEL_URL}`] : []),
+    ...(env.VERCEL_BRANCH_URL ? [`https://${env.VERCEL_BRANCH_URL}`] : []),
     ...(!env.WEB_ORIGIN && !env.VERCEL_URL ? ['http://localhost:5173'] : []),
   ],
   ...(env.COOKIE_DOMAIN && {
