@@ -42,7 +42,7 @@ function ActionBar({
   }
 
   return (
-    <div className="flex items-center gap-0.5 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+    <div className="flex items-center gap-0.5 mt-1.5">
       <button
         onClick={handleCopy}
         title="Copy"
@@ -101,7 +101,7 @@ export const ChatBubble = memo(function ChatBubble({ message, isStreaming = fals
           className="w-7 h-7 rounded-full mt-1 shrink-0"
         />
       )}
-      <div className={cn('flex flex-col', isUser ? 'items-end max-w-[80%]' : 'items-start max-w-[90%] group')}>
+      <div className={cn('flex flex-col', isUser ? 'items-end max-w-[80%]' : 'items-start max-w-[90%]')}>
         <div
           className={cn(
             'text-base leading-relaxed',
