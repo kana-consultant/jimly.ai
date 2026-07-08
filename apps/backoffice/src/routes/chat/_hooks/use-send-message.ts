@@ -58,11 +58,8 @@ export function useSendMessage() {
       chatStoreActions.addSession({ ...newSession, userId: '' });
     }
     chatStoreActions.setPending(true);
-    try {
-      await persistTurn(repo, chatId, userMessage, now, newSession);
-    } finally {
-      chatStoreActions.setPending(false);
-    }
+    persistTurn(repo, chatId, userMessage, now, newSession)
+      .finally(() => chatStoreActions.setPending(false));
     await requestAssistantReply(chatId, content);
   }, [activeChatId, repo]);
 
