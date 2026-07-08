@@ -241,7 +241,7 @@ export function ChatThread() {
       )}
 
       {hasMessages && (
-        <div className="absolute inset-x-0 bottom-6 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
+        <div className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
           <ChatInput
             showSuggestions={showSuggestions}
             onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}

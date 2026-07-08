@@ -15,7 +15,7 @@ export function ChatRoute() {
 
         <MobileSidebarOverlay />
 
-        <div className="flex flex-1 flex-col relative">
+        <div className="flex flex-1 flex-col relative min-w-0 overflow-hidden">
           <ChatHeader />
           <ChatThread />
         </div>

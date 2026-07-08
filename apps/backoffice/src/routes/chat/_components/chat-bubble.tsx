@@ -144,7 +144,7 @@ export const ChatBubble = memo(function ChatBubble({ message, isStreaming = fals
   if (isEmpty) return null;
 
   return (
-    <div className={cn('flex w-full gap-3', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('flex w-full gap-3 min-w-0', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
         <img
           src="/logo.png"
@@ -152,13 +152,13 @@ export const ChatBubble = memo(function ChatBubble({ message, isStreaming = fals
           className="w-7 h-7 rounded-full mt-1 shrink-0"
         />
       )}
-      <div className={cn('flex flex-col', isUser ? 'items-end max-w-[80%]' : 'items-start max-w-[90%]')}>
+      <div className={cn('flex flex-col min-w-0', isUser ? 'items-end max-w-[80%]' : 'items-start max-w-[90%]')}>
         <div
           className={cn(
             'text-base leading-relaxed',
             isUser
-              ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-xs font-medium'
-              : 'bg-transparent text-foreground py-1',
+              ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-xs font-medium break-words'
+              : 'bg-transparent text-foreground py-1 break-words',
 
             '[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
             '[&_a]:underline [&_a]:text-chart-5 [&_a]:font-medium hover:[&_a]:opacity-80',

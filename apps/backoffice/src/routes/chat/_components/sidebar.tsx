@@ -28,7 +28,7 @@ export function ChatSidebar() {
       footer={(collapsed) => (
         <div className="flex flex-col gap-3">
           <LogoutButton iconOnly={collapsed} />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-2">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
               {avatarChar}
             </div>
