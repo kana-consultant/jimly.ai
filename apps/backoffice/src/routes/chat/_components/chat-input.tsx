@@ -1,11 +1,13 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import { Send, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/libs/utils';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatError } from '@/routes/chat/_hooks/use-chat-stream';
 
 interface ChatInputProps {
   showSuggestions?: boolean;
@@ -15,19 +17,24 @@ interface ChatInputProps {
 
 const valueStore = new Store('');
 
-let textareaEl: HTMLTextAreaElement | null = null;
-
-function resizeTextarea() {
-  if (!textareaEl) return;
-  textareaEl.style.height = 'auto';
-  textareaEl.style.height = Math.min(textareaEl.scrollHeight, 200) + 'px';
-}
-
 export function ChatInput({ showSuggestions = false, onToggleSuggestions, suggestions }: ChatInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const value = useStore(valueStore, (s) => s);
-  const { activeChatId, messages, isStreaming, error, sendMessage, retry } = useSendMessage();
+  const { sendMessage, retry } = useSendMessage();
+  const isStreaming = useChatStore((s) => s.isStreaming);
+  const error = useChatError();
+  const hasMessages = useChatStore((s) => {
+    const id = s.activeChatId;
+    if (!id) return false;
+    return (s.messagesByChatId[id]?.length ?? 0) > 0;
+  });
 
-  const hasMessages = activeChatId !== null && messages.length > 0;
+  function resizeTextarea() {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,9 +74,7 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
         className="relative rounded-2xl bg-surface shadow-lg transition-shadow duration-200 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20"
       >
         <textarea
-          ref={(el) => {
-            textareaEl = el;
-          }}
+          ref={textareaRef}
           value={value}
           onChange={(e) => {
             valueStore.setState(() => e.target.value);

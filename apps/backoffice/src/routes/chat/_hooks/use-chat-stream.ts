@@ -45,8 +45,18 @@ export async function streamAssistantReply(chatId: string, content: string, sign
     errorStore.setState(() => message);
   }
 
+  if (import.meta.env.DEV) performance.mark(`stream-start-${chatId}`);
+
   try {
+    let firstChunk = true;
     for await (const chunk of streamChatCompletion(chatId, content, signal)) {
+      if (import.meta.env.DEV && firstChunk) {
+        performance.mark(`first-token-${chatId}`);
+        performance.measure('TTFT', `stream-start-${chatId}`, `first-token-${chatId}`);
+        const ttft = performance.getEntriesByName('TTFT').at(-1)?.duration ?? 0;
+        console.debug(`[perf] Time-to-first-token: ${ttft.toFixed(0)}ms`);
+        firstChunk = false;
+      }
       buffer += chunk;
       scheduleFlush();
     }
@@ -68,6 +78,13 @@ export async function streamAssistantReply(chatId: string, content: string, sign
     return;
   }
 
+  if (import.meta.env.DEV) {
+    performance.mark(`stream-end-${chatId}`);
+    performance.measure('StreamDuration', `stream-start-${chatId}`, `stream-end-${chatId}`);
+    const dur = performance.getEntriesByName('StreamDuration').at(-1)?.duration ?? 0;
+    console.debug(`[perf] Total stream duration: ${dur.toFixed(0)}ms`);
+  }
+
   if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
   chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
   chatStoreActions.setStreamingContent(null);
@@ -86,4 +103,8 @@ export function useChatStream() {
   }, [activeChatId]);
 
   return { activeChatId, messages, isStreaming, isPending, error };
+}
+
+export function useChatError() {
+  return useStore(errorStore, (s) => s);
 }
