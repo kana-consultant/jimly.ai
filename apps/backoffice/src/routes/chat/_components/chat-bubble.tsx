@@ -124,7 +124,7 @@ export function StreamingBubble() {
         className="w-7 h-7 rounded-full mt-1 shrink-0"
       />
       <div className="flex flex-col items-start max-w-[90%]">
-        <div className="text-base leading-relaxed bg-transparent text-foreground py-1 [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
+        <div className="text-base leading-relaxed bg-transparent text-foreground py-1 [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_li]:pl-0.5">
           <StreamingText content={content} />
           <span className="inline-block w-0.5 h-4 bg-current opacity-70 animate-pulse ml-0.5 align-middle" />
         </div>
@@ -160,6 +160,7 @@ export const ChatBubble = memo(function ChatBubble({ message, isStreaming = fals
             '[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0',
             '[&_a]:underline [&_a]:text-chart-5 [&_a]:font-medium hover:[&_a]:opacity-80',
             '[&_code]:rounded [&_code]:bg-muted [&_code]:text-foreground [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm',
+            '[&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_li]:pl-0.5',
           )}
         >
           {isProcessing ? (
