@@ -56,7 +56,7 @@ export function Sidebar({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-3">
+      <div className="flex flex-1 flex-col overflow-y-auto px-3 sidebar-scroll">
         {children(isCollapsed, () => setIsCollapsed(false))}
       </div>
 

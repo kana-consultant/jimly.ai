@@ -45,7 +45,7 @@ export function ChatListItem({
             <Button
               variant="ghost"
               size="icon-xs"
-              className="text-muted-foreground hover:text-foreground shrink-0"
+              className="text-muted-foreground hover:text-foreground shrink-0 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 transition-opacity"
               aria-label="Chat options"
             >
               <MoreVertical className="size-3.5" />

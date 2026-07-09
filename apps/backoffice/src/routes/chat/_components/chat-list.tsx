@@ -29,7 +29,7 @@ export function ChatList({
       type="button"
       onClick={newChat}
       aria-label="New chat"
-      className="mb-3 flex w-full items-center rounded-xl bg-primary text-primary-foreground transition-all hover:bg-primary-hover active:scale-[0.98] shadow-sm"
+      className="mb-3 flex w-full items-center rounded-xl bg-primary/75 text-primary-foreground transition-all hover:bg-primary-hover active:scale-[0.98]"
     >
       <span className="flex size-10 shrink-0 items-center justify-center">
         <Plus className="size-4" />
@@ -73,7 +73,7 @@ export function ChatList({
     <div className="flex flex-1 flex-col overflow-hidden">
       {newChatButton}
       <SearchBar query={query} onQueryChange={setQuery} />
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto sidebar-scroll">
         <SessionSection
           icon={Pin}
           label="Pinned"
