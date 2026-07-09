@@ -20,7 +20,7 @@ const valueStore = new Store('');
 export function ChatInput({ showSuggestions = false, onToggleSuggestions, suggestions }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const value = useStore(valueStore, (s) => s);
-  const { sendMessage, retry } = useSendMessage();
+  const { sendMessage, retry, stop } = useSendMessage();
   const isStreaming = useChatStore((s) => s.isStreaming);
   const error = useChatError();
   const hasMessages = useChatStore((s) => {
@@ -101,22 +101,30 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={isStreaming || !value.trim()}
-                  className="rounded-xl h-10 w-10 transition-all duration-200"
-                >
-                  {isStreaming ? (
+                isStreaming ? (
+                  <Button
+                    type="button"
+                    size="icon"
+                    onClick={stop}
+                    className="rounded-xl h-10 w-10 transition-all duration-200"
+                  >
                     <Square className="w-4 h-4 fill-current" />
-                  ) : (
+                    <span className="sr-only">Stop</span>
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!value.trim()}
+                    className="rounded-xl h-10 w-10 transition-all duration-200"
+                  >
                     <Send className="w-4 h-4" />
-                  )}
-                  <span className="sr-only">{isStreaming ? 'Stop' : 'Send'}</span>
-                </Button>
+                    <span className="sr-only">Send</span>
+                  </Button>
+                )
               }
             />
-            <TooltipContent>kirim</TooltipContent>
+            <TooltipContent>{isStreaming ? 'Hentikan' : 'Kirim'}</TooltipContent>
           </Tooltip>
         </div>
       </form>

@@ -81,5 +81,9 @@ export function useSendMessage() {
     void requestAssistantReply(activeChatId, userMsg.content);
   }, [activeChatId]);
 
-  return { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry, regenerate };
+  const stop = useCallback(() => {
+    abortController?.abort();
+  }, []);
+
+  return { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry, regenerate, stop };
 }
