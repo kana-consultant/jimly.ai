@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect } from 'react';
+import { memo, useState, useRef } from 'react';
 import { useChatStore } from '@/routes/chat/_hooks/chat-store';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -13,10 +13,7 @@ function StreamingText({ content }: { content: string }) {
   const prevRef = useRef('');
   const oldContent = prevRef.current;
   const newContent = content.slice(oldContent.length);
-
-  useEffect(() => {
-    prevRef.current = content;
-  });
+  prevRef.current = content;
 
   return (
     <span className="whitespace-pre-wrap">
