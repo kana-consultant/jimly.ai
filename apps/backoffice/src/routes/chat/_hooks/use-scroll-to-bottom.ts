@@ -30,7 +30,7 @@ export function useScrollToBottom(isStreaming: boolean, messageCount: number, ha
         el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
       }
     }
-  });
+  }, [isStreaming, messageCount, hasMessages]);
 
   return scrollRef;
 }
