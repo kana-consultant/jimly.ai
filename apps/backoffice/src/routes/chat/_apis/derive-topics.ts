@@ -5,124 +5,90 @@ interface TopicEntry {
   continuations: string[];
 }
 
-// Each entry maps keyword patterns → 4 likely next-question suggestions for that topic.
-// Patterns are checked against lowercased text; first match wins.
-// Entries are bilingual (Indonesian + English) — Indonesian civic/law topics come first
-// since that is the primary domain of this app.
 const TOPIC_MAP: TopicEntry[] = [
-  // ── Indonesian civic & law topics ────────────────────────────────────────
+  // ── Hukum Tata Negara sebagai Disiplin Ilmu ───────────────────────────────
   {
-    patterns: ['demokrasi', 'demokratis', 'democracy', 'pemilihan umum', 'pemilu', 'voting', 'suara rakyat'],
-    continuations: ['Sistem Pemilihan Umum', 'Hak Pilih Warga Negara', 'Partai Politik', 'Pemisahan Kekuasaan'],
+    patterns: ['hukum tata negara', 'ilmu hukum tata negara', 'disiplin ilmu hukum', 'htn formil', 'htn materiel'],
+    continuations: ['Definisi Hukum Tata Negara', 'HTN vs Hukum Administrasi Negara', 'HTN vs Ilmu Negara', 'Ruang Lingkup Praktik HTN'],
   },
   {
-    patterns: ['hak asasi manusia', 'hak asasi', 'pelanggaran ham', 'hak sipil', 'human rights', 'kebebasan berpendapat', 'ham'],
-    continuations: ['Mekanisme Penegakan HAM', 'Hak Sipil dan Politik', 'HAM dalam Konstitusi', 'Lembaga HAM Nasional'],
+    patterns: ['konstitusi', 'uud 1945', 'undang-undang dasar', 'amandemen', 'amendemen', 'constitution', 'konstitusionalisme'],
+    continuations: ['Sejarah dan Asal-Usul Konstitusi', 'Sifat Konstitusi Rigid vs Flexible', 'Konstitusi Tertulis vs Tidak Tertulis', 'Perubahan UUD 1945'],
   },
   {
-    patterns: ['rekonsiliasi', 'reconciliation', 'amnesti', 'amnesty', 'komisi kebenaran', 'truth commission', 'pemulihan korban'],
-    continuations: ['Mekanisme Amnesti', 'Pemulihan Korban', 'Pertanggungjawaban Pelaku', 'Komisi Kebenaran'],
+    patterns: ['sumber hukum', 'konvensi ketatanegaraan', 'perundang-undangan', 'hierarki norma', 'norma dasar', 'traktat'],
+    continuations: ['Sumber Hukum Tata Negara Indonesia', 'Konvensi Ketatanegaraan', 'Hierarki Peraturan Perundang-undangan', 'Perjanjian Internasional sebagai Sumber HTN'],
   },
   {
-    patterns: ['tata negara', 'konstitusi', 'constitution', 'uud 1945', 'undang-undang dasar', 'mahkamah konstitusi', 'amandemen'],
-    continuations: ['Amendemen Konstitusi', 'Lembaga Negara', 'Hak Warga Negara', 'Mahkamah Konstitusi'],
+    patterns: ['penafsiran', 'tafsir', 'interpretasi konstitusi', 'hermeneutika'],
+    continuations: ['Metode Penafsiran dalam HTN', 'Hermeneutika Hukum', 'Anatomi Tafsir Konstitusi', 'Ragam Pendekatan Interpretasi'],
+  },
+  // ── Organ dan Kekuasaan Negara ────────────────────────────────────────────
+  {
+    patterns: ['pemisahan kekuasaan', 'pembagian kekuasaan', 'lembaga negara', 'trias politica', 'desentralisasi', 'dekonsentrasi'],
+    continuations: ['Pembatasan Kekuasaan Negara', 'Pemisahan vs Pembagian Kekuasaan', 'Desentralisasi dan Dekonsentrasi', 'Organisasi Negara di Era Globalisasi'],
   },
   {
-    patterns: ['hukum pidana', 'hukum perdata', 'yurisprudensi', 'peradilan', 'pengadilan', 'jaksa', 'hakim', 'vonis'],
-    continuations: ['Hukum Pidana vs Perdata', 'Sistem Peradilan', 'Proses Persidangan', 'Yurisprudensi'],
+    patterns: ['legislatif', 'dpr', 'dpd', 'mpr', 'parlemen', 'bikameral', 'dua kamar', 'fungsi legislasi'],
+    continuations: ['Fungsi Kekuasaan Legislatif', 'Bikameralisme di Indonesia', 'Fungsi Pengawasan Parlemen', 'Fungsi Representasi'],
   },
   {
-    patterns: ['hukum', 'peraturan', 'undang-undang', 'perundang-undangan', 'regulasi', 'law', 'legal', 'legislation'],
-    continuations: ['Hierarki Peraturan', 'Penegakan Hukum', 'Pembentukan Undang-Undang', 'Sanksi Hukum'],
+    patterns: ['eksekutif', 'presiden', 'menteri', 'kabinet', 'kewenangan menteri'],
+    continuations: ['Sistem Kekuasaan Eksekutif', 'Kewenangan Menteri untuk Mengatur', 'Struktur Kementerian Negara', 'Pergeseran Kekuasaan Eksekutif'],
   },
   {
-    patterns: ['pancasila', 'ideologi negara', 'bhineka tunggal ika', 'gotong royong', 'persatuan indonesia'],
-    continuations: ['Implementasi Pancasila', 'Nilai-Nilai Kebangsaan', 'Toleransi Beragama', 'Gotong Royong'],
+    patterns: ['yudikatif', 'mahkamah konstitusi', 'mahkamah agung', 'kekuasaan kehakiman', 'pengujian undang-undang', 'judicial review'],
+    continuations: ['Kekuasaan Kehakiman', 'Mahkamah Konstitusi dan Pengujian UU', 'Independensi Peradilan', 'Sengketa Kewenangan Lembaga Negara'],
+  },
+  // ── Sistem Pemerintahan ───────────────────────────────────────────────────
+  {
+    patterns: ['presidensialisme', 'parlementarisme', 'sistem pemerintahan', 'presidential', 'parliamentary'],
+    continuations: ['Presidensialisme vs Parlementarisme', 'Sistem Presidensial Indonesia', 'Perbandingan Sistem Pemerintahan', 'Pilihan Desain Ketatanegaraan'],
+  },
+  // ── Demokrasi ─────────────────────────────────────────────────────────────
+  {
+    patterns: ['demokrasi', 'nomokrasi', 'democratic', 'kedaulatan rakyat', 'supremasi hukum'],
+    continuations: ['Demokrasi dan Nomokrasi', 'Kedaulatan Rakyat', 'Supremasi Hukum', 'Syarat Menuju Indonesia Baru'],
   },
   {
-    patterns: ['pemerintah', 'pemerintahan', 'kebijakan publik', 'public policy', 'legislatif', 'eksekutif', 'yudikatif', 'desentralisasi'],
-    continuations: ['Sistem Pemerintahan', 'Kebijakan Publik', 'Akuntabilitas Pemerintah', 'Otonomi Daerah'],
+    patterns: ['pemilihan umum', 'pemilu', 'sistem pemilu', 'proporsional', 'distrik', 'sengketa pemilu', 'penyelenggara pemilu'],
+    continuations: ['Tujuan Penyelenggaraan Pemilu', 'Sistem Pemilu Proporsional vs Distrik', 'Sengketa Hasil Pemilu', 'Penyelenggara Pemilu'],
   },
   {
-    patterns: ['korupsi', 'corruption', 'kpk', 'suap', 'gratifikasi', 'pencucian uang', 'money laundering'],
-    continuations: ['Pemberantasan Korupsi', 'Peran KPK', 'Gratifikasi dan Suap', 'Whistleblower Protection'],
+    patterns: ['partai politik', 'parpol', 'pelembagaan demokrasi', 'fungsi partai'],
+    continuations: ['Fungsi Partai Politik', 'Kelemahan Partai Politik', 'Partai dan Pemilu', 'Pelembagaan Demokrasi'],
+  },
+  // ── HAM dan Kewarganegaraan ───────────────────────────────────────────────
+  {
+    patterns: ['hak asasi manusia', 'hak asasi', 'human rights', 'kebebasan', 'hak sipil', 'kewajiban asasi', 'ham'],
+    continuations: ['HAM dalam UUD 1945', 'Kewajiban Asasi Manusia', 'Dimensi Konseptual HAM', 'Pemajuan HAM Dewasa Ini'],
   },
   {
-    patterns: ['kewarganegaraan', 'citizenship', 'hak warga negara', 'kewajiban warga', 'naturalisasi'],
-    continuations: ['Hak dan Kewajiban WNI', 'Proses Naturalisasi', 'Kehilangan Kewarganegaraan', 'Dwi Kewarganegaraan'],
+    patterns: ['kewarganegaraan', 'warga negara', 'naturalisasi', 'citizenship', 'dwi kewarganegaraan'],
+    continuations: ['Warga Negara vs Penduduk', 'Prinsip Dasar Kewarganegaraan', 'Perolehan dan Kehilangan Kewarganegaraan', 'Dwi Kewarganegaraan'],
+  },
+  // ── Topik Khusus ──────────────────────────────────────────────────────────
+  {
+    patterns: ['rekonsiliasi', 'amnesti', 'komisi kebenaran', 'pemulihan korban', 'reconciliation'],
+    continuations: ['Rekonsiliasi Nasional', 'Mekanisme Amnesti', 'Komisi Kebenaran', 'Pemulihan Korban'],
   },
   {
-    patterns: ['ham internasional', 'hukum internasional', 'international law', 'pbb', 'united nations', 'konvensi internasional', 'mahkamah internasional'],
-    continuations: ['Konvensi HAM Internasional', 'Peran PBB', 'Mahkamah Internasional', 'Ratifikasi Perjanjian'],
-  },
-
-  // ── Tech topics (English) ─────────────────────────────────────────────────
-  {
-    patterns: ['jwt', 'refresh token', 'access token', 'logout', 'login', 'oauth', 'credential', 'password', 'session', 'auth'],
-    continuations: ['Role-Based Authorization', 'JWT Security Best Practices', 'Access Token Expiration', 'Secure Logout Flow'],
+    patterns: ['konstitusi ekonomi', 'konstitusi politik', 'sistem ekonomi', 'ekonomi konstitusi'],
+    continuations: ['Konstitusi Politik vs Konstitusi Ekonomi', 'Sistem Ekonomi dalam UUD', 'Dimensi Ekonomi HTN', 'Kajian Konstitusi Ekonomi'],
   },
   {
-    patterns: ['prompt engineering', 'prompt', 'llm', 'ai agent', 'claude', 'gpt', 'model', 'inference', 'embedding', 'rag', 'retrieval'],
-    continuations: ['Context Window', 'Memory Management', 'RAG Integration', 'Prompt Optimization'],
-  },
-  {
-    patterns: ['react', 'component', 'usestate', 'useeffect', 'hook', 'jsx', 'tsx', 'vite', 'next.js', 'nextjs'],
-    continuations: ['Custom Hooks', 'Performance Optimization', 'State Management', 'Component Testing'],
-  },
-  {
-    patterns: ['rest api', 'endpoint', 'http request', 'fetch', 'axios', 'api route', 'graphql', 'trpc'],
-    continuations: ['Error Handling', 'Rate Limiting', 'API Authentication', 'Response Caching'],
-  },
-  {
-    patterns: ['database', 'sql', 'query', 'schema', 'migration', 'postgres', 'mysql', 'prisma', 'drizzle', 'orm'],
-    continuations: ['Database Indexing', 'Query Optimization', 'Schema Design', 'Data Migrations'],
-  },
-  {
-    patterns: ['typescript', 'interface', 'generic', 'enum', 'union', 'zod', 'type-safe'],
-    continuations: ['Generic Types', 'Type Guards', 'Schema Validation', 'Utility Types'],
-  },
-  {
-    patterns: ['unit test', 'integration test', 'e2e', 'vitest', 'jest', 'playwright', 'mock'],
-    continuations: ['Test Coverage', 'Mocking Strategies', 'E2E Testing', 'Test-Driven Development'],
-  },
-  {
-    patterns: ['deploy', 'docker', 'ci/cd', 'kubernetes', 'aws', 'vercel', 'nginx', 'pipeline', 'container'],
-    continuations: ['CI/CD Setup', 'Container Orchestration', 'Environment Variables', 'Zero-Downtime Deploy'],
-  },
-  {
-    patterns: ['performance', 'cache', 'optimize', 'memory leak', 'latency', 'bundle size', 'lazy load'],
-    continuations: ['Caching Strategy', 'Code Splitting', 'Lazy Loading', 'Performance Profiling'],
-  },
-  {
-    patterns: ['security', 'vulnerability', 'xss', 'csrf', 'injection', 'sanitize', 'encrypt', 'hash'],
-    continuations: ['Input Validation', 'CORS Configuration', 'Secret Management', 'Security Headers'],
-  },
-  {
-    patterns: ['git', 'branch', 'merge', 'rebase', 'pull request', 'conflict', 'commit'],
-    continuations: ['Branching Strategy', 'Code Review Process', 'Merge Conflicts', 'Git Workflows'],
-  },
-  {
-    patterns: ['debug', 'error', 'bug', 'exception', 'crash', 'stack trace'],
-    continuations: ['Root Cause Analysis', 'Error Handling', 'Logging Strategy', 'Reproduce the Bug'],
-  },
-  {
-    patterns: ['design', 'ui', 'ux', 'layout', 'typography', 'accessibility', 'tailwind'],
-    continuations: ['Responsive Design', 'Accessibility Standards', 'Design System', 'User Testing'],
-  },
-  {
-    patterns: ['algorithm', 'data structure', 'complexity', 'sorting', 'graph', 'tree', 'hash map'],
-    continuations: ['Time Complexity', 'Space Optimization', 'Edge Cases', 'Real-World Application'],
-  },
-  {
-    patterns: ['microservice', 'monolith', 'architecture', 'event', 'queue', 'message broker'],
-    continuations: ['Service Communication', 'Data Consistency', 'Fault Tolerance', 'Observability'],
+    patterns: ['pancasila', 'ideologi negara', 'dasar negara', 'bhineka tunggal ika', 'gotong royong'],
+    continuations: ['Pancasila sebagai Dasar Negara', 'Nilai-Nilai Kebangsaan', 'Ideologi Negara', 'Implementasi Pancasila'],
   },
 ];
 
-export const DEFAULT_TOPICS = ['Jelaskan', 'Bandingkan', 'Ringkaskan', 'Berikan Contoh'];
+export const DEFAULT_TOPICS = [
+  'Apa itu Hukum Tata Negara?',
+  'Bagaimana kekuasaan negara dibatasi?',
+  'Apa fungsi partai politik dalam demokrasi?',
+  'Apa itu demokrasi dan nomokrasi?',
+];
 
-// Precompile short-pattern regexes once at module init.
-// ponytail: avoids new RegExp() on every detectContinuations() call
 const COMPILED_MAP = TOPIC_MAP.map((entry) => ({
   matchers: entry.patterns.map((p): RegExp | string =>
     p.length <= 4 ? new RegExp(`\\b${p}\\b`) : p,
@@ -130,8 +96,6 @@ const COMPILED_MAP = TOPIC_MAP.map((entry) => ({
   continuations: entry.continuations,
 }));
 
-// Short patterns (≤4 chars) use word-boundary regex to avoid false positives
-// e.g. "ham" should not match inside "muhammad" or "graham".
 function detectContinuations(text: string): string[] | null {
   const lower = text.toLowerCase();
   for (const entry of COMPILED_MAP) {
@@ -143,8 +107,6 @@ function detectContinuations(text: string): string[] | null {
   return null;
 }
 
-// Empty state: no active conversation. Use the most recent session title to
-// infer what the user is likely to continue exploring next.
 export function deriveEmptyStateSuggestions(
   sessions: Pick<ChatSession, 'title' | 'updatedAt'>[],
 ): string[] {
@@ -157,8 +119,6 @@ export function deriveEmptyStateSuggestions(
   return detectContinuations(latest.title) ?? DEFAULT_TOPICS;
 }
 
-// Active conversation: scan the last 3 user messages for topic, then return
-// suggestions the user has not already asked about.
 export function deriveActiveConversationSuggestions(
   messages: { role: string; content: string }[],
 ): string[] {
