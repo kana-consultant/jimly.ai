@@ -54,21 +54,6 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
 
   return (
     <div className={cn('w-full', hasMessages && 'pb-2')}>
-      {error && (
-        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-destructive/10 px-4 py-2.5 text-sm text-destructive shadow-sm">
-          <span className="font-medium">{error}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 hover:bg-destructive/20 text-destructive font-semibold"
-            onClick={retry}
-          >
-            Retry
-          </Button>
-        </div>
-      )}
-
       <form
         onSubmit={handleSubmit}
         className="relative rounded-2xl bg-surface shadow-lg transition-shadow duration-200 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20"
