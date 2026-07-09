@@ -1,19 +1,58 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/libs/utils';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { getDisplayName } from '@/libs/display-name';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
 import { useChatSessions } from '@/routes/chat/_hooks/use-chat-sessions';
-import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
+import { useMessageFeedback } from '@/routes/chat/_hooks/use-message-feedback';
 import { deriveEmptyStateSuggestions, deriveActiveConversationSuggestions } from '@/routes/chat/_apis/derive-topics';
 import { useScrollToBottom } from '@/routes/chat/_hooks/use-scroll-to-bottom';
-import { ChatBubble } from '@/routes/chat/_components/chat-bubble';
-import { StreamingIndicator, MiniSkeleton } from '@/routes/chat/_components/streaming-indicator';
+import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
+import { ChatBubble, StreamingBubble } from '@/routes/chat/_components/chat-bubble';
+import type { ChatMessage, FeedbackValue } from '@/routes/chat/types';
+import { ThinkingUI } from '@/routes/chat/_components/streaming-indicator';
 import { SuggestedTopics } from '@/routes/chat/_components/suggested-topics';
 import { ChatInput } from '@/routes/chat/_components/chat-input';
 import { ChatTopicNav } from '@/routes/chat/_components/chat-topic-nav';
 import { Skeleton } from '@/components/ui/skeleton';
+
+interface HistoryMessageListProps {
+  messages: ChatMessage[];
+  onRegenerate: (id: string) => void;
+  onFeedback: (id: string, value: FeedbackValue) => void;
+  onRemoveFeedback: (id: string) => void;
+}
+
+const HistoryMessageList = memo(function HistoryMessageList({
+  messages,
+  onRegenerate,
+  onFeedback,
+  onRemoveFeedback,
+}: HistoryMessageListProps) {
+  return (
+    <AnimatePresence initial={false}>
+      {messages.map((message) => (
+        <motion.div
+          key={message.id}
+          id={`msg-${message.id}`}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChatBubble
+            message={message}
+            isStreaming={false}
+            onRegenerate={onRegenerate}
+            onFeedback={onFeedback}
+            onRemoveFeedback={onRemoveFeedback}
+          />
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  );
+});
 
 function HistoryChatSkeleton() {
   return (
@@ -29,21 +68,74 @@ function HistoryChatSkeleton() {
 
 export function ChatThread() {
   const user = useCurrentUser();
-  const { activeChatId, messages, isStreaming, isPending, sendMessage } = useSendMessage();
+  const { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry, regenerate } = useSendMessage();
   const { sessions } = useChatSessions();
   const isLoadingMessages = useChatStore((state) => state.isLoadingMessages);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { submitFeedback, removeFeedback } = useMessageFeedback(activeChatId ?? '');
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const hasMessages = activeChatId !== null && messages.length > 0;
-  const lastMessage = messages[messages.length - 1];
-  const showThinking = isStreaming && lastMessage?.role === 'assistant' && lastMessage.content === '';
+  const streamingMessageId = useChatStore((state) => state.streamingMessageId);
+
+  const historyMessages = useMemo(
+    () => streamingMessageId ? messages.filter((m) => m.id !== streamingMessageId) : messages,
+    [messages, streamingMessageId],
+  );
+
+  const hasMessages = activeChatId !== null && (historyMessages.length > 0 || isStreaming);
+  const { showThinking, hasProcessing } = useMemo(() => {
+    const last = messages.at(-1);
+    return {
+      showThinking: isStreaming && last?.role === 'assistant' && last.content === '',
+      hasProcessing: messages.some((m) => m.role === 'assistant' && m.status === 'processing'),
+    };
+  }, [messages, isStreaming]);
+
+  const isWaiting = isPending || showThinking;
+  const [showThinkingUI, setShowThinkingUI] = useState(false);
+  const thinkingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isWaiting) {
+      thinkingTimer.current = setTimeout(() => setShowThinkingUI(true), 300);
+    } else {
+      if (thinkingTimer.current) clearTimeout(thinkingTimer.current);
+      setShowThinkingUI(false);
+    }
+    return () => { if (thinkingTimer.current) clearTimeout(thinkingTimer.current); };
+  }, [isWaiting]);
+
+  // Poll for processing messages
+  useEffect(() => {
+    if (!activeChatId || !hasProcessing || isStreaming) return;
+
+    pollRef.current = setInterval(async () => {
+      const updated = await chatRepository.listMessages(activeChatId).catch(() => null);
+      if (!updated) return;
+      chatStoreActions.mergeMessages(activeChatId, updated);
+      const stillProcessing = updated.some((m) => m.role === 'assistant' && m.status === 'processing');
+      if (!stillProcessing && pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    }, 3000);
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [activeChatId, hasProcessing, isStreaming]);
 
   const topics = useMemo(
     () =>
-      hasMessages
-        ? deriveActiveConversationSuggestions(messages)
-        : deriveEmptyStateSuggestions(sessions),
-    [hasMessages, messages, sessions],
+      isStreaming
+        ? []
+        : hasMessages
+          ? deriveActiveConversationSuggestions(messages)
+          : deriveEmptyStateSuggestions(sessions),
+    [isStreaming, hasMessages, messages, sessions],
   );
   const scrollRef = useScrollToBottom(isStreaming, messages.length, hasMessages);
 
@@ -113,43 +205,35 @@ export function ChatThread() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { duration: 0.2 } }}
             >
-              <AnimatePresence initial={false}>
-                {messages.map((message, i) => (
-                  <motion.div
-                    key={message.id}
-                    id={`msg-${message.id}`}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChatBubble
-                      message={message}
-                      isStreaming={isStreaming && i === messages.length - 1 && message.role === 'assistant'}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              <HistoryMessageList
+                messages={historyMessages}
+                onRegenerate={regenerate}
+                onFeedback={submitFeedback}
+                onRemoveFeedback={removeFeedback}
+              />
 
-              {isPending && !isStreaming && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <MiniSkeleton />
-                </motion.div>
-              )}
-
-              {showThinking && (
+              {isStreaming && !showThinking && (
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <StreamingIndicator />
+                  <StreamingBubble />
                 </motion.div>
               )}
+
+              {showThinkingUI && (
+                <motion.div
+                  key="thinking"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ThinkingUI />
+                </motion.div>
+              )}
+
             </motion.div>
           )}
         </AnimatePresence>
@@ -162,7 +246,27 @@ export function ChatThread() {
       )}
 
       {hasMessages && (
-        <div className="absolute inset-x-0 bottom-6 mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
+        <div className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] mx-auto w-full max-w-2xl px-4 z-10 flex flex-col items-center">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 mb-2 text-sm text-destructive"
+              >
+                <span className="flex-1">{error}</span>
+                <button
+                  onClick={retry}
+                  className="shrink-0 font-medium underline underline-offset-2 hover:no-underline"
+                >
+                  Retry
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <ChatInput
             showSuggestions={showSuggestions}
             onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}

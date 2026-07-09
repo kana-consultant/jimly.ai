@@ -1,46 +1,41 @@
+import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
-import { chatRepository } from '@/routes/chat/_apis/chat-repository-instance';
-
-let sessionsLoaded = false;
+import { useChatRepository } from '@/routes/chat/_apis/chat-repository-context';
 
 export function useChatSessions() {
+  const repo = useChatRepository();
   const sessions = useChatStore((state) => state.sessions);
   const activeChatId = useChatStore((state) => state.activeChatId);
-  const setSessions = useChatStore((state) => state.setSessions);
-  const setActiveChat = useChatStore((state) => state.setActiveChat);
-  const setMessages = useChatStore((state) => state.setMessages);
-  const removeSession = useChatStore((state) => state.removeSession);
-  const togglePinSession = useChatStore((state) => state.togglePinSession);
-  const renameSession = useChatStore((state) => state.renameSession);
 
-  if (!sessionsLoaded) {
-    sessionsLoaded = true;
-    chatRepository.listSessions().then((list) => {
-      setSessions(list);
-    });
-  }
+  useEffect(() => {
+    repo.listSessions()
+      .then((list) => chatStoreActions.setSessions(list))
+      .catch(() => toast.error('Failed to load chat sessions'));
+  }, [repo]);
 
   async function selectChat(chatId: string) {
-    setActiveChat(chatId);
+    chatStoreActions.setActiveChat(chatId);
     chatStoreActions.setLoadingMessages(true);
     try {
-      const messages = await chatRepository.listMessages(chatId);
-      setMessages(chatId, messages);
+      const messages = await repo.listMessages(chatId);
+      chatStoreActions.setMessages(chatId, messages);
+    } catch {
+      toast.error('Failed to load messages');
     } finally {
       chatStoreActions.setLoadingMessages(false);
     }
   }
 
   function newChat() {
-    setActiveChat(null);
+    chatStoreActions.setActiveChat(null);
   }
 
   async function deleteChat(chatId: string) {
     try {
-      await chatRepository.deleteSession(chatId);
-      removeSession(chatId);
-      if (activeChatId === chatId) setActiveChat(null);
+      await repo.deleteSession(chatId);
+      chatStoreActions.removeSession(chatId);
+      if (activeChatId === chatId) chatStoreActions.setActiveChat(null);
       toast.success('Chat deleted');
     } catch {
       toast.error('Failed to delete chat');
@@ -51,11 +46,11 @@ export function useChatSessions() {
     const session = sessions.find((s) => s.id === chatId);
     if (!session) return;
     const prevPinned = session.pinned;
-    togglePinSession(chatId);
+    chatStoreActions.togglePinSession(chatId);
     try {
-      await chatRepository.updateSession(chatId, { pinned: !prevPinned });
+      await repo.updateSession(chatId, { pinned: !prevPinned });
     } catch {
-      togglePinSession(chatId); // rollback
+      chatStoreActions.togglePinSession(chatId); // rollback
       toast.error('Failed to toggle pin');
     }
   }
@@ -64,12 +59,12 @@ export function useChatSessions() {
     const session = sessions.find((s) => s.id === chatId);
     if (!session) return;
     const prevTitle = session.title;
-    renameSession(chatId, title);
+    chatStoreActions.renameSession(chatId, title);
     try {
-      await chatRepository.updateSession(chatId, { title });
+      await repo.updateSession(chatId, { title });
       toast.success('Chat renamed');
     } catch {
-      renameSession(chatId, prevTitle); // rollback
+      chatStoreActions.renameSession(chatId, prevTitle); // rollback
       toast.error('Failed to rename chat');
     }
   }

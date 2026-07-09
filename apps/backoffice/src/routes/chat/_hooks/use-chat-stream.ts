@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
 import { uuid } from '@/libs/uuid';
@@ -9,32 +10,96 @@ const EMPTY_MESSAGES: ChatMessage[] = [];
 const errorStore = new Store<string | null>(null);
 
 export async function streamAssistantReply(chatId: string, content: string, signal?: AbortSignal) {
+  const msgId = uuid();
   chatStoreActions.addMessage(chatId, {
-    id: uuid(),
+    id: msgId,
     sessionId: chatId,
     role: 'assistant',
     content: '',
+    status: 'completed',
     createdAt: new Date().toISOString(),
   });
+  chatStoreActions.setStreamingMessageId(msgId);
+  chatStoreActions.setStreamingContent('');
   chatStoreActions.setStreaming(true);
   errorStore.setState(() => null);
+
+  let buffer = '';
+  let rafId: number | null = null;
+
+  function flushBuffer() {
+    chatStoreActions.setStreamingContent(buffer);
+    rafId = null;
+  }
+
+  function scheduleFlush() {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(flushBuffer);
+  }
+
+  function abortStream(message: string) {
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    chatStoreActions.removeLastMessage(chatId);
+    chatStoreActions.setStreamingContent(null);
+    chatStoreActions.setStreamingMessageId(null);
+    errorStore.setState(() => message);
+  }
+
+  if (import.meta.env.DEV) performance.mark(`stream-start-${chatId}`);
+
   try {
+    let firstChunk = true;
     for await (const chunk of streamChatCompletion(chatId, content, signal)) {
-      const tokens = chunk.split(/(?<=\s)|(?=\s)/);
-      for (const token of tokens) {
-        if (!token) continue;
-        chatStoreActions.appendToLastMessage(chatId, token);
-        await new Promise<void>((r) => setTimeout(r, 0));
+      if (import.meta.env.DEV && firstChunk) {
+        performance.mark(`first-token-${chatId}`);
+        performance.measure('TTFT', `stream-start-${chatId}`, `first-token-${chatId}`);
+        const ttft = performance.getEntriesByName('TTFT').at(-1)?.duration ?? 0;
+        console.debug(`[perf] Time-to-first-token: ${ttft.toFixed(0)}ms`);
+        firstChunk = false;
       }
+      buffer += chunk;
+      scheduleFlush();
     }
   } catch (err) {
-    chatStoreActions.removeLastMessage(chatId);
-    if (!(err instanceof Error && err.name === 'AbortError')) {
-      errorStore.setState(() => 'Something went wrong while replying. Please try again.');
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    chatStoreActions.setStreamingContent(null);
+    chatStoreActions.setStreamingMessageId(null);
+
+    if (err instanceof Error && err.name === 'AbortError') {
+      // User clicked Stop — commit whatever was generated, remove message if nothing yet
+      if (buffer) {
+        chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+      } else {
+        chatStoreActions.removeLastMessage(chatId);
+      }
+    } else if (buffer) {
+      // Network/timeout interrupt with partial content — commit it, show soft warning
+      chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+      errorStore.setState(() => 'Response may be incomplete.');
+    } else {
+      abortStream('Something went wrong while replying. Please try again.');
     }
+    return;
   } finally {
     chatStoreActions.setStreaming(false);
   }
+
+  if (!buffer) {
+    abortStream('AI returned an empty response. Please try again.');
+    return;
+  }
+
+  if (import.meta.env.DEV) {
+    performance.mark(`stream-end-${chatId}`);
+    performance.measure('StreamDuration', `stream-start-${chatId}`, `stream-end-${chatId}`);
+    const dur = performance.getEntriesByName('StreamDuration').at(-1)?.duration ?? 0;
+    console.debug(`[perf] Total stream duration: ${dur.toFixed(0)}ms`);
+  }
+
+  if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+  chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+  chatStoreActions.setStreamingContent(null);
+  chatStoreActions.setStreamingMessageId(null);
 }
 
 export function useChatStream() {
@@ -44,5 +109,13 @@ export function useChatStream() {
   const isPending = useChatStore((state) => state.isPending);
   const error = useStore(errorStore, (s) => s);
 
+  useEffect(() => {
+    errorStore.setState(() => null);
+  }, [activeChatId]);
+
   return { activeChatId, messages, isStreaming, isPending, error };
+}
+
+export function useChatError() {
+  return useStore(errorStore, (s) => s);
 }

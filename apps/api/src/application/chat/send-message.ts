@@ -9,6 +9,11 @@ export interface SendMessageInput {
   content: string;
 }
 
+export interface SendMessageResult {
+  stream: ReadableStream<Uint8Array>;
+  backgroundSave: Promise<void>;
+}
+
 async function callGateway<T>(fn: () => Promise<T>, msg: string): Promise<T> {
   try {
     return await fn();
@@ -30,38 +35,41 @@ async function resolveOrCreatePerfect10Session(
   return pid;
 }
 
-function persistReplyOnComplete(
-  upstream: ReadableStream<Uint8Array>,
+async function consumeStreamAndSave(
+  stream: ReadableStream<Uint8Array>,
   onComplete: (fullText: string) => Promise<void>,
-): ReadableStream<Uint8Array> {
+  onError: () => Promise<void>,
+): Promise<void> {
   const decoder = new TextDecoder();
+  const reader = stream.getReader();
   let buffer = '';
   let fullText = '';
-
-  return upstream.pipeThrough(
-    new TransformStream<Uint8Array, Uint8Array>({
-      transform(chunk, controller) {
-        controller.enqueue(chunk);
-        const { lines, remainder } = splitSseLines(buffer, decoder.decode(chunk, { stream: true }));
-        buffer = remainder;
-        for (const line of lines) {
-          if (!line.startsWith('data:')) continue;
-          const data = line.slice(5).trim();
-          if (!data || data === '[DONE]') continue;
-          const delta = parseDeltaContent(data);
-          if (delta) fullText += delta;
-        }
-      },
-      async flush() {
-        if (fullText) await onComplete(fullText);
-      },
-    }),
-  );
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const { lines, remainder } = splitSseLines(buffer, decoder.decode(value, { stream: true }));
+      buffer = remainder;
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if (!data || data === '[DONE]') continue;
+        const delta = parseDeltaContent(data);
+        if (delta) fullText += delta;
+      }
+    }
+    if (fullText) await onComplete(fullText);
+    else await onError().catch(() => {});
+  } catch {
+    await onError().catch(() => {});
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 export const makeSendMessage =
   (repo: ChatRepository, gateway: AiGateway) =>
-  async (input: SendMessageInput, ctx: AuthedContext): Promise<ReadableStream<Uint8Array>> => {
+  async (input: SendMessageInput, ctx: AuthedContext): Promise<SendMessageResult> => {
     const [pid] = await Promise.all([
       resolveOrCreatePerfect10Session(repo, gateway, input.chatId, ctx.origin),
       repo.addMessage({
@@ -69,6 +77,7 @@ export const makeSendMessage =
         sessionId: input.chatId,
         role: 'user',
         content: input.content,
+        status: 'completed',
         createdAt: new Date().toISOString(),
       }),
     ]);
@@ -83,13 +92,29 @@ export const makeSendMessage =
       'Failed to stream reply',
     );
 
-    return persistReplyOnComplete(upstream, (fullText) =>
-      repo.addMessage({
-        id: crypto.randomUUID(),
+    const assistantMessageId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const [clientStream, saveStream] = upstream.tee();
+
+    // Don't await — chains into backgroundSave so the update only runs after insert.
+    // Saves ~30-50ms TTFB on every request; safe because streaming takes seconds.
+    const backgroundSave = repo
+      .addMessage({
+        id: assistantMessageId,
         sessionId: input.chatId,
         role: 'assistant',
-        content: fullText,
-        createdAt: new Date().toISOString(),
-      }),
-    );
+        content: '',
+        status: 'processing',
+        createdAt: now,
+      })
+      .then(() =>
+        consumeStreamAndSave(
+          saveStream,
+          (fullText) => repo.updateMessage(assistantMessageId, { content: fullText, status: 'completed' }),
+          () => repo.updateMessage(assistantMessageId, { status: 'failed' }),
+        ),
+      );
+
+    return { stream: clientStream, backgroundSave };
   };

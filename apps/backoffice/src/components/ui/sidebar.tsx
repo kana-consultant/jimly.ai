@@ -56,12 +56,12 @@ export function Sidebar({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-3">
+      <div className="flex flex-1 flex-col overflow-y-auto px-3 sidebar-scroll">
         {children(isCollapsed, () => setIsCollapsed(false))}
       </div>
 
       {footer && (
-        <div className="flex shrink-0 flex-col px-3 pb-3 pt-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+        <div className="flex shrink-0 flex-col px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
           {footer(isCollapsed)}
         </div>
       )}

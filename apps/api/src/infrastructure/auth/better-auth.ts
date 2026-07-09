@@ -8,7 +8,13 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'pg', schema: authSchema }),
   emailAndPassword: { enabled: true },
   rateLimit: { enabled: false },
-  trustedOrigins: [env.BETTER_AUTH_URL, ...(env.WEB_ORIGIN ? [env.WEB_ORIGIN] : ['http://localhost:5173'])],
+  trustedOrigins: [
+    env.BETTER_AUTH_URL,
+    ...(env.WEB_ORIGIN ? [env.WEB_ORIGIN] : []),
+    ...(env.VERCEL_URL ? [`https://${env.VERCEL_URL}`] : []),
+    ...(env.VERCEL_BRANCH_URL ? [`https://${env.VERCEL_BRANCH_URL}`] : []),
+    ...(!env.WEB_ORIGIN && !env.VERCEL_URL ? ['http://localhost:5173'] : []),
+  ],
   ...(env.COOKIE_DOMAIN && {
     advanced: {
       crossSubDomainCookies: { enabled: true, domain: env.COOKIE_DOMAIN },

@@ -1,5 +1,7 @@
+import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { uuid } from '@/libs/uuid';
-import { useChatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
+import { useChatStore, chatStore, chatStoreActions } from '@/routes/chat/_hooks/chat-store';
 import { useChatStream, streamAssistantReply } from '@/routes/chat/_hooks/use-chat-stream';
 import { generateChatTitle } from '@/routes/chat/_apis/generate-chat-title';
 import { useChatRepository } from '@/routes/chat/_apis/chat-repository-context';
@@ -34,15 +36,21 @@ export function useSendMessage() {
   const { activeChatId, messages, isStreaming, isPending, error } = useChatStream();
   const lastAttempt = useChatStore((state) => state.lastAttempt);
 
-
-  async function sendMessage(content: string) {
+  const sendMessage = useCallback(async (content: string) => {
     const isNewChat = activeChatId === null;
     const chatId = activeChatId ?? uuid();
     const now = new Date().toISOString();
 
     if (isNewChat) chatStoreActions.setActiveChat(chatId);
 
-    const userMessage = { id: uuid(), sessionId: chatId, role: 'user' as const, content, createdAt: now };
+    const userMessage: ChatMessage = {
+      id: uuid(),
+      sessionId: chatId,
+      role: 'user',
+      content,
+      status: 'completed',
+      createdAt: now,
+    };
     chatStoreActions.addMessage(chatId, userMessage);
 
     let newSession: NewChatSession | undefined;
@@ -51,18 +59,31 @@ export function useSendMessage() {
       chatStoreActions.addSession({ ...newSession, userId: '' });
     }
     chatStoreActions.setPending(true);
-    try {
-      await persistTurn(repo, chatId, userMessage, now, newSession);
-    } finally {
-      chatStoreActions.setPending(false);
-    }
+    persistTurn(repo, chatId, userMessage, now, newSession)
+      .catch(() => toast.error('Failed to save message'))
+      .finally(() => chatStoreActions.setPending(false));
     await requestAssistantReply(chatId, content);
-  }
+  }, [activeChatId, repo]);
 
-  function retry() {
+  const retry = useCallback(() => {
     if (!lastAttempt) return;
     void requestAssistantReply(lastAttempt.chatId, lastAttempt.content);
-  }
+  }, [lastAttempt]);
 
-  return { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry };
+  const regenerate = useCallback((assistantMessageId: string) => {
+    if (!activeChatId) return;
+    const msgs = chatStore.state.messagesByChatId[activeChatId] ?? [];
+    const idx = msgs.findIndex((m) => m.id === assistantMessageId);
+    if (idx === -1) return;
+    const userMsg = msgs.slice(0, idx).findLast((m) => m.role === 'user');
+    if (!userMsg) return;
+    chatStoreActions.removeMessage(activeChatId, assistantMessageId);
+    void requestAssistantReply(activeChatId, userMsg.content);
+  }, [activeChatId]);
+
+  const stop = useCallback(() => {
+    abortController?.abort();
+  }, []);
+
+  return { activeChatId, messages, isStreaming, isPending, error, sendMessage, retry, regenerate, stop };
 }

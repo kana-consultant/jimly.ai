@@ -1,11 +1,13 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import { type ReactNode } from 'react';
+import { type ReactNode, useRef } from 'react';
 import { Send, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/libs/utils';
 import { useSendMessage } from '@/routes/chat/_hooks/use-send-message';
+import { useChatStore } from '@/routes/chat/_hooks/chat-store';
+import { useChatError } from '@/routes/chat/_hooks/use-chat-stream';
 
 interface ChatInputProps {
   showSuggestions?: boolean;
@@ -15,19 +17,24 @@ interface ChatInputProps {
 
 const valueStore = new Store('');
 
-let textareaEl: HTMLTextAreaElement | null = null;
-
-function resizeTextarea() {
-  if (!textareaEl) return;
-  textareaEl.style.height = 'auto';
-  textareaEl.style.height = Math.min(textareaEl.scrollHeight, 200) + 'px';
-}
-
 export function ChatInput({ showSuggestions = false, onToggleSuggestions, suggestions }: ChatInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const value = useStore(valueStore, (s) => s);
-  const { activeChatId, messages, isStreaming, error, sendMessage, retry } = useSendMessage();
+  const { sendMessage, retry, stop } = useSendMessage();
+  const isStreaming = useChatStore((s) => s.isStreaming);
+  const error = useChatError();
+  const hasMessages = useChatStore((s) => {
+    const id = s.activeChatId;
+    if (!id) return false;
+    return (s.messagesByChatId[id]?.length ?? 0) > 0;
+  });
 
-  const hasMessages = activeChatId !== null && messages.length > 0;
+  function resizeTextarea() {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,29 +54,12 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
 
   return (
     <div className={cn('w-full', hasMessages && 'pb-2')}>
-      {error && (
-        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-destructive/10 px-4 py-2.5 text-sm text-destructive shadow-sm">
-          <span className="font-medium">{error}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 hover:bg-destructive/20 text-destructive font-semibold"
-            onClick={retry}
-          >
-            Retry
-          </Button>
-        </div>
-      )}
-
       <form
         onSubmit={handleSubmit}
         className="relative rounded-2xl bg-surface shadow-lg transition-shadow duration-200 focus-within:shadow-xl focus-within:ring-2 focus-within:ring-primary/20"
       >
         <textarea
-          ref={(el) => {
-            textareaEl = el;
-          }}
+          ref={textareaRef}
           value={value}
           onChange={(e) => {
             valueStore.setState(() => e.target.value);
@@ -111,22 +101,30 @@ export function ChatInput({ showSuggestions = false, onToggleSuggestions, sugges
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={isStreaming || !value.trim()}
-                  className="rounded-xl h-10 w-10 transition-all duration-200"
-                >
-                  {isStreaming ? (
+                isStreaming ? (
+                  <Button
+                    type="button"
+                    size="icon"
+                    onClick={stop}
+                    className="rounded-xl h-10 w-10 transition-all duration-200"
+                  >
                     <Square className="w-4 h-4 fill-current" />
-                  ) : (
+                    <span className="sr-only">Stop</span>
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!value.trim()}
+                    className="rounded-xl h-10 w-10 transition-all duration-200"
+                  >
                     <Send className="w-4 h-4" />
-                  )}
-                  <span className="sr-only">{isStreaming ? 'Stop' : 'Send'}</span>
-                </Button>
+                    <span className="sr-only">Send</span>
+                  </Button>
+                )
               }
             />
-            <TooltipContent>kirim</TooltipContent>
+            <TooltipContent>{isStreaming ? 'Hentikan' : 'Kirim'}</TooltipContent>
           </Tooltip>
         </div>
       </form>

@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatSession, NewChatSession } from './chat';
+import type { ChatMessage, ChatSession, MessageFeedback, NewChatSession } from './chat';
 
 export interface ChatRepository {
   listSessions(): Promise<ChatSession[]>;
@@ -7,6 +7,10 @@ export interface ChatRepository {
   deleteSession(id: string): Promise<void>;
   listMessages(sessionId: string): Promise<ChatMessage[]>;
   addMessage(message: ChatMessage): Promise<void>;
+  updateMessage(id: string, patch: { content?: string; status?: string }): Promise<void>;
   getPerfect10SessionId(sessionId: string): Promise<string | null>;
   setPerfect10SessionId(sessionId: string, perfect10SessionId: string): Promise<void>;
+  upsertFeedback(feedback: MessageFeedback): Promise<void>;
+  deleteFeedback(messageId: string, userId: string): Promise<void>;
+  listFeedbackByUser(messageIds: string[]): Promise<MessageFeedback[]>;
 }

@@ -15,6 +15,8 @@ const schema = z.object({
   UPSTASH_REDIS_REST_TOKEN: optional(z.string().min(1)),
   WEB_ORIGIN: optional(z.string().url()),
   COOKIE_DOMAIN: optional(z.string().min(1)),
+  VERCEL_URL: optional(z.string().min(1)),
+  VERCEL_BRANCH_URL: optional(z.string().min(1)),
 });
 
 export const env = schema.parse(process.env);

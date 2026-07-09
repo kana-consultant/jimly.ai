@@ -1,29 +1,26 @@
-import { Pin } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { ChatListItem } from '@/routes/chat/_components/chat-list-item';
 import type { ChatSession } from '@/routes/chat/types';
 
-export function PinnedSection({
-  sessions,
-  activeChatId,
-  onSelect,
-  onTogglePin,
-  onDelete,
-  onRename,
-}: {
+interface SessionSectionProps {
+  icon: LucideIcon;
+  label: string;
   sessions: ChatSession[];
   activeChatId: string | null;
   onSelect: (chatId: string) => void;
   onTogglePin: (chatId: string) => void;
   onDelete: (chatId: string) => void;
   onRename: (chatId: string) => void;
-}) {
+}
+
+export function SessionSection({ icon: Icon, label, sessions, activeChatId, onSelect, onTogglePin, onDelete, onRename }: SessionSectionProps) {
   if (sessions.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-1">
       <p className="flex items-center gap-1.5 px-2 text-xs font-medium text-sidebar-foreground/60">
-        <Pin className="size-3.5" />
-        Pinned
+        <Icon className="size-3.5" />
+        {label}
       </p>
       {sessions.map((session) => (
         <ChatListItem

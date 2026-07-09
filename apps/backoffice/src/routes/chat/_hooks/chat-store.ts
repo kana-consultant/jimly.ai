@@ -1,6 +1,6 @@
 import { Store } from '@tanstack/store';
 import { useStore } from '@tanstack/react-store';
-import type { ChatMessage, ChatSession } from '@/routes/chat/types';
+import type { ChatMessage, ChatSession, FeedbackValue } from '@/routes/chat/types';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -10,6 +10,8 @@ interface ChatState {
   isPending: boolean;
   isLoadingMessages: boolean;
   lastAttempt: { chatId: string; content: string } | null;
+  streamingContent: string | null;
+  streamingMessageId: string | null;
 }
 
 const initialState: ChatState = {
@@ -20,9 +22,25 @@ const initialState: ChatState = {
   isPending: false,
   isLoadingMessages: false,
   lastAttempt: null,
+  streamingContent: null,
+  streamingMessageId: null,
 };
 
 const store = new Store<ChatState>(initialState);
+
+function mergeMessageArrays(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
+  const byId = new Map(existing.map((m) => [m.id, m]));
+  const merged = incoming.map((m) => {
+    const prev = byId.get(m.id);
+    if (!prev) return m;
+    return prev.content === m.content && prev.status === m.status && prev.feedback === m.feedback
+      ? prev
+      : { ...prev, ...m };
+  });
+  return merged.length === existing.length && merged.every((m, i) => m === existing[i])
+    ? existing
+    : merged;
+}
 
 const actions = {
   setActiveChat: (chatId: string | null) =>
@@ -62,6 +80,14 @@ const actions = {
       messagesByChatId: { ...state.messagesByChatId, [chatId]: messages },
     })),
 
+  mergeMessages: (chatId: string, incoming: ChatMessage[]) =>
+    store.setState((state) => {
+      const existing = state.messagesByChatId[chatId] ?? [];
+      const merged = mergeMessageArrays(existing, incoming);
+      if (merged === existing) return state;
+      return { ...state, messagesByChatId: { ...state.messagesByChatId, [chatId]: merged } };
+    }),
+
   addMessage: (chatId: string, message: ChatMessage) =>
     store.setState((state) => ({
       ...state,
@@ -99,6 +125,37 @@ const actions = {
       };
     }),
 
+  removeMessage: (chatId: string, messageId: string) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).filter((m) => m.id !== messageId),
+      },
+    })),
+
+  setMessageFeedback: (chatId: string, messageId: string, value: FeedbackValue | null) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).map((m) =>
+          m.id === messageId ? { ...m, feedback: value ?? undefined } : m,
+        ),
+      },
+    })),
+
+  updateMessage: (chatId: string, messageId: string, patch: Partial<ChatMessage>) =>
+    store.setState((state) => ({
+      ...state,
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [chatId]: (state.messagesByChatId[chatId] ?? []).map((m) =>
+          m.id === messageId ? { ...m, ...patch } : m,
+        ),
+      },
+    })),
+
   setStreaming: (isStreaming: boolean) =>
     store.setState((state) => ({ ...state, isStreaming })),
 
@@ -110,6 +167,12 @@ const actions = {
 
   setLastAttempt: (lastAttempt: { chatId: string; content: string } | null) =>
     store.setState((state) => ({ ...state, lastAttempt })),
+
+  setStreamingContent: (streamingContent: string | null) =>
+    store.setState((state) => ({ ...state, streamingContent })),
+
+  setStreamingMessageId: (streamingMessageId: string | null) =>
+    store.setState((state) => ({ ...state, streamingMessageId })),
 };
 
 export function useChatStore<T>(selector: (state: ChatState & typeof actions) => T): T {
