@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import { useSession } from '@/libs/auth/client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -71,14 +71,37 @@ function AuthPageSkeleton() {
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { data, isPending } = useSession();
-  if (isPending && !data) return <ChatPageSkeleton />;
-  if (!data) return <Navigate to="/login" replace />;
+  const initializedRef = useRef(false);
+  const lastDataRef = useRef(data);
+
+  if (!isPending) {
+    initializedRef.current = true;
+    lastDataRef.current = data;
+  }
+
+  if (!initializedRef.current) return <ChatPageSkeleton />;
+
+  // During background refetch, trust last known session to avoid flash
+  const effectiveData = isPending ? lastDataRef.current : data;
+
+  if (!effectiveData) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 export function RedirectIfAuth({ children }: { children: ReactNode }) {
   const { data, isPending } = useSession();
-  if (isPending && !data) return <AuthPageSkeleton />;
-  if (data) return <Navigate to="/chat" replace />;
+  const initializedRef = useRef(false);
+  const lastDataRef = useRef(data);
+
+  if (!isPending) {
+    initializedRef.current = true;
+    lastDataRef.current = data;
+  }
+
+  if (!initializedRef.current) return <AuthPageSkeleton />;
+
+  const effectiveData = isPending ? lastDataRef.current : data;
+
+  if (effectiveData) return <Navigate to="/chat" replace />;
   return <>{children}</>;
 }

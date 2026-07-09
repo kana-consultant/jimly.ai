@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, useOutlet, useLocation } from 'react-router';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Toaster } from 'sonner';
 import { LoginRoute } from './routes/login';
 import { RegisterRoute } from './routes/register';
@@ -12,9 +12,11 @@ function AuthLayout() {
   const element = useOutlet();
   return (
     <RedirectIfAuth>
-      <AnimatePresence mode="wait" initial={false}>
-        {element && React.cloneElement(element, { key: location.pathname })}
-      </AnimatePresence>
+      <LayoutGroup>
+        <AnimatePresence mode="sync" initial={false}>
+          {element && React.cloneElement(element, { key: location.pathname })}
+        </AnimatePresence>
+      </LayoutGroup>
     </RedirectIfAuth>
   );
 }
