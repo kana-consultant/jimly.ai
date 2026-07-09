@@ -61,12 +61,23 @@ export async function streamAssistantReply(chatId: string, content: string, sign
       scheduleFlush();
     }
   } catch (err) {
-    if (!(err instanceof Error && err.name === 'AbortError')) {
-      abortStream('Something went wrong while replying. Please try again.');
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    chatStoreActions.setStreamingContent(null);
+    chatStoreActions.setStreamingMessageId(null);
+
+    if (err instanceof Error && err.name === 'AbortError') {
+      // User clicked Stop — commit whatever was generated, remove message if nothing yet
+      if (buffer) {
+        chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+      } else {
+        chatStoreActions.removeLastMessage(chatId);
+      }
+    } else if (buffer) {
+      // Network/timeout interrupt with partial content — commit it, show soft warning
+      chatStoreActions.updateMessage(chatId, msgId, { content: buffer });
+      errorStore.setState(() => 'Response may be incomplete.');
     } else {
-      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-      chatStoreActions.setStreamingContent(null);
-      chatStoreActions.setStreamingMessageId(null);
+      abortStream('Something went wrong while replying. Please try again.');
     }
     return;
   } finally {
