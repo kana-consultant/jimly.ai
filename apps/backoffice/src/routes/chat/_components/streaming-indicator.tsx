@@ -22,20 +22,19 @@ export function ThinkingUI() {
   const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
-    const timers = STEPS.map((step, i) =>
+    const stepTimers = STEPS.map((step, i) =>
       setTimeout(() => setVisibleSteps((n) => Math.max(n, i + 1)), step.delay),
     );
-    return () => timers.forEach(clearTimeout);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setSubtitleIndex((i) => (i + 1) % SUBTITLES.length), 2000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setElapsed((s) => s + 1), 1000);
-    return () => clearInterval(id);
+    let tick = 0;
+    const intervalId = setInterval(() => {
+      tick++;
+      setElapsed(tick);
+      if (tick % 2 === 0) setSubtitleIndex((i) => (i + 1) % SUBTITLES.length);
+    }, 1000);
+    return () => {
+      stepTimers.forEach(clearTimeout);
+      clearInterval(intervalId);
+    };
   }, []);
 
   const allVisible = visibleSteps >= STEPS.length;
