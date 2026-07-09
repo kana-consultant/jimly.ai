@@ -121,17 +121,23 @@ const TOPIC_MAP: TopicEntry[] = [
 
 export const DEFAULT_TOPICS = ['Jelaskan', 'Bandingkan', 'Ringkaskan', 'Berikan Contoh'];
 
-// Shared: find continuations by scanning text against topic patterns.
-// Returns null when no topic is detected so callers can apply fallbacks.
+// Precompile short-pattern regexes once at module init.
+// ponytail: avoids new RegExp() on every detectContinuations() call
+const COMPILED_MAP = TOPIC_MAP.map((entry) => ({
+  matchers: entry.patterns.map((p): RegExp | string =>
+    p.length <= 4 ? new RegExp(`\\b${p}\\b`) : p,
+  ),
+  continuations: entry.continuations,
+}));
+
 // Short patterns (≤4 chars) use word-boundary regex to avoid false positives
 // e.g. "ham" should not match inside "muhammad" or "graham".
 function detectContinuations(text: string): string[] | null {
   const lower = text.toLowerCase();
-  for (const entry of TOPIC_MAP) {
-    const matched = entry.patterns.some((p) => {
-      if (p.length <= 4) return new RegExp(`\\b${p}\\b`).test(lower);
-      return lower.includes(p);
-    });
+  for (const entry of COMPILED_MAP) {
+    const matched = entry.matchers.some((m) =>
+      typeof m === 'string' ? lower.includes(m) : m.test(lower),
+    );
     if (matched) return entry.continuations;
   }
   return null;
