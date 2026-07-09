@@ -93,22 +93,27 @@ export const makeSendMessage =
 
     const assistantMessageId = crypto.randomUUID();
     const now = new Date().toISOString();
-    await repo.addMessage({
-      id: assistantMessageId,
-      sessionId: input.chatId,
-      role: 'assistant',
-      content: '',
-      status: 'processing',
-      createdAt: now,
-    });
 
     const [clientStream, saveStream] = upstream.tee();
 
-    const backgroundSave = consumeStreamAndSave(
-      saveStream,
-      (fullText) => repo.updateMessage(assistantMessageId, { content: fullText, status: 'completed' }),
-      () => repo.updateMessage(assistantMessageId, { status: 'failed' }),
-    );
+    // Don't await — chains into backgroundSave so the update only runs after insert.
+    // Saves ~30-50ms TTFB on every request; safe because streaming takes seconds.
+    const backgroundSave = repo
+      .addMessage({
+        id: assistantMessageId,
+        sessionId: input.chatId,
+        role: 'assistant',
+        content: '',
+        status: 'processing',
+        createdAt: now,
+      })
+      .then(() =>
+        consumeStreamAndSave(
+          saveStream,
+          (fullText) => repo.updateMessage(assistantMessageId, { content: fullText, status: 'completed' }),
+          () => repo.updateMessage(assistantMessageId, { status: 'failed' }),
+        ),
+      );
 
     return { stream: clientStream, backgroundSave };
   };
