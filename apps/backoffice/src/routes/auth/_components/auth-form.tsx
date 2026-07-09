@@ -38,13 +38,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Name — register only, expands/collapses */}
       <AnimatePresence initial={false}>
         {isRegister && (
           <motion.div key="name" {...fieldAnim} style={{ overflow: 'hidden' }}>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={`${uid}-name`} className="text-sm font-medium text-foreground">
+            <div className="flex flex-col gap-2">
+              <label htmlFor={`${uid}-name`} className="text-base font-medium text-foreground">
                 Name
               </label>
               <Input
@@ -55,6 +55,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 onChange={(e) => setName(e.target.value)}
                 required={isRegister}
                 autoComplete="name"
+                className="h-12 text-base"
               />
             </div>
           </motion.div>
@@ -62,8 +63,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </AnimatePresence>
 
       {/* Email — always mounted */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${uid}-email`} className="text-sm font-medium text-foreground">
+      <div className="flex flex-col gap-2">
+        <label htmlFor={`${uid}-email`} className="text-base font-medium text-foreground">
           Email
         </label>
         <Input
@@ -74,12 +75,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
+          className="h-12 text-base"
         />
       </div>
 
       {/* Password — always mounted */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${uid}-password`} className="text-sm font-medium text-foreground">
+      <div className="flex flex-col gap-2">
+        <label htmlFor={`${uid}-password`} className="text-base font-medium text-foreground">
           Password
         </label>
         <PasswordInput
@@ -89,6 +91,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete={isRegister ? 'new-password' : 'current-password'}
+          className="h-12 text-base"
         />
       </div>
 
@@ -102,7 +105,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </motion.p>
       )}
 
-      <Button type="submit" disabled={isSubmitting} className="w-full mt-1">
+      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full mt-2">
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={`${mode}-${isSubmitting}`}

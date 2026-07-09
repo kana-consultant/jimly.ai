@@ -28,12 +28,12 @@ const fadeTiny = {
 const SegmentedControl = memo(function SegmentedControl({ mode }: { mode: Mode }) {
   return (
     <LayoutGroup id="auth-tabs">
-      <div className="mb-8 flex gap-1 rounded-full bg-muted p-1">
+      <div className="mb-9 flex gap-1 rounded-full bg-muted p-1">
         {TABS.map((tab) => (
           <Link
             key={tab.key}
             to={tab.to}
-            className="relative flex-1 rounded-full py-2 text-center text-sm font-medium"
+            className="relative flex-1 rounded-full py-2.5 text-center text-sm font-medium"
           >
             {mode === tab.key && (
               <motion.span
@@ -73,17 +73,17 @@ export function AuthPage({ mode }: { mode: Mode }) {
 
       {/* Right panel */}
       <div className="flex-1 md:w-1/2">
-        <div className="flex h-full w-full flex-col justify-center bg-background px-8 py-14 sm:px-14">
-          <div className="mx-auto w-full max-w-sm">
+        <div className="flex h-full w-full flex-col justify-center bg-background px-10 py-16 sm:px-16">
+          <div className="mx-auto w-full max-w-md">
             <SegmentedControl mode={mode} />
 
             {/* Animated heading / subtitle */}
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div key={mode} {...fadeTiny} className="mb-7">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              <motion.div key={mode} {...fadeTiny} className="mb-8">
+                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
                   {rc.heading}
                 </h1>
-                <p className="mt-1.5 text-sm text-muted-foreground">{rc.sub}</p>
+                <p className="mt-1.5 text-base text-muted-foreground">{rc.sub}</p>
               </motion.div>
             </AnimatePresence>
 
