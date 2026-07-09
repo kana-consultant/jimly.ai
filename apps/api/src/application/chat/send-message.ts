@@ -59,6 +59,7 @@ async function consumeStreamAndSave(
       }
     }
     if (fullText) await onComplete(fullText);
+    else await onError().catch(() => {});
   } catch {
     await onError().catch(() => {});
   } finally {
